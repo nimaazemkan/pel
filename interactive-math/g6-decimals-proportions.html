@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>کارگاه تقسیم اعشار و محاسبات اعشاری — سازنده: نیما آزمکان</title>
+  <style>
+    :root{
+      --bg1: #1e1b4b;
+      --bg2: #0f172a;
+      --card: rgba(255, 255, 255, 0.08);
+      --stroke: rgba(255, 255, 255, 0.15);
+      --text: #f8fafc;
+      --muted: rgba(248, 250, 252, 0.75);
+      --accent: #a855f7;
+      --accent2: #38bdf8;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: radial-gradient(1000px 600px at 15% 15%, rgba(168, 85, 247, 0.25), transparent 60%),
+                  radial-gradient(900px 600px at 85% 25%, rgba(56, 189, 248, 0.2), transparent 60%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+      padding-bottom: 30px;
+    }
+    .topbar{
+      max-width: 1150px; margin: 0 auto; padding: 20px 18px 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
+    }
+    .brand h1{
+      margin: 0; font-size: 20px; font-weight: 900;
+      background: linear-gradient(90deg, #a855f7, #38bdf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .badge{
+      display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke); padding: 8px 14px; border-radius: 999px; font-size: 13px;
+    }
+    main{
+      max-width: 1150px; margin: 0 auto; padding: 10px 18px 30px;
+      display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 20px;
+    }
+    @media (max-width: 900px){ main{ grid-template-columns: 1fr; } }
+    .card{
+      background: var(--card); border: 1px solid var(--stroke); border-radius: 20px;
+      box-shadow: var(--shadow); backdrop-filter: blur(12px); overflow: hidden;
+    }
+    .cardHeader{
+      padding: 14px 18px; border-bottom: 1px solid var(--stroke);
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(0,0,0,0.15); flex-wrap: wrap;
+    }
+    .cardHeader .title{ font-weight: 800; font-size: 15px; color: var(--accent); }
+    .controls{ display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    select, button{
+      font-family: inherit; border-radius: 12px; border: 1px solid var(--stroke); background: rgba(0,0,0,0.3);
+      color: var(--text); padding: 8px 12px; font-size: 13px; cursor: pointer;
+    }
+    .btn-primary{ background: linear-gradient(135deg, #a855f7, #6366f1); border: none; color: #fff; font-weight: 800; }
+    .content{ padding: 20px; }
+    .instruction{
+      background: rgba(168, 85, 247, 0.1); border-right: 4px solid var(--accent);
+      padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.8; margin-bottom: 20px; color: var(--muted);
+    }
+    .op-nav-pills{
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
+      background: rgba(0,0,0,0.25); padding: 6px; border-radius: 14px; border: 1px solid var(--stroke);
+    }
+    .op-pill-btn{
+      background: transparent; border: 1px solid transparent; color: var(--muted);
+      padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .op-pill-btn:hover{ color: #fff; background: rgba(255,255,255,0.05); }
+    .op-pill-btn.active{ background: var(--accent); color: #fff; font-weight: 800; }
+
+    .math-canvas{
+      background: rgba(0,0,0,0.25); border: 1px solid var(--stroke); border-radius: 16px;
+      padding: 24px; display: flex; flex-direction: column; gap: 20px; align-items: center; direction: ltr;
+    }
+    .problem-row{ font-size: 30px; font-weight: 900; letter-spacing: 2px; }
+
+    .step-card{
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--stroke);
+      border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s;
+    }
+    .step-card.active{ background: rgba(168, 85, 247, 0.08); border-color: var(--accent); }
+    .step-header{ display: flex; justify-content: space-between; align-items: center; direction: rtl; font-size: 13px; font-weight: 800; color: var(--accent); }
+    .step-flow{ display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; flex-wrap: wrap; }
+
+    .box-sq{
+      width: 120px; height: 48px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4); color: #fff; font-size: 22px; font-weight: 900; text-align: center; outline: none;
+    }
+    .box-sq:focus{ border-color: var(--accent); box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25); }
+    .box-sq.ok{ border-color: var(--good) !important; background: rgba(34, 197, 94, 0.2) !important; color: #4ade80 !important; }
+    .box-sq.bad{ border-color: var(--bad) !important; background: rgba(239, 68, 68, 0.25) !important; color: #f87171 !important; }
+
+    .side-panel{ padding: 20px; }
+    .info-box{ background: rgba(255,255,255,0.05); border: 1px solid var(--stroke); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .info-box h3{ margin: 0 0 10px; font-size: 14px; color: var(--accent); }
+    .chart-container{ display: flex; align-items: flex-end; justify-content: space-around; height: 120px; border-bottom: 1px solid var(--stroke); margin-bottom: 10px; }
+    .bar-wrapper{ display: flex; flex-direction: column; align-items: center; gap: 6px; width: 45%; height: 100%; justify-content: flex-end; }
+    .bar{ width: 100%; max-width: 40px; border-radius: 8px 8px 0 0; min-height: 4px; }
+    .bar-good{ background: linear-gradient(180deg, #4ade80, #16a34a); }
+    .bar-bad{ background: linear-gradient(180deg, #f87171, #dc2626); }
+    .bar-label{ font-size: 11px; color: var(--muted); }
+    .bar-val{ font-size: 12px; font-weight: bold; }
+    .gauge-box{ text-align: center; }
+    .gauge-val{ font-size: 26px; font-weight: 900; color: var(--accent); }
+
+    .confetti-container{ position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti-piece{ position: absolute; width: 10px; height: 14px; border-radius: 2px; animation: fall 2s ease-out forwards; }
+    @keyframes fall{ 0%{ transform: translateY(-20px); opacity:1; } 100%{ transform: translateY(105vh) rotate(720deg); opacity:0; } }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><h1>کارگاه تقسیم و محاسبات اعشاری (پایه ششم)</h1></div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <div class="badge">دانش‌آموز: <strong id="studentName">تیزهوش ششم</strong></div>
+    <div class="badge">طراح: <strong>نیما آزمکان</strong></div>
+  </div>
+</div>
+
+<main>
+  <section class="card">
+    <div class="cardHeader">
+      <div class="title">مسئله اعشاری</div>
+      <div class="controls">
+        <select id="diffSelect">
+          <option value="easy">آسان (یک رقم اعشار)</option>
+          <option value="medium" selected>متوسط (دو رقم اعشار)</option>
+          <option value="hard">سخت (تقسیم اعشار بر اعشار)</option>
+        </select>
+        <button class="btn-primary" id="newBtn">مسئله جدید 🎲</button>
+        <button id="resetBtn">پاک کردن 🔄</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="op-nav-pills" id="opNavPills">
+        <button type="button" class="op-pill-btn active" data-mode="div_dec">➗ تقسیم اعشار بر اعشار (حذف ممیز)</button>
+        <button type="button" class="op-pill-btn" data-mode="mul_dec">✖️ ضرب اعداد اعشاری</button>
+        <button type="button" class="op-pill-btn" data-mode="powers">⚡ ضرب و تقسیم در ۱۰، ۱۰۰، ۱۰۰۰</button>
+        <button type="button" class="op-pill-btn" data-mode="round">🎯 تقریب (گرد کردن و قطع کردن)</button>
+      </div>
+
+      <div class="instruction" id="instructionText">
+        مرحله اول ممیز مقسوم‌علیه را با ضرب در ۱۰ یا ۱۰۰ حذف کنید و سپس خارج‌قسمت را حساب کنید.
+      </div>
+
+      <div class="math-canvas">
+        <div class="problem-row" id="problemDisplay"></div>
+
+        <!-- Step 1 -->
+        <div class="step-card active" id="stepCard1">
+          <div class="step-header">
+            <span id="step1Title">مرحله ۱: حذف ممیز مقسوم‌علیه با ضرب همزمان در ۱۰ یا ۱۰۰</span>
+            <span id="step1Status">در حال تکمیل...</span>
+          </div>
+          <div class="step-flow" id="step1Inputs"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card" id="stepCard2">
+          <div class="step-header">
+            <span id="step2Title">مرحله ۲: محاسبه حاصل نهایی</span>
+            <span id="step2Status">قفل</span>
+          </div>
+          <div class="step-flow" id="step2Inputs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cardHeader">
+      <div class="title">کارنامه و عملکرد</div>
+      <button id="exportBtn" style="color:#a855f7;">🖨️ چاپ / PDF</button>
+    </div>
+    <div class="side-panel">
+      <div class="info-box">
+        <h3>نمودار پاسخ‌ها</h3>
+        <div class="chart-container">
+          <div class="bar-wrapper">
+            <span class="bar-val" id="goodCount">0</span>
+            <div class="bar bar-good" id="barGood" style="height:0%;"></div>
+            <span class="bar-label">درست</span>
+          </div>
+          <div class="bar-wrapper">
+            <span class="bar-val" id="badCount">0</span>
+            <div class="bar bar-bad" id="barBad" style="height:0%;"></div>
+            <span class="bar-label">نادرست</span>
+          </div>
+        </div>
+        <div class="gauge-box">
+          <div style="font-size:12px; color:var(--muted);">درصد دقت</div>
+          <div class="gauge-val" id="accuracyVal">0%</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>راهنمای آموزشی</h3>
+        <p id="stepHelpText" style="font-size:13px; color:var(--muted); line-height:1.8; margin:0;"></p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="confetti-container" id="confettiBox"></div>
+
+<script>
+(() => {
+  let mode = 'div_dec';
+  let diff = 'medium';
+  let correctCount = 0, wrongCount = 0;
+  let activeStep = 1;
+
+  let A = 7.5, B = 0.5, factor = 10, newA = 75, newB = 5, expectedRes = 15;
+
+  const problemDisplay = document.getElementById('problemDisplay');
+  const stepCard1 = document.getElementById('stepCard1');
+  const stepCard2 = document.getElementById('stepCard2');
+  const step1Title = document.getElementById('step1Title');
+  const step2Title = document.getElementById('step2Title');
+  const step1Status = document.getElementById('step1Status');
+  const step2Status = document.getElementById('step2Status');
+  const step1Inputs = document.getElementById('step1Inputs');
+  const step2Inputs = document.getElementById('step2Inputs');
+  const stepHelpText = document.getElementById('stepHelpText');
+  const goodCount = document.getElementById('goodCount');
+  const badCount = document.getElementById('badCount');
+  const accuracyVal = document.getElementById('accuracyVal');
+  const barGood = document.getElementById('barGood');
+  const barBad = document.getElementById('barBad');
+  const diffSelect = document.getElementById('diffSelect');
+  const newBtn = document.getElementById('newBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const studentName = document.getElementById('studentName');
+  const confettiBox = document.getElementById('confettiBox');
+
+  let audioCtx = null;
+  function playTone(freq, dur=0.2){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch(e){}
+  }
+
+  function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function generateProblem(){
+    diff = diffSelect.value;
+
+    if(mode === 'div_dec'){
+      const intQuot = randInt(4, 25);
+      const decB = [0.2, 0.4, 0.5, 0.6, 0.8, 1.2, 1.5, 2.5][randInt(0, 7)];
+      B = decB;
+      factor = (B * 10 % 10 === 0) ? 10 : 100;
+      A = Math.round(B * intQuot * 1000) / 1000;
+      newA = Math.round(A * factor);
+      newB = Math.round(B * factor);
+      expectedRes = intQuot;
+    }
+    else if(mode === 'mul_dec'){
+      A = (randInt(12, 85)) / 10;
+      B = (randInt(12, 65)) / 10;
+      newA = Math.round(A * 10);
+      newB = Math.round(B * 10);
+      expectedRes = Math.round(A * B * 100) / 100;
+    }
+    else if(mode === 'powers'){
+      A = (randInt(105, 9850)) / 100;
+      factor = [10, 100, 1000][randInt(0, 2)];
+      const isM = Math.random() > 0.4;
+      if(isM){
+        expectedRes = Math.round(A * factor * 1000) / 1000;
+        newA = `× ${factor}`;
+      } else {
+        expectedRes = Math.round((A / factor) * 100000) / 100000;
+        newA = `÷ ${factor}`;
+      }
+    }
+    else if(mode === 'round'){
+      A = (randInt(12450, 98760)) / 1000;
+      // Round to 1 decimal place
+      expectedRes = Math.round(A * 10) / 10;
+    }
+
+    renderUI();
+  }
+
+  function renderUI(){
+    activeStep = 1;
+
+    if(mode === 'div_dec'){
+      problemDisplay.innerHTML = `<span>${A}</span> <span style="color:var(--accent2)">÷</span> <span>${B}</span> <span style="color:var(--accent2)">=</span> <span style="color:var(--accent)">؟</span>`;
+      step1Title.textContent = `مرحله ۱: ضرب مقسوم و مقسوم‌علیه در ${factor} برای حذف ممیز`;
+      step1Inputs.innerHTML = `
+        <span>تقسیم جدید: </span>
+        <input class="box-sq" id="s1_a" placeholder="مقسوم جدید" style="width:110px;" inputmode="numeric">
+        <span style="color:var(--accent2)">÷</span>
+        <input class="box-sq" id="s1_b" placeholder="مقسوم‌علیه" style="width:100px;" inputmode="numeric">
+      `;
+      step2Title.textContent = `مرحله ۲: محاسبه خارج‌قسمت تقسیم`;
+      step2Inputs.innerHTML = `
+        <span>خارج‌قسمت نهایی = </span>
+        <input class="box-sq" id="s2_res" placeholder="پاسخ" style="width:120px;" inputmode="decimal" disabled>
+      `;
+    }
+    else if(mode === 'mul_dec'){
+      problemDisplay.innerHTML = `<span>${A}</span> <span style="color:var(--accent2)">×</span> <span>${B}</span> <span style="color:var(--accent2)">=</span> <span style="color:var(--accent)">؟</span>`;
+      step1Title.textContent = `مرحله ۱: ضرب بدون در نظر گرفتن ممیز (${newA} × ${newB})`;
+      step1Inputs.innerHTML = `
+        <span>${newA} × ${newB} = </span>
+        <input class="box-sq" id="s1_a" placeholder="حاصل" style="width:130px;" inputmode="numeric">
+      `;
+      step2Title.textContent = `مرحله ۲: ممیز زدن به تعداد ارقام اعشار (۲ رقم اعشار)`;
+      step2Inputs.innerHTML = `
+        <span>پاسخ اعشاری = </span>
+        <input class="box-sq" id="s2_res" placeholder="پاسخ ممیزدار" style="width:130px;" inputmode="decimal" disabled>
+      `;
+    }
+    else if(mode === 'powers'){
+      problemDisplay.innerHTML = `<span>${A}</span> <span style="color:var(--accent2)">${newA}</span> <span style="color:var(--accent2)">=</span> <span style="color:var(--accent)">؟</span>`;
+      step1Title.textContent = `مرحله ۱: جابه‌جایی ممیز به اندازه تعداد صفرهای ${factor}`;
+      step1Inputs.innerHTML = `
+        <span>پاسخ را بنویسید: </span>
+        <input class="box-sq" id="s1_a" placeholder="حاصل" style="width:140px;" inputmode="decimal">
+      `;
+      step2Title.textContent = `مرحله ۲: تأیید نهایی`;
+      step2Inputs.innerHTML = `<span style="color:var(--good)">✓ آماده بررسی</span>`;
+    }
+    else if(mode === 'round'){
+      problemDisplay.innerHTML = `<span>${A}</span> <span style="font-size:18px; color:var(--accent)">تقریب با دقت کمتر از ۰/۱ (گرد کردن)</span>`;
+      step1Title.textContent = `مرحله ۱: رقم صدم را بررسی کن و عدد را گرد کن`;
+      step1Inputs.innerHTML = `
+        <span>مقدار تقریبی = </span>
+        <input class="box-sq" id="s1_a" placeholder="عدد گرد شده" style="width:130px;" inputmode="decimal">
+      `;
+      step2Title.textContent = `مرحله ۲: تأیید نهایی`;
+      step2Inputs.innerHTML = `<span style="color:var(--good)">✓ آماده بررسی</span>`;
+    }
+
+    stepCard1.classList.add('active');
+    stepCard2.classList.remove('active');
+    step1Status.textContent = 'در حال تکمیل...';
+    step2Status.textContent = 'قفل';
+
+    updateHelp();
+    setupListeners();
+  }
+
+  function updateHelp(){
+    if(activeStep === 1){
+      if(mode === 'div_dec'){
+        stepHelpText.innerHTML = `مرحله ۱: چون مقسوم‌علیه (${B}) دارای یک رقم اعشار است، هر دو عدد را در ۱۰ ضرب می‌کنیم تا تبدیل به ${newA} ÷ ${newB} شود.`;
+      } else if(mode === 'mul_dec'){
+        stepHelpText.innerHTML = `مرحله ۱: ابتدا ممیزها را نادیده بگیر و ${newA} را در ${newB} ضرب کن (${newA * newB}).`;
+      } else {
+        stepHelpText.innerHTML = `مرحله ۱: ممیز را با توجه به ضرب یا تقسیم جابه‌جا کنید.`;
+      }
+    } else {
+      stepHelpText.innerHTML = `مرحله ۲: اکنون حاصل نهایی را محاسبه و ممیز را مشخص کنید.`;
+    }
+  }
+
+  function setupListeners(){
+    const in1 = document.getElementById('s1_a');
+    const in1b = document.getElementById('s1_b');
+    const in2 = document.getElementById('s2_res');
+
+    if(mode === 'div_dec'){
+      const check1 = () => {
+        if(!in1.value || !in1b.value) return;
+        const vA = parseFloat(in1.value.trim().replace(/,/g, '.'));
+        const vB = parseFloat(in1b.value.trim().replace(/,/g, '.'));
+        if(vA === newA && vB === newB){
+          in1.classList.add('ok'); in1b.classList.add('ok');
+          in1.disabled = true; in1b.disabled = true;
+          playTone(550, 0.2);
+          activeStep = 2;
+          step1Status.textContent = '✓ درست';
+          step2Status.textContent = 'در حال تکمیل...';
+          stepCard1.classList.remove('active');
+          stepCard2.classList.add('active');
+          in2.disabled = false;
+          in2.focus();
+          updateHelp();
+        }
+      };
+      in1.oninput = check1;
+      in1b.oninput = check1;
+
+      in2.oninput = () => {
+        const v = parseFloat(in2.value.trim().replace(/,/g, '.'));
+        if(Math.abs(v - expectedRes) < 0.001){
+          in2.classList.add('ok'); in2.disabled = true;
+          complete();
+        }
+      };
+    }
+    else if(mode === 'mul_dec'){
+      in1.oninput = () => {
+        const v = parseInt(in1.value.trim(), 10);
+        if(v === newA * newB){
+          in1.classList.add('ok'); in1.disabled = true;
+          playTone(550, 0.2);
+          activeStep = 2;
+          step1Status.textContent = '✓ درست';
+          step2Status.textContent = 'در حال تکمیل...';
+          stepCard1.classList.remove('active');
+          stepCard2.classList.add('active');
+          in2.disabled = false;
+          in2.focus();
+          updateHelp();
+        }
+      };
+
+      in2.oninput = () => {
+        const v = parseFloat(in2.value.trim().replace(/,/g, '.'));
+        if(Math.abs(v - expectedRes) < 0.001){
+          in2.classList.add('ok'); in2.disabled = true;
+          complete();
+        }
+      };
+    }
+    else {
+      in1.oninput = () => {
+        const v = parseFloat(in1.value.trim().replace(/,/g, '.'));
+        if(Math.abs(v - expectedRes) < 0.001){
+          in1.classList.add('ok'); in1.disabled = true;
+          complete();
+        }
+      };
+    }
+
+    setTimeout(() => { in1?.focus(); }, 100);
+  }
+
+  function complete(){
+    correctCount++;
+    updateChart();
+    playTone(650, 0.3);
+    triggerConfetti();
+
+    try {
+      window.parent?.postMessage({
+        type: 'MATH_APP_COMPLETED',
+        appId: 'g6-decimals-proportions',
+        gradeId: 'g6',
+        mode,
+        correctCount
+      }, '*');
+    } catch(e){}
+
+    setTimeout(generateProblem, 1600);
+  }
+
+  function updateChart(){
+    goodCount.textContent = correctCount;
+    badCount.textContent = wrongCount;
+    const total = correctCount + wrongCount;
+    let pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+    accuracyVal.textContent = pct + '%';
+    const maxVal = Math.max(correctCount, wrongCount, 5);
+    barGood.style.height = (correctCount / maxVal) * 100 + '%';
+    barBad.style.height = (wrongCount / maxVal) * 100 + '%';
+  }
+
+  function triggerConfetti(){
+    confettiBox.innerHTML = '';
+    const colors = ['#a855f7', '#38bdf8', '#22c55e', '#fbbf24'];
+    for(let i=0; i<60; i++){
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+      confettiBox.appendChild(p);
+    }
+    setTimeout(() => { confettiBox.innerHTML = ''; }, 2000);
+  }
+
+  document.querySelectorAll('#opNavPills .op-pill-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#opNavPills .op-pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.getAttribute('data-mode');
+      generateProblem();
+    };
+  });
+
+  newBtn.onclick = generateProblem;
+  resetBtn.onclick = renderUI;
+  diffSelect.onchange = generateProblem;
+  exportBtn.onclick = () => window.print();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('studentName')){
+    studentName.textContent = decodeURIComponent(urlParams.get('studentName') || '');
+  }
+
+  generateProblem();
+})();
+</script>
+</body>
+</html>

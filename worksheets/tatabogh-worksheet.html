@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>کاربرگ آموزشی تطابق فعل و فاعل، شبکه‌ی معنایی و روابط واژگانی — فارسی سوم دبستان (درس دوم: زنگِ ورزش)</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap');
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --primary-color: #0288d1;
+  --secondary-color: #2e7d32;
+  --accent-color: #e91e63;
+  --warning-color: #ef6c00;
+  --purple-color: #7b1fa2;
+  --text-dark: #263238;
+}
+
+@page{
+  size: A4 portrait;
+  margin: 7mm;
+}
+
+body{
+  direction: rtl;
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #e1f5fe, #f3e5f5, #e8f5e9);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   نوار ابزار تعاملی معلق (Floating Action Bar)
+===================================================== */
+.floating-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  border: 2px solid #e0e0e0;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-print { background: linear-gradient(135deg, #7b1fa2, #e91e63); }
+.btn-draw { background: linear-gradient(135deg, #0288d1, #00acc1); }
+.btn-draw.active { background: linear-gradient(135deg, #e65100, #f57c00); box-shadow: 0 0 10px #f57c00; }
+.btn-check { background: linear-gradient(135deg, #2e7d32, #43a047); }
+.btn-answer { background: linear-gradient(135deg, #f57c00, #ff9800); }
+.btn-reset { background: linear-gradient(135deg, #546e7a, #78909c); }
+
+/* پالت رنگ و کنترل نقاشی */
+.draw-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #ede7f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #b39ddb;
+}
+
+.draw-controls.show {
+  display: inline-flex;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+
+.color-dot:hover, .color-dot.active {
+  transform: scale(1.25);
+  border-color: #212121;
+}
+
+.pen-size-btn, .eraser-btn, .clear-canvas-btn {
+  background: #fff;
+  border: 1px solid #b39ddb;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #4527a0;
+}
+
+.eraser-btn.active {
+  background: #d1c4e9;
+  border-color: #512da8;
+}
+
+/* =====================================================
+   چیدمان صفحه‌ها (A4 Pages Layout)
+===================================================== */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 18px auto 28px;
+  padding: 7.5mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+  page-break-after: always;
+}
+
+.page:last-of-type {
+  page-break-after: auto;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+}
+
+/* بوم نقاشی قلم نوری */
+.draw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.draw-canvas.active-mode {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+/* تزیینات پس‌زمینه */
+.blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.blob.one {
+  width: 230px;
+  height: 230px;
+  top: -100px;
+  right: -90px;
+  background: radial-gradient(circle, rgba(2,136,209,0.16), transparent 70%);
+}
+.blob.two {
+  width: 270px;
+  height: 270px;
+  bottom: -110px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(46,125,50,0.16), transparent 70%);
+}
+.blob.three {
+  width: 190px;
+  height: 190px;
+  top: 42%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(239,108,0,0.16), transparent 70%);
+}
+
+.corner {
+  position: absolute;
+  z-index: 1;
+  font-size: 28px;
+  opacity: 0.22;
+  user-select: none;
+}
+.top-right { top: 8px; right: 10px; }
+.top-left { top: 8px; left: 10px; }
+.bottom-right { bottom: 8px; right: 10px; }
+.bottom-left { bottom: 8px; left: 10px; }
+
+/* =====================================================
+   سربرگ‌ها و کادرهای اطلاعات
+===================================================== */
+.header {
+  margin-bottom: 8px;
+  padding: 10px 16px;
+  color: #fff;
+  text-align: center;
+  border: 3px solid #fff;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0288d1, #00acc1, #2e7d32, #7b1fa2);
+  box-shadow: 0 5px 16px rgba(0,0,0,0.15);
+}
+
+.header h1 {
+  font-size: 18.5px;
+  font-weight: 900;
+  text-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+  margin-top: 3px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.header .emoji {
+  font-size: 19px;
+}
+
+.header.small {
+  padding: 8px 14px;
+  border-radius: 16px;
+  margin-bottom: 7px;
+}
+
+.header.small h1 {
+  font-size: 17px;
+}
+
+/* مشخصات دانش‌آموز */
+.student-info {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1.2fr 1fr;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.info-box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 4px 8px;
+  color: #01579b;
+  font-size: 11px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+  border: 1.8px dashed #0288d1;
+  border-radius: 10px;
+}
+
+.info-box input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-bottom: 1.5px dotted #0288d1;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #01579b;
+  padding: 1px 4px;
+  outline: none;
+}
+
+/* =====================================================
+   جعبه‌های آموزش و یادگیری (قواعد)
+===================================================== */
+.learn-box {
+  position: relative;
+  padding: 9px 12px 7px;
+  margin: 6px 0 5px;
+  background: linear-gradient(135deg, #fff8e1, #ffecb3);
+  border: 2.5px solid #ffb300;
+  border-radius: 14px;
+  box-shadow: 0 3px 8px rgba(255,179,0,0.15);
+}
+
+.learn-badge {
+  position: absolute;
+  top: -11px;
+  right: 14px;
+  padding: 2px 11px;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 900;
+  background: #ef6c00;
+  border: 2px solid #fff;
+  border-radius: 18px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.learn-box p {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.85;
+}
+
+.highlight {
+  padding: 1px 6px;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.h-pink{background:#e91e63;}
+.h-blue{background:#0288d1;}
+.h-green{background:#2e7d32;}
+.h-purple{background:#7b1fa2;}
+.h-orange{background:#ef6c00;}
+
+/* جدول هماهنگی ۶ گانه فاعل و فعل */
+.conjugate-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 5px 0 4px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  font-size: 11px;
+}
+
+.conjugate-table th {
+  padding: 5px;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+  background: #0288d1;
+}
+
+.conjugate-table td {
+  padding: 4px 6px;
+  text-align: center;
+  border-bottom: 1px solid #eceff1;
+  font-weight: 700;
+}
+
+.conjugate-table tr:nth-child(even) {
+  background: #f1f8e9;
+}
+
+.pronoun-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  font-weight: 900;
+  color: #fff;
+  background: #7b1fa2;
+}
+
+.verb-badge {
+  color: #c2185b;
+  font-weight: 900;
+}
+
+.ending-badge {
+  background: #fce4ec;
+  color: #d81b60;
+  padding: 1px 5px;
+  border-radius: 6px;
+  border: 1px dashed #e91e63;
+  font-weight: 900;
+}
+
+/* شبکه معنایی مکان‌ها */
+.semantic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.semantic-card {
+  padding: 6px 7px;
+  border: 2px solid;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.semantic-card.sc-sport { border-color: #0288d1; background: linear-gradient(135deg, #e1f5fe, #fff); }
+.semantic-card.sc-edu { border-color: #2e7d32; background: linear-gradient(135deg, #e8f5e9, #fff); }
+.semantic-card.sc-rel { border-color: #7b1fa2; background: linear-gradient(135deg, #f3e5f5, #fff); }
+.semantic-card.sc-cult { border-color: #ef6c00; background: linear-gradient(135deg, #fff3e0, #fff); }
+.semantic-card.sc-health { border-color: #e91e63; background: linear-gradient(135deg, #fce4ec, #fff); }
+.semantic-card.sc-soc { border-color: #00897b; background: linear-gradient(135deg, #e0f2f1, #fff); }
+
+.sc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+
+.sc-sport .sc-head { color: #0277bd; }
+.sc-edu .sc-head { color: #2e7d32; }
+.sc-rel .sc-head { color: #7b1fa2; }
+.sc-cult .sc-head { color: #e65100; }
+.sc-health .sc-head { color: #c2185b; }
+.sc-soc .sc-head { color: #00695c; }
+
+.sc-desc {
+  font-size: 10px;
+  color: #37474f;
+  line-height: 1.6;
+}
+
+.sc-examples {
+  margin-top: 3px;
+  padding: 2px 4px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #263238;
+}
+
+/* عنوان بخش‌ها */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 4px;
+  padding: 4px 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 11px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  break-inside: avoid;
+}
+
+.section-title small {
+  margin-right: auto;
+  padding: 1px 6px;
+  font-size: 9.5px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.purple{background:linear-gradient(135deg,#6a1b9a,#ab47bc);}
+.blue{background:linear-gradient(135deg,#0288d1,#03a9f4);}
+.orange{background:linear-gradient(135deg,#e65100,#ff9800);}
+.green{background:linear-gradient(135deg,#1b5e20,#43a047);}
+.pink{background:linear-gradient(135deg,#ad1457,#ec407a);}
+.teal{background:linear-gradient(135deg,#00695c,#26a69a);}
+
+/* =====================================================
+   تمرین‌های تعاملی
+===================================================== */
+/* حالا تو بگو و تکمیل ۶ گانه بیاموز و بگو */
+.say-grid-6 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.say-row-full {
+  display: grid;
+  grid-template-columns: 100px 18px 1fr 140px;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #fff8e1, #fff);
+  border: 2px solid #ffb300;
+  border-radius: 10px;
+  break-inside: avoid;
+}
+
+.say-row-full .subject-tag {
+  padding: 2px 8px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(135deg, #0288d1, #03a9f4);
+  border-radius: 10px;
+}
+
+.say-row-full .arrow {
+  color: #ff9800;
+  font-size: 14px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.say-row-full .mid-text {
+  color: #37474f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.interactive-input {
+  width: 100%;
+  border: none;
+  background: #fff;
+  border-bottom: 2px dashed #0288d1;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 900;
+  color: #01579b;
+  text-align: center;
+  padding: 2px 4px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.interactive-input:focus {
+  border-bottom-color: #d81b60;
+  background: #e1f5fe;
+}
+
+.interactive-input.correct {
+  background-color: #e8f5e9 !important;
+  border-bottom-color: #2e7d32 !important;
+  color: #1b5e20 !important;
+}
+
+.interactive-input.incorrect {
+  background-color: #ffebee !important;
+  border-bottom-color: #c62828 !important;
+  color: #b71c1c !important;
+}
+
+/* کارت‌های هم‌خانواده و واژگان */
+.family-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.family-card {
+  padding: 6px 7px;
+  border: 2px solid #00acc1;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #e0f7fa, #fff);
+  text-align: center;
+}
+
+.family-card h5 {
+  font-size: 11.5px;
+  font-weight: 900;
+  color: #006064;
+  margin-bottom: 3px;
+}
+
+.family-card input {
+  width: 100%;
+  border: 1px dashed #00838f;
+  border-radius: 6px;
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-align: center;
+  background: #fff;
+  outline: none;
+}
+
+/* وصل کردن تعاملی */
+.match-box {
+  display: grid;
+  grid-template-columns: 1fr 35px 1.2fr;
+  gap: 6px;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.match-column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.match-item {
+  min-height: 32px;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: #fff;
+  border: 2px solid;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.match-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.match-column.right-col .match-item {
+  color: #0288d1;
+  border-color: #03a9f4;
+}
+
+.match-column.left-col .match-item {
+  color: #2e7d32;
+  font-size: 11.5px;
+  border-color: #43a047;
+}
+
+.match-item.selected {
+  background: #fff9c4 !important;
+  border-color: #fbc02d !important;
+  box-shadow: 0 0 10px rgba(251,192,45,0.8);
+}
+
+.match-item.matched-0 { background: #e8f5e9 !important; border-color: #43a047 !important; color: #1b5e20 !important; }
+.match-item.matched-1 { background: #e3f2fd !important; border-color: #1e88e5 !important; color: #0d47a1 !important; }
+.match-item.matched-2 { background: #f3e5f5 !important; border-color: #ab47bc !important; color: #4a148c !important; }
+.match-item.matched-3 { background: #fff3e0 !important; border-color: #fb8c00 !important; color: #e65100 !important; }
+
+.match-middle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #ff9800;
+}
+
+/* بانک کلمات */
+.bank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 5px 8px;
+  margin-bottom: 5px;
+  background: linear-gradient(135deg, #fff8e1, #ffe0b2);
+  border: 2px dashed #fb8c00;
+  border-radius: 12px;
+}
+
+.bank span {
+  padding: 2px 9px;
+  color: #e65100;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: #fff;
+  border: 1.5px solid #ff9800;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.bank span:hover {
+  transform: scale(1.08);
+  background: #fff3e0;
+}
+
+.bank .label {
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+/* جمله‌ها و جای‌خالی */
+.sentence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+}
+
+.sentence {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  min-height: 38px;
+  padding: 5px 7px;
+  color: #1b5e20;
+  font-size: 11px;
+  font-weight: 700;
+  background: #fff;
+  border: 1.8px solid #8bc34a;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 900;
+  background: #43a047;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.blank-input {
+  min-width: 75px;
+  max-width: 115px;
+  border: none;
+  border-bottom: 2px dashed #2e7d32;
+  background: rgba(241,248,233,0.6);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+  color: #1b5e20;
+  text-align: center;
+  padding: 1px 4px;
+  outline: none;
+}
+
+.blank-input:focus {
+  background: #fff;
+  border-bottom-color: #1b5e20;
+}
+
+/* گزینه‌های تستی */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 38px;
+  padding: 4px;
+  background: #fff;
+  border: 2px solid #ff7043;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.choice .or {
+  color: #bf360c;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.choice .ctext {
+  width: 100%;
+  text-align: center;
+  color: #37474f;
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.num-c {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  background: #ff7043;
+  border-radius: 50%;
+}
+
+.opt-btn {
+  padding: 2px 8px;
+  color: #0288d1;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: #e1f5fe;
+  border: 1.2px dashed #03a9f4;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  outline: none;
+}
+
+.opt-btn:hover {
+  background: #b3e5fc;
+  transform: scale(1.05);
+}
+
+.opt-btn.selected {
+  background: #0288d1 !important;
+  color: #fff !important;
+  border-style: solid !important;
+  box-shadow: 0 2px 6px rgba(2,136,209,0.4);
+}
+
+.opt-btn.is-correct {
+  background: #2e7d32 !important;
+  color: #fff !important;
+  border-color: #1b5e20 !important;
+}
+
+.opt-btn.is-wrong {
+  background: #c62828 !important;
+  color: #fff !important;
+  border-color: #b71c1c !important;
+}
+
+/* خودت بنویس خلاقانه */
+.creative-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.creative-card {
+  padding: 7px;
+  color: #01579b;
+  font-size: 10.5px;
+  font-weight: 900;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+  border: 1.8px solid #0288d1;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.creative-card textarea {
+  width: 100%;
+  height: 38px;
+  margin-top: 4px;
+  padding: 3px;
+  border: none;
+  background: rgba(255,255,255,0.75);
+  border-bottom: 2px dashed #0288d1;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  color: #01579b;
+  resize: none;
+  outline: none;
+}
+
+/* کلید پاسخ‌نامه تعاملی */
+.answer-key-box {
+  display: none;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #e8f5e9;
+  border: 2px solid #43a047;
+  border-radius: 10px;
+  font-size: 10.5px;
+  color: #1b5e20;
+  line-height: 1.7;
+}
+
+.answer-key-box.show {
+  display: block;
+}
+
+/* =====================================================
+   پانوشت و خودارزیابی
+===================================================== */
+.footer {
+  margin-top: 6px;
+  padding: 6px 10px;
+  text-align: center;
+  background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+  border: 1.8px solid #7986cb;
+  border-radius: 11px;
+}
+
+.footer .creator {
+  color: #283593;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.footer .message {
+  margin-top: 2px;
+  color: #3949ab;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+
+.self-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  color: #283593;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.star-rating {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.star-btn {
+  color: #b0bec5;
+  transition: color 0.15s, transform 0.15s;
+  user-select: none;
+}
+
+.star-btn:hover, .star-btn.active {
+  color: #ff9800;
+  transform: scale(1.15);
+}
+
+/* =====================================================
+   قوانین پرینت استاندارد A4
+===================================================== */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .no-print, .floating-toolbar, .draw-controls {
+    display: none !important;
+  }
+
+  .page {
+    width: 100% !important;
+    min-height: 290mm !important;
+    margin: 0 !important;
+    padding: 6mm !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-after: always !important;
+  }
+
+  .page:last-of-type {
+    page-break-after: auto !important;
+  }
+
+  .interactive-input, .blank-input, .info-box input, .family-card input, .creative-card textarea {
+    border-bottom: 1.5px dashed #000 !important;
+    background: transparent !important;
+    color: #000 !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .page {
+    width: 100%;
+    margin: 10px 0;
+    padding: 8px;
+  }
+
+  .student-info, .say-row-full, .sentence-grid, .creative-grid, .choice-grid, .semantic-grid, .family-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- نوار ابزار تعاملی شناور بالای صفحه -->
+<aside class="floating-toolbar no-print" aria-label="نوار ابزار تعاملی کاربرگ">
+  <button class="tool-btn btn-print" onclick="window.print()">
+    🖨️ چاپ برگه A4
+  </button>
+  
+  <button class="tool-btn btn-draw" id="drawToggleBtn" onclick="toggleDrawingMode()">
+    ✏️ نوشتن با قلم نوری
+  </button>
+
+  <div class="draw-controls" id="drawControls">
+    <span style="font-size: 11px; font-weight: 700; color:#4527a0;">رنگ مداد:</span>
+    <div class="color-dot active" style="background:#000;" onclick="setPenColor('#000000', this)"></div>
+    <div class="color-dot" style="background:#1565c0;" onclick="setPenColor('#1565c0', this)"></div>
+    <div class="color-dot" style="background:#c62828;" onclick="setPenColor('#c62828', this)"></div>
+    <div class="color-dot" style="background:#2e7d32;" onclick="setPenColor('#2e7d32', this)"></div>
+    
+    <button class="eraser-btn" id="eraserBtn" onclick="toggleEraser()">🧹 پاک‌کن</button>
+    <button class="clear-canvas-btn" onclick="clearCurrentCanvas()">🗑️ پاکسازی دست‌خط</button>
+  </div>
+
+  <button class="tool-btn btn-check" onclick="checkAllAnswers()">
+    ✅ بررسی پاسخ‌ها
+  </button>
+
+  <button class="tool-btn btn-answer" onclick="toggleAnswerKey()">
+    🔑 کلید پاسخ‌نامه
+  </button>
+
+  <button class="tool-btn btn-reset" onclick="resetWorksheet()">
+    🔄 بازنشانی
+  </button>
+</aside>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی اول: آموزش جامع تطابق فعل و فاعل و شبکه‌معنایی -->
+<!-- ===================================================== -->
+<section class="page" id="page-1">
+  <canvas class="draw-canvas" id="canvas-1"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🏊</div>
+  <div class="corner top-left">⚽</div>
+  <div class="corner bottom-right">🏛️</div>
+  <div class="corner bottom-left">🌟</div>
+
+  <div class="content">
+
+    <header class="header">
+      <div class="emoji">🏊‍♂️ «زنگ ورزش» 🏛️ «شبکه معنایی مکان‌ها» ✍️ «تطابق فعل و فاعل»</div>
+      <h1>کاربرگ آموزشی تطابق فعل و فاعل، شبکه‌ی معنایی و روابط واژگانی</h1>
+      <p>فارسی پایه‌ی سوم دبستان (فصل اول: نهادها — درس دوم: زنگِ ورزش، قصه‌ی تُنگِ بلور و مَثَل)</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 دبستان و کلاس:
+        <input type="text" placeholder="کلاس سوم...">
+      </div>
+      <div class="info-box">
+        👩‍🏫 نام آموزگار:
+        <input type="text" placeholder="آموزگار محترم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <!-- جعبه آموزش بیاموز و بگو درس ۲ -->
+    <div class="learn-box">
+      <div class="learn-badge">💡 بیاموز و بگو ۱: تطابق فعل با فاعل (نهاد)</div>
+
+      <p>
+        بچّه‌های عزیز! در زبان فارسی،
+        <span class="highlight h-blue">فعل</span>
+        همیشه باید از نظر <b>شخص (اول شخص، دوم شخص، سوم شخص)</b> و <b>شمار (مفرد یا جمع)</b> با
+        <span class="highlight h-purple">فاعل (نهاد)</span>
+        خود هماهنگ باشد.
+        به شناسه‌های آخر فعل دقّت کنید:
+      </p>
+    </div>
+
+    <table class="conjugate-table">
+      <thead>
+        <tr>
+          <th>شخص و شمار</th>
+          <th>ضمیر / فاعل</th>
+          <th>شناسه‌ی فعل</th>
+          <th>نمونه فعل در زمان حال</th>
+          <th>جمله کامل درس ۲ (صفحه ۱۹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>اول شخص مفرد</td>
+          <td><span class="pronoun-badge">من</span></td>
+          <td><span class="ending-badge">ـَم</span></td>
+          <td><span class="verb-badge">می‌دانم</span></td>
+          <td>من استخر را مکانِ ورزشی <b>می‌دانم</b>.</td>
+        </tr>
+        <tr>
+          <td>دوم شخص مفرد</td>
+          <td><span class="pronoun-badge">تو</span></td>
+          <td><span class="ending-badge">ی</span></td>
+          <td><span class="verb-badge">می‌دانی</span></td>
+          <td>تو مدرسه را مکانِ آموزشی <b>می‌دانی</b>.</td>
+        </tr>
+        <tr>
+          <td>سوم شخص مفرد</td>
+          <td><span class="pronoun-badge">او / علی</span></td>
+          <td><span class="ending-badge">ـَد / د</span></td>
+          <td><span class="verb-badge">می‌داند</span></td>
+          <td>علی محلّه را مکانِ اجتماعی <b>می‌داند</b>.</td>
+        </tr>
+        <tr>
+          <td>اول شخص جمع</td>
+          <td><span class="pronoun-badge">ما</span></td>
+          <td><span class="ending-badge">یم</span></td>
+          <td><span class="verb-badge">می‌دانیم</span></td>
+          <td><b>ما</b> مسجد را مکانِ دینی <b>می‌دانیم</b>.</td>
+        </tr>
+        <tr>
+          <td>دوم شخص جمع</td>
+          <td><span class="pronoun-badge">شما</span></td>
+          <td><span class="ending-badge">ید</span></td>
+          <td><span class="verb-badge">می‌دانید</span></td>
+          <td><b>شما</b> سینما را مکانِ فرهنگی <b>می‌دانید</b>.</td>
+        </tr>
+        <tr>
+          <td>سوم شخص جمع</td>
+          <td><span class="pronoun-badge">آن‌ها / بچّه‌ها</span></td>
+          <td><span class="ending-badge">ـَند / ند</span></td>
+          <td><span class="verb-badge">می‌دانند</span></td>
+          <td>بچّه‌ها «خانه‌ی سلامت» را مکانِ بهداشتی <b>می‌دانند</b>.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="learn-box">
+      <div class="learn-badge">💡 یاد بگیریم ۲: شبکه‌ی معنایی مکان‌ها و کارکردها</div>
+      <p>
+        هر مکان در شهر یا محله دارای کارکرد ویژه‌ای است و کلمات مرتبط با آن یک
+        <span class="highlight h-green">شبکه‌ی معنایی</span>
+        تشکیل می‌دهند:
+      </p>
+    </div>
+
+    <!-- کارت‌های ۶ گانه شبکه معنایی مکان‌ها -->
+    <div class="semantic-grid">
+
+      <div class="semantic-card sc-sport">
+        <div class="sc-head">
+          <span>🏊 مکان ورزشی</span>
+          <small>سلامتی و ورزش</small>
+        </div>
+        <div class="sc-desc">محل تمرین و مسابقات بدنی</div>
+        <div class="sc-examples">استخر، باشگاه، سالن ژیمناستیک، زمین فوتبال</div>
+      </div>
+
+      <div class="semantic-card sc-edu">
+        <div class="sc-head">
+          <span>🏫 مکان آموزشی</span>
+          <small>دانش و یادگیری</small>
+        </div>
+        <div class="sc-desc">محل یادگیری و علم‌آموزی</div>
+        <div class="sc-examples">مدرسه، کتابخانه، دانشگاه، آموزشگاه</div>
+      </div>
+
+      <div class="semantic-card sc-rel">
+        <div class="sc-head">
+          <span>🕌 مکان دینی</span>
+          <small>عبادت و معنویت</small>
+        </div>
+        <div class="sc-desc">محل عبادت، دعا و نماز</div>
+        <div class="sc-examples">مسجد، حسینیه، نمازخانه، زیارتگاه</div>
+      </div>
+
+      <div class="semantic-card sc-cult">
+        <div class="sc-head">
+          <span>🎬 مکان فرهنگی</span>
+          <small>هنر و نمایش</small>
+        </div>
+        <div class="sc-desc">محل تماشای هنر، فیلم و تاریخ</div>
+        <div class="sc-examples">سینما، موزه، تئاتر، نگارخانه، فرهنگسرا</div>
+      </div>
+
+      <div class="semantic-card sc-health">
+        <div class="sc-head">
+          <span>🏥 مکان بهداشتی</span>
+          <small>سلامت و درمان</small>
+        </div>
+        <div class="sc-desc">محل درمان بیماران و سلامت</div>
+        <div class="sc-examples">خانه‌ی سلامت، درمانگاه، بیمارستان، داروخانه</div>
+      </div>
+
+      <div class="semantic-card sc-soc">
+        <div class="sc-head">
+          <span>🏘️ مکان اجتماعی</span>
+          <small>زندگی و روابط عمومی</small>
+        </div>
+        <div class="sc-desc">محل گردهمایی و زندگی جمعی</div>
+        <div class="sc-examples">محله، بوستان، بازارچه، میدان شهر</div>
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      <div class="creator">🎓 طرّاح و مؤلف کاربرگ: نیما آزمکان</div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی دوم: تمرین‌های تعاملی بیاموز و بگو و فاعل/فعل  -->
+<!-- ===================================================== -->
+<section class="page" id="page-2">
+  <canvas class="draw-canvas" id="canvas-2"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌻</div>
+  <div class="corner top-left">🎈</div>
+  <div class="corner bottom-right">🍀</div>
+  <div class="corner bottom-left">🌟</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 تمرین‌های تطابق فاعل و فعل (بیاموز و بگوی کتاب درسی)</h1>
+      <p>جاهای خالی را با توجه به فاعل و فعل مناسب کامل کن (عیناً مانند تمرین صفحه ۱۹ کتاب).</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" placeholder="کلاس سوم...">
+      </div>
+      <div class="info-box">
+        👩‍🏫 نام آموزگار:
+        <input type="text" placeholder="آموزگار محترم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <div class="section-title orange">
+      <span>🗣️</span>
+      تمرین ۱: جاهای خالی را با کلمه‌های مناسب پر کن (عیناً از متن بیاموز و بگوی درس ۲).
+      <small>صفحه ۱۹ کتاب</small>
+    </div>
+
+    <div class="say-grid-6">
+
+      <div class="say-row-full">
+        <span class="subject-tag">من</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">من استخر را مکانِ ورزشی</span>
+        <input type="text" class="interactive-input" data-ans="می‌دانم|می دانم" value="می‌دانم" disabled style="background:#e8f5e9; color:#1b5e20;">
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">تو</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">تو مدرسه را مکانِ آموزشی</span>
+        <input type="text" class="interactive-input" data-ans="می‌دانی|می دانی" placeholder="فعل مناسب...">
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">علی (او)</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">علی محلّه را مکانِ اجتماعی</span>
+        <input type="text" class="interactive-input" data-ans="می‌داند|می داند" placeholder="فعل مناسب...">
+      </div>
+
+      <div class="say-row-full">
+        <input type="text" class="interactive-input" data-ans="ما" placeholder="ضمیر مناسب..." style="width:90px;">
+        <span class="arrow">⬅</span>
+        <span class="mid-text">مسجد را مکانِ دینی می‌دانیم.</span>
+        <span style="font-size: 11px; font-weight:800; color:#2e7d32;">می‌دانیم</span>
+      </div>
+
+      <div class="say-row-full">
+        <input type="text" class="interactive-input" data-ans="شما" placeholder="ضمیر مناسب..." style="width:90px;">
+        <span class="arrow">⬅</span>
+        <span class="mid-text">سینما را مکانِ فرهنگی می‌دانید.</span>
+        <span style="font-size: 11px; font-weight:800; color:#2e7d32;">می‌دانید</span>
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">بچّه‌ها (آن‌ها)</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">بچّه‌ها «خانه‌ی سلامت» را مکانِ بهداشتی</span>
+        <input type="text" class="interactive-input" data-ans="می‌دانند|می دانند" placeholder="فعل مناسب...">
+      </div>
+
+    </div>
+
+    <div class="section-title blue">
+      <span>🔄</span>
+      تمرین ۲: فعل «رفتن به استخر» را با ضمایر مختلف در زمان گذشته (ماضی) صرف کن.
+      <small>تطابق زمان گذشته</small>
+    </div>
+
+    <div class="say-grid-6">
+
+      <div class="say-row-full">
+        <span class="subject-tag">من</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">من دیروز به استخر</span>
+        <input type="text" class="interactive-input" data-ans="رفتم" placeholder="رفتم">
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">تو</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">تو دیروز به استخر</span>
+        <input type="text" class="interactive-input" data-ans="رفتی" placeholder="رفتی">
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">امید (او)</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">امید دیروز به استخر</span>
+        <input type="text" class="interactive-input" data-ans="رفت" placeholder="رفت">
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">ما</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">ما دیروز به استخر</span>
+        <input type="text" class="interactive-input" data-ans="رفتیم" placeholder="رفتیم">
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">شما</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">شما دیروز به استخر</span>
+        <input type="text" class="interactive-input" data-ans="رفتید" placeholder="رفتید">
+      </div>
+
+      <div class="say-row-full">
+        <span class="subject-tag">دوستان (آن‌ها)</span>
+        <span class="arrow">⬅</span>
+        <span class="mid-text">دوستان دیروز به استخر</span>
+        <input type="text" class="interactive-input" data-ans="رفتند" placeholder="رفتند">
+      </div>
+
+    </div>
+
+    <div class="section-title purple">
+      <span>⭕</span>
+      تمرین ۳: گزینه‌ی درست را از نظر تطابق فاعل و فعل با کلیک انتخاب کن.
+      <small>سنجش تستی</small>
+    </div>
+
+    <div class="choice-grid">
+
+      <div class="choice">
+        <span class="num-c">۱</span>
+        <div class="ctext">ما هر روز ورزش ...</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">می‌کنیم</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">می‌کنند</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۲</span>
+        <div class="ctext">شما به استخر ...</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">آمدید</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">آمدیم</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۳</span>
+        <div class="ctext">صنوبر با دخترک دوست ...</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">شد</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">شدند</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۴</span>
+        <div class="ctext">من در مسابقه‌ی شنا شرکت ...</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">کردم</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">کردی</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۵</span>
+        <div class="ctext">بچّه‌ها لباس‌هایشان را ...</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">پوشیدند</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">پوشیدید</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۶</span>
+        <div class="ctext">تو پیام درس را ...</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">فهمیدی</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">فهمیدم</button>
+      </div>
+
+    </div>
+
+    <div class="answer-key-box" id="answer-p2">
+      <b>🔑 کلید پاسخ‌های صفحه ۲:</b><br>
+      <b>تمرین ۱:</b> تو ⬅ می‌دانی | علی ⬅ می‌داند | مسجد ⬅ ما | سینما ⬅ شما | بچّه‌ها ⬅ می‌دانند<br>
+      <b>تمرین ۲:</b> رفتم، رفتی، رفت، رفتیم، رفتید، رفتند<br>
+      <b>تمرین ۳:</b> ۱. می‌کنیم | ۲. آمدید | ۳. شد | ۴. کردم | ۵. پوشیدند | ۶. فهمیدی
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <div class="star-rating">
+          <span class="star-btn" onclick="rateStars(1, this)">★</span>
+          <span class="star-btn" onclick="rateStars(2, this)">★</span>
+          <span class="star-btn" onclick="rateStars(3, this)">★</span>
+          <span class="star-btn" onclick="rateStars(4, this)">★</span>
+          <span class="star-btn" onclick="rateStars(5, this)">★</span>
+        </div>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و مؤلف کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو قهرمان باهوش و پرتلاش! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی سوم: شبکه‌ی معنایی، روابط واژگانی و ارزشیابی  -->
+<!-- ===================================================== -->
+<section class="page" id="page-3">
+  <canvas class="draw-canvas" id="canvas-3"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌼</div>
+  <div class="corner top-left">🎨</div>
+  <div class="corner bottom-right">🌷</div>
+  <div class="corner bottom-left">✨</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 شبکه‌ی معنایی مکان‌ها و روابط واژگانی (مترادف، متضاد، هم‌خانواده)</h1>
+      <p>برگرفته از متن درس زنگ ورزش، قصه‌ی تنگ بلور و مَثَل آشپز که دو تا شد</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" placeholder="کلاس سوم...">
+      </div>
+      <div class="info-box">
+        👩‍🏫 نام آموزگار:
+        <input type="text" placeholder="آموزگار محترم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <div class="section-title blue">
+      <span>🔗</span>
+      تمرین ۱: هر مکان را به نوعِ کارکردِ مناسبِ آن وصل کن (روی مکان و سپس کارکرد کلیک کن).
+    </div>
+
+    <div class="match-box" id="match-wrapper-p3">
+
+      <div class="match-column right-col">
+        <div class="match-item" data-id="0" onclick="handleMatchClick(this, 'p3')">🏊 استخر و باشگاه</div>
+        <div class="match-item" data-id="1" onclick="handleMatchClick(this, 'p3')">🏛️ موزه و سینما</div>
+        <div class="match-item" data-id="2" onclick="handleMatchClick(this, 'p3')">🏫 مدرسه و کتابخانه</div>
+        <div class="match-item" data-id="3" onclick="handleMatchClick(this, 'p3')">🏥 خانه‌ی سلامت و درمانگاه</div>
+      </div>
+
+      <div class="match-middle">〰️</div>
+
+      <div class="match-column left-col">
+        <div class="match-item" data-match="2" onclick="handleMatchTarget(this, 'p3')">مکانِ آموزشی</div>
+        <div class="match-item" data-match="3" onclick="handleMatchTarget(this, 'p3')">مکانِ بهداشتی و درمانی</div>
+        <div class="match-item" data-match="0" onclick="handleMatchTarget(this, 'p3')">مکانِ ورزشی</div>
+        <div class="match-item" data-match="1" onclick="handleMatchTarget(this, 'p3')">مکانِ فرهنگی و هنری</div>
+      </div>
+
+    </div>
+
+    <div class="section-title teal">
+      <span>👨‍👩‍👧‍👦</span>
+      تمرین ۲: هم‌خانواده‌های درس دوم را بنویس.
+      <small>روابط واژگانی</small>
+    </div>
+
+    <div class="family-grid">
+
+      <div class="family-card">
+        <h5>هم‌خانواده‌های «ورزش»:</h5>
+        <input type="text" class="interactive-input" data-ans="ورزشکار|ورزشی" placeholder="ورزشکار، ورزشی...">
+      </div>
+
+      <div class="family-card">
+        <h5>هم‌خانواده‌های «نظم»:</h5>
+        <input type="text" class="interactive-input" data-ans="منظم|ناظم|تنظیم" placeholder="منظم، ناظم...">
+      </div>
+
+      <div class="family-card">
+        <h5>هم‌خانواده‌های «آموزش»:</h5>
+        <input type="text" class="interactive-input" data-ans="آموزگار|آموزنده|آموزشگاه" placeholder="آموزگار، آموزشگاه...">
+      </div>
+
+    </div>
+
+    <div class="section-title green">
+      <span>✏️</span>
+      تمرین ۳: جای خالی را با کلمه‌ی متضاد یا مترادف مناسب از جعبه کامل کن.
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی کلمه‌ها:</span>
+      <span onclick="fillNextBlank(this, 'page-3')">مضر</span>
+      <span onclick="fillNextBlank(this, 'page-3')">شگفتی</span>
+      <span onclick="fillNextBlank(this, 'page-3')">پایان</span>
+      <span onclick="fillNextBlank(this, 'page-3')">زبردست</span>
+      <span onclick="fillNextBlank(this, 'page-3')">تندتند</span>
+      <span onclick="fillNextBlank(this, 'page-3')">جنگل کوچک</span>
+    </div>
+
+    <div class="sentence-grid">
+
+      <div class="sentence">
+        <span class="number">۱</span>
+        <span>ورزش برای بدن <b>مفید</b> است و تنبلی برای سلامتی <input type="text" class="blank-input" data-ans="مضر|زیان‌آور"> است. (متضاد)</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۲</span>
+        <span>باران <b>نرم‌نرمک</b> بارید، اما رودخانه <input type="text" class="blank-input" data-ans="تندتند"> جاری شد. (متضاد)</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۳</span>
+        <span>کلمه‌ی «حیرت» هم‌معنی کلمه‌ی <input type="text" class="blank-input" data-ans="شگفتی|تعجب"> است. (مترادف)</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۴</span>
+        <span>شناگر <b>ماهر</b> یعنی شناگر <input type="text" class="blank-input" data-ans="زبردست|توانا"> و باتجربه. (مترادف)</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۵</span>
+        <span>صنوبر در <b>بیشه</b> قدم زد؛ بیشه یعنی <input type="text" class="blank-input" data-ans="جنگل کوچک">. (معنی)</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۶</span>
+        <span>تمرین شنا <b>آغاز</b> شد و تا غروب به <input type="text" class="blank-input" data-ans="پایان|انجام"> رسید. (متضاد)</span>
+      </div>
+
+    </div>
+
+    <div class="section-title pink">
+      <span>⭐</span>
+      تمرین ۴: خودت بنویس (خلاقیت و نگارش دانش‌آموز).
+    </div>
+
+    <div class="creative-grid">
+
+      <div class="creative-card">
+        رشته‌ی ورزشی مورد علاقه‌ات چیست؟ چرا؟
+        <textarea placeholder="شنا، فوتبال، دوچرخه‌سواری..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        یک جمله با فعل «می‌دانیم» بساز:
+        <textarea placeholder="ما ورزش را ضامن سلامتی می‌دانیم..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        ضرب‌المثل «آشپز که دو تا شد، آش یا شور می‌شود یا بی‌نمک» چه پیامی دارد؟
+        <textarea placeholder="پیام همکاری و هماهنگی در کارها..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="answer-key-box" id="answer-p3">
+      <b>🔑 کلید پاسخ‌های صفحه ۳:</b><br>
+      <b>تمرین ۱:</b> استخر و باشگاه ⬅ مکان ورزشی | موزه و سینما ⬅ مکان فرهنگی | مدرسه و کتابخانه ⬅ مکان آموزشی | خانه‌ی سلامت ⬅ مکان بهداشتی<br>
+      <b>تمرین ۲:</b> ورزشکار، ورزشی | منظم، ناظم، تنظیم | آموزگار، آموزشگاه، آموزنده<br>
+      <b>تمرین ۳:</b> ۱. مضر | ۲. تندتند | ۳. شگفتی | ۴. زبردست | ۵. جنگل کوچک | ۶. پایان<br>
+      <b>تمرین ۴:</b> پاسخ‌های خلاقانه و انشایی دانش‌آموز.
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <div class="star-rating">
+          <span class="star-btn" onclick="rateStars(1, this)">★</span>
+          <span class="star-btn" onclick="rateStars(2, this)">★</span>
+          <span class="star-btn" onclick="rateStars(3, this)">★</span>
+          <span class="star-btn" onclick="rateStars(4, this)">★</span>
+          <span class="star-btn" onclick="rateStars(5, this)">★</span>
+        </div>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و مؤلف کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو دانش‌آموز باانگیزه و ورزشکار ایران‌زمین! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- اسکریپت‌های تعاملی و بوم قلم نوری -->
+<script>
+// تنظیمات بوم نقاشی قلم نوری
+let isDrawingMode = false;
+let isEraser = false;
+let currentColor = '#000000';
+let currentLineWidth = 2.5;
+
+const canvases = [];
+const contexts = [];
+
+function initCanvases() {
+  const pageCanvases = document.querySelectorAll('.draw-canvas');
+  pageCanvases.forEach((c, index) => {
+    const parent = c.parentElement;
+    c.width = parent.clientWidth || 794;
+    c.height = parent.clientHeight || 1123;
+    const ctx = c.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    canvases.push(c);
+    contexts.push(ctx);
+
+    let drawing = false;
+
+    function getCoords(e) {
+      const rect = c.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (c.width / rect.width),
+        y: (clientY - rect.top) * (c.height / rect.height)
+      };
+    }
+
+    function startDraw(e) {
+      if (!isDrawingMode) return;
+      e.preventDefault();
+      drawing = true;
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(coords.x, coords.y);
+    }
+
+    function draw(e) {
+      if (!drawing || !isDrawingMode) return;
+      e.preventDefault();
+      const coords = getCoords(e);
+      ctx.strokeStyle = isEraser ? '#ffffff' : currentColor;
+      ctx.lineWidth = isEraser ? 16 : currentLineWidth;
+      ctx.lineTo(coords.x, coords.y);
+      ctx.stroke();
+    }
+
+    function stopDraw() {
+      drawing = false;
+    }
+
+    c.addEventListener('mousedown', startDraw);
+    c.addEventListener('mousemove', draw);
+    c.addEventListener('mouseup', stopDraw);
+    c.addEventListener('mouseleave', stopDraw);
+
+    c.addEventListener('touchstart', startDraw, { passive: false });
+    c.addEventListener('touchmove', draw, { passive: false });
+    c.addEventListener('touchend', stopDraw);
+  });
+}
+
+function toggleDrawingMode() {
+  isDrawingMode = !isDrawingMode;
+  const btn = document.getElementById('drawToggleBtn');
+  const controls = document.getElementById('drawControls');
+  
+  if (isDrawingMode) {
+    btn.classList.add('active');
+    btn.innerHTML = '✏️ غیرفعال‌سازی قلم';
+    controls.classList.add('show');
+    canvases.forEach(c => c.classList.add('active-mode'));
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '✏️ نوشتن با قلم نوری';
+    controls.classList.remove('show');
+    canvases.forEach(c => c.classList.remove('active-mode'));
+  }
+}
+
+function setPenColor(color, dot) {
+  currentColor = color;
+  isEraser = false;
+  document.getElementById('eraserBtn').classList.remove('active');
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  dot.classList.add('active');
+}
+
+function toggleEraser() {
+  isEraser = !isEraser;
+  const btn = document.getElementById('eraserBtn');
+  if (isEraser) {
+    btn.classList.add('active');
+  } else {
+    btn.classList.remove('active');
+  }
+}
+
+function clearCurrentCanvas() {
+  contexts.forEach((ctx, idx) => {
+    ctx.clearRect(0, 0, canvases[idx].width, canvases[idx].height);
+  });
+}
+
+function clearAllCanvases() {
+  contexts.forEach((ctx, idx) => {
+    ctx.clearRect(0, 0, canvases[idx].width, canvases[idx].height);
+  });
+}
+
+// اتصال ستونی
+let selectedRightMatch = null;
+function handleMatchClick(el, pagePrefix) {
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  wrapper.querySelectorAll('.match-column.right-col .match-item').forEach(item => {
+    item.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  selectedRightMatch = el.getAttribute('data-id');
+}
+
+function handleMatchTarget(item, pagePrefix) {
+  if (selectedRightMatch === null) return;
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  const targetMatch = item.getAttribute('data-match');
+  
+  if (targetMatch === selectedRightMatch) {
+    const rightEl = wrapper.querySelector(`.match-column.right-col .match-item[data-id="${selectedRightMatch}"]`);
+    
+    for (let i = 0; i < 4; i++) {
+      rightEl.classList.remove(`matched-${i}`);
+      item.classList.remove(`matched-${i}`);
+    }
+
+    rightEl.classList.add(`matched-${selectedRightMatch}`);
+    item.classList.add(`matched-${selectedRightMatch}`);
+
+    rightEl.classList.remove('selected');
+    selectedRightMatch = null;
+  }
+}
+
+// انتخاب گزینه‌ها
+function selectChoice(btn) {
+  const parent = btn.closest('.choice');
+  parent.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected', 'is-correct', 'is-wrong');
+  });
+  btn.classList.add('selected');
+}
+
+// پر کردن خودکار جای خالی بعدی
+function fillNextBlank(chip, pageId) {
+  const page = document.getElementById(pageId);
+  if (!page) return;
+  const text = chip.textContent.trim();
+  const blanks = page.querySelectorAll('.blank-input');
+  for (let blank of blanks) {
+    if (!blank.value.trim()) {
+      blank.value = text;
+      blank.classList.add('filled');
+      break;
+    }
+  }
+}
+
+// امتیاز ستاره‌ها
+function rateStars(num, btn) {
+  const container = btn.closest('.star-rating');
+  const buttons = container.querySelectorAll('.star-btn');
+  buttons.forEach((b, idx) => {
+    if (idx < num) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+}
+
+// بررسی خودکار پاسخ‌ها و محاسبه نمره
+function checkAllAnswers() {
+  let total = 0;
+  let correct = 0;
+
+  const inputs = document.querySelectorAll('input[data-ans]');
+  inputs.forEach(input => {
+    if (input.disabled) return;
+    total++;
+    const userVal = input.value.trim().replace(/\s+/g, ' ');
+    const accepted = input.getAttribute('data-ans').split('|').map(s => s.trim());
+    
+    let isMatch = accepted.some(ans => {
+      return userVal === ans || userVal.replace(/‌/g, '') === ans.replace(/‌/g, '');
+    });
+
+    if (userVal && isMatch) {
+      correct++;
+      input.classList.remove('incorrect');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct');
+      if (userVal) input.classList.add('incorrect');
+    }
+  });
+
+  const choices = document.querySelectorAll('.choice');
+  choices.forEach(c => {
+    const selected = c.querySelector('.opt-btn.selected');
+    if (selected) {
+      total++;
+      if (selected.getAttribute('data-correct') === 'true') {
+        correct++;
+        selected.classList.add('is-correct');
+      } else {
+        selected.classList.add('is-wrong');
+      }
+    }
+  });
+
+  alert(`🎯 نتیجه بررسی کاربرگ:\nتعداد پاسخ‌های صحیح: ${correct} از ${total}\nنمره تقریبی: ${Math.round((correct/total)*100)} از ۱۰۰`);
+}
+
+// نمایش/مخفی پاسخنامه
+function toggleAnswerKey() {
+  const p2Ans = document.getElementById('answer-p2');
+  const p3Ans = document.getElementById('answer-p3');
+  const isShown = p2Ans.classList.contains('show');
+  
+  if (isShown) {
+    p2Ans.classList.remove('show');
+    p3Ans.classList.remove('show');
+  } else {
+    p2Ans.classList.add('show');
+    p3Ans.classList.add('show');
+  }
+}
+
+// بازنشانی کاربرگ
+function resetWorksheet() {
+  if (confirm('آیا می‌خواهید تمام پاسخ‌ها و یادداشت‌های این کاربرگ پاک شوند؟')) {
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      if (el.disabled) return;
+      el.value = '';
+      el.classList.remove('correct', 'incorrect', 'filled');
+    });
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      b.classList.remove('selected', 'is-correct', 'is-wrong');
+    });
+    document.querySelectorAll('.match-item').forEach(el => {
+      el.classList.remove('selected', 'matched-0', 'matched-1', 'matched-2', 'matched-3');
+    });
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    clearAllCanvases();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initCanvases();
+});
+</script>
+
+</body>
+</html>

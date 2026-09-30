@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>کارگاه گام‌به‌گام محیط و مساحت اشکال هندسی — سازنده: نیما آزمکان</title>
+  <style>
+    :root{
+      --bg1: #1e1b4b;
+      --bg2: #0f172a;
+      --card: rgba(255, 255, 255, 0.08);
+      --stroke: rgba(255, 255, 255, 0.15);
+      --text: #f8fafc;
+      --muted: rgba(248, 250, 252, 0.75);
+      --accent: #38bdf8;
+      --accent2: #f59e0b;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: radial-gradient(1000px 600px at 15% 15%, rgba(56, 189, 248, 0.25), transparent 60%),
+                  radial-gradient(900px 600px at 85% 25%, rgba(245, 158, 11, 0.2), transparent 60%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+      padding-bottom: 30px;
+    }
+    .topbar{
+      max-width: 1150px; margin: 0 auto; padding: 20px 18px 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
+    }
+    .brand h1{
+      margin: 0; font-size: 20px; font-weight: 900;
+      background: linear-gradient(90deg, #38bdf8, #f59e0b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .badge{
+      display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke); padding: 8px 14px; border-radius: 999px; font-size: 13px;
+    }
+    main{
+      max-width: 1150px; margin: 0 auto; padding: 10px 18px 30px;
+      display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 20px;
+    }
+    @media (max-width: 900px){ main{ grid-template-columns: 1fr; } }
+    .card{
+      background: var(--card); border: 1px solid var(--stroke); border-radius: 20px;
+      box-shadow: var(--shadow); backdrop-filter: blur(12px); overflow: hidden;
+    }
+    .cardHeader{
+      padding: 14px 18px; border-bottom: 1px solid var(--stroke);
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(0,0,0,0.15); flex-wrap: wrap;
+    }
+    .cardHeader .title{ font-weight: 800; font-size: 15px; color: var(--accent); }
+    .controls{ display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    select, button{
+      font-family: inherit; border-radius: 12px; border: 1px solid var(--stroke); background: rgba(0,0,0,0.3);
+      color: var(--text); padding: 8px 12px; font-size: 13px; cursor: pointer;
+    }
+    .btn-primary{ background: linear-gradient(135deg, #0284c7, #0369a1); border: none; color: #fff; font-weight: 800; }
+    .content{ padding: 20px; }
+    .instruction{
+      background: rgba(56, 189, 248, 0.1); border-right: 4px solid var(--accent);
+      padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.8; margin-bottom: 20px; color: var(--muted);
+    }
+    .op-nav-pills{
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
+      background: rgba(0,0,0,0.25); padding: 6px; border-radius: 14px; border: 1px solid var(--stroke);
+    }
+    .op-pill-btn{
+      background: transparent; border: 1px solid transparent; color: var(--muted);
+      padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .op-pill-btn:hover{ color: #fff; background: rgba(255,255,255,0.05); }
+    .op-pill-btn.active{ background: var(--accent); color: #0f172a; font-weight: 800; }
+
+    .calc-toggle-box{
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;
+    }
+    .toggle-btn{
+      background: rgba(255,255,255,0.08); border: 1px solid var(--stroke); border-radius: 10px;
+      padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--text);
+    }
+    .toggle-btn.active{ background: var(--accent2); color: #000; font-weight: bold; border-color: var(--accent2); }
+
+    .math-canvas{
+      background: rgba(0,0,0,0.25); border: 1px solid var(--stroke); border-radius: 16px;
+      padding: 24px; display: flex; flex-direction: column; gap: 20px; align-items: center;
+    }
+    .svg-wrapper{
+      width: 100%; max-width: 380px; height: 220px; background: rgba(0,0,0,0.2);
+      border-radius: 14px; border: 1px solid var(--stroke); display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Step Card */
+    .step-card{
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--stroke);
+      border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s;
+    }
+    .step-card.active{ background: rgba(56, 189, 248, 0.08); border-color: var(--accent); }
+    .step-header{ display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; color: var(--accent); }
+    .step-flow{ display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; flex-wrap: wrap; direction: ltr; }
+
+    .box-sq{
+      width: 85px; height: 46px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4); color: #fff; font-size: 20px; font-weight: 900; text-align: center; outline: none;
+    }
+    .box-sq:focus{ border-color: var(--accent); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25); }
+    .box-sq.ok{ border-color: var(--good) !important; background: rgba(34, 197, 94, 0.2) !important; color: #4ade80 !important; }
+    .box-sq.bad{ border-color: var(--bad) !important; background: rgba(239, 68, 68, 0.25) !important; color: #f87171 !important; }
+
+    .side-panel{ padding: 20px; }
+    .info-box{ background: rgba(255,255,255,0.05); border: 1px solid var(--stroke); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .info-box h3{ margin: 0 0 10px; font-size: 14px; color: var(--accent); }
+    .chart-container{ display: flex; align-items: flex-end; justify-content: space-around; height: 120px; border-bottom: 1px solid var(--stroke); margin-bottom: 10px; }
+    .bar-wrapper{ display: flex; flex-direction: column; align-items: center; gap: 6px; width: 45%; height: 100%; justify-content: flex-end; }
+    .bar{ width: 100%; max-width: 40px; border-radius: 8px 8px 0 0; min-height: 4px; }
+    .bar-good{ background: linear-gradient(180deg, #4ade80, #16a34a); }
+    .bar-bad{ background: linear-gradient(180deg, #f87171, #dc2626); }
+    .bar-label{ font-size: 11px; color: var(--muted); }
+    .bar-val{ font-size: 12px; font-weight: bold; }
+    .gauge-box{ text-align: center; }
+    .gauge-val{ font-size: 26px; font-weight: 900; color: var(--accent); }
+
+    .confetti-container{ position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti-piece{ position: absolute; width: 10px; height: 14px; border-radius: 2px; animation: fall 2s ease-out forwards; }
+    @keyframes fall{ 0%{ transform: translateY(-20px); opacity:1; } 100%{ transform: translateY(105vh) rotate(720deg); opacity:0; } }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><h1>کارگاه گام‌به‌گام محیط و مساحت اشکال هندسی</h1></div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <div class="badge">دانش‌آموز: <strong id="studentName">قهرمان هندسه</strong></div>
+    <div class="badge">طراح: <strong>نیما آزمکان</strong></div>
+  </div>
+</div>
+
+<main>
+  <section class="card">
+    <div class="cardHeader">
+      <div class="title">محاسبه شکل هندسی</div>
+      <div class="controls">
+        <select id="diffSelect">
+          <option value="easy">آسان (اعداد ۱ تا ۵)</option>
+          <option value="medium" selected>متوسط (اعداد ۶ تا ۱۲)</option>
+          <option value="hard">سخت (اعداد دو رقمی و ترکیبی)</option>
+        </select>
+        <button class="btn-primary" id="newBtn">مسئله جدید 🎲</button>
+        <button id="resetBtn">پاک کردن 🔄</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="op-nav-pills" id="opNavPills">
+        <button type="button" class="op-pill-btn active" data-shape="rect">🔲 مستطیل</button>
+        <button type="button" class="op-pill-btn" data-shape="square">⏹️ مربع</button>
+        <button type="button" class="op-pill-btn" data-shape="triangle">🔺 مثلث</button>
+        <button type="button" class="op-pill-btn" data-shape="composite">🧩 شکل ترکیبی</button>
+      </div>
+
+      <div class="calc-toggle-box">
+        <button type="button" class="toggle-btn active" id="btnPerimeter" data-target="perimeter">محاسبه محیط (دور تا دور)</button>
+        <button type="button" class="toggle-btn" id="btnArea" data-target="area">محاسبه مساحت (سطح داخلی)</button>
+      </div>
+
+      <div class="instruction" id="instructionText">
+        شکل هندسی را با ابعاد مشخص شده مشاهده کنید و فرمول و حاصل محیط یا مساحت را مرحله به مرحله وارد کنید.
+      </div>
+
+      <div class="math-canvas">
+        <div class="svg-wrapper" id="svgContainer"></div>
+
+        <!-- Step 1 -->
+        <div class="step-card active" id="stepCard1">
+          <div class="step-header">
+            <span id="step1Title">مرحله ۱: نوشتن فرمول و قرار دادن اعداد</span>
+            <span id="step1Status">در حال تکمیل...</span>
+          </div>
+          <div class="step-flow" id="step1Inputs"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card" id="stepCard2">
+          <div class="step-header">
+            <span id="step2Title">مرحله ۲: محاسبه حاصل نهایی</span>
+            <span id="step2Status">قفل</span>
+          </div>
+          <div class="step-flow" id="step2Inputs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cardHeader">
+      <div class="title">کارنامه و عملکرد</div>
+      <button id="exportBtn" style="color:#38bdf8;">🖨️ چاپ / PDF</button>
+    </div>
+    <div class="side-panel">
+      <div class="info-box">
+        <h3>نمودار پاسخ‌ها</h3>
+        <div class="chart-container">
+          <div class="bar-wrapper">
+            <span class="bar-val" id="goodCount">0</span>
+            <div class="bar bar-good" id="barGood" style="height:0%;"></div>
+            <span class="bar-label">درست</span>
+          </div>
+          <div class="bar-wrapper">
+            <span class="bar-val" id="badCount">0</span>
+            <div class="bar bar-bad" id="barBad" style="height:0%;"></div>
+            <span class="bar-label">نادرست</span>
+          </div>
+        </div>
+        <div class="gauge-box">
+          <div style="font-size:12px; color:var(--muted);">درصد دقت</div>
+          <div class="gauge-val" id="accuracyVal">0%</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>فرمول و راهنما</h3>
+        <p id="stepHelpText" style="font-size:13px; color:var(--muted); line-height:1.8; margin:0;"></p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="confetti-container" id="confettiBox"></div>
+
+<script>
+(() => {
+  let shape = 'rect';
+  let targetType = 'perimeter'; // 'perimeter' or 'area'
+  let diff = 'medium';
+  let correctCount = 0, wrongCount = 0;
+  let activeStep = 1;
+
+  let sideA = 8, sideB = 5, sideC = 6, height = 4;
+  let intermediateVal = 13, finalVal = 26;
+
+  const svgContainer = document.getElementById('svgContainer');
+  const stepCard1 = document.getElementById('stepCard1');
+  const stepCard2 = document.getElementById('stepCard2');
+  const step1Title = document.getElementById('step1Title');
+  const step2Title = document.getElementById('step2Title');
+  const step1Status = document.getElementById('step1Status');
+  const step2Status = document.getElementById('step2Status');
+  const step1Inputs = document.getElementById('step1Inputs');
+  const step2Inputs = document.getElementById('step2Inputs');
+  const stepHelpText = document.getElementById('stepHelpText');
+  const goodCount = document.getElementById('goodCount');
+  const badCount = document.getElementById('badCount');
+  const accuracyVal = document.getElementById('accuracyVal');
+  const barGood = document.getElementById('barGood');
+  const barBad = document.getElementById('barBad');
+  const diffSelect = document.getElementById('diffSelect');
+  const newBtn = document.getElementById('newBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const studentName = document.getElementById('studentName');
+  const confettiBox = document.getElementById('confettiBox');
+  const btnPerimeter = document.getElementById('btnPerimeter');
+  const btnArea = document.getElementById('btnArea');
+
+  let audioCtx = null;
+  function playTone(freq, dur=0.2){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch(e){}
+  }
+
+  function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function generateProblem(){
+    diff = diffSelect.value;
+    const minVal = diff === 'easy' ? 2 : (diff === 'medium' ? 5 : 10);
+    const maxVal = diff === 'easy' ? 5 : (diff === 'medium' ? 12 : 20);
+
+    if(shape === 'square'){
+      sideA = randInt(minVal, maxVal);
+      if(targetType === 'perimeter'){
+        intermediateVal = sideA;
+        finalVal = sideA * 4;
+      } else {
+        intermediateVal = sideA;
+        finalVal = sideA * sideA;
+      }
+    }
+    else if(shape === 'rect'){
+      sideA = randInt(minVal + 2, maxVal + 4); // Length
+      sideB = randInt(minVal, Math.max(minVal, sideA - 2)); // Width
+      if(targetType === 'perimeter'){
+        intermediateVal = sideA + sideB;
+        finalVal = (sideA + sideB) * 2;
+      } else {
+        intermediateVal = sideA * sideB;
+        finalVal = sideA * sideB;
+      }
+    }
+    else if(shape === 'triangle'){
+      sideA = randInt(minVal + 2, maxVal); // Base
+      height = randInt(minVal, maxVal);
+      sideB = randInt(minVal, maxVal);
+      sideC = randInt(minVal, maxVal);
+      if(targetType === 'perimeter'){
+        intermediateVal = sideA + sideB;
+        finalVal = sideA + sideB + sideC;
+      } else {
+        // Area = (base * height) / 2
+        // Make base * height even
+        if((sideA * height) % 2 !== 0) sideA++;
+        intermediateVal = sideA * height;
+        finalVal = (sideA * height) / 2;
+      }
+    }
+    else if(shape === 'composite'){
+      // L-Shape
+      sideA = randInt(6, 12); // Total width
+      sideB = randInt(6, 12); // Total height
+      sideC = randInt(2, sideA - 2); // Cut width
+      height = randInt(2, sideB - 2); // Cut height
+      if(targetType === 'perimeter'){
+        intermediateVal = sideA + sideB;
+        finalVal = (sideA + sideB) * 2; // For rectilinear L-shape perimeter equals (W+H)*2
+      } else {
+        // Area = (sideA * sideB) - (sideC * height)
+        intermediateVal = sideA * sideB;
+        finalVal = (sideA * sideB) - (sideC * height);
+      }
+    }
+
+    renderSVG();
+    renderUI();
+  }
+
+  function renderSVG(){
+    let svgHtml = '';
+    if(shape === 'square'){
+      svgHtml = `
+        <svg width="220" height="180" viewBox="0 0 220 180">
+          <rect x="40" y="20" width="140" height="140" rx="6" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" stroke-width="3" />
+          <text x="110" y="15" fill="#38bdf8" font-size="14" font-weight="bold" text-anchor="middle">${sideA} cm</text>
+          <text x="195" y="95" fill="#38bdf8" font-size="14" font-weight="bold" text-anchor="middle">${sideA} cm</text>
+          <text x="110" y="95" fill="rgba(255,255,255,0.7)" font-size="13" text-anchor="middle">مربع</text>
+        </svg>
+      `;
+    }
+    else if(shape === 'rect'){
+      svgHtml = `
+        <svg width="260" height="180" viewBox="0 0 260 180">
+          <rect x="30" y="30" width="200" height="120" rx="6" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" stroke-width="3" />
+          <text x="130" y="22" fill="#38bdf8" font-size="14" font-weight="bold" text-anchor="middle">طول = ${sideA} cm</text>
+          <text x="245" y="95" fill="#f59e0b" font-size="14" font-weight="bold" text-anchor="middle">عرض = ${sideB} cm</text>
+          <text x="130" y="95" fill="rgba(255,255,255,0.7)" font-size="13" text-anchor="middle">مستطیل</text>
+        </svg>
+      `;
+    }
+    else if(shape === 'triangle'){
+      svgHtml = `
+        <svg width="240" height="180" viewBox="0 0 240 180">
+          <polygon points="120,20 30,150 210,150" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" stroke-width="3" />
+          <line x1="120" y1="20" x2="120" y2="150" stroke="#f59e0b" stroke-dasharray="4" stroke-width="2" />
+          <text x="120" y="170" fill="#38bdf8" font-size="13" font-weight="bold" text-anchor="middle">قاعده = ${sideA} cm</text>
+          <text x="145" y="90" fill="#f59e0b" font-size="13" font-weight="bold">ارتفاع = ${height} cm</text>
+          ${targetType === 'perimeter' ? `<text x="50" y="80" fill="#38bdf8" font-size="12">${sideB} cm</text><text x="180" y="80" fill="#38bdf8" font-size="12">${sideC} cm</text>` : ''}
+        </svg>
+      `;
+    }
+    else if(shape === 'composite'){
+      svgHtml = `
+        <svg width="240" height="180" viewBox="0 0 240 180">
+          <polygon points="30,20 130,20 130,90 210,90 210,160 30,160" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" stroke-width="3" />
+          <text x="120" y="175" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">عرض کل = ${sideA} cm</text>
+          <text x="15" y="95" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">ارتفاع = ${sideB} cm</text>
+        </svg>
+      `;
+    }
+    svgContainer.innerHTML = svgHtml;
+  }
+
+  function renderUI(){
+    activeStep = 1;
+    const unit = targetType === 'perimeter' ? 'سانتی‌متر' : 'سانتی‌متر مربع';
+
+    if(shape === 'square'){
+      if(targetType === 'perimeter'){
+        step1Title.textContent = `مرحله ۱: فرمول محیط مربع (یک ضلع × ۴)`;
+        step1Inputs.innerHTML = `
+          <span>${sideA} × ۴ = </span>
+          <input class="box-sq" id="s1_ans" placeholder="پاسخ" inputmode="numeric" autofocus>
+        `;
+        step2Title.textContent = `مرحله ۲: تأیید مقدار محیط`;
+        step2Inputs.innerHTML = `<span>محیط = ${finalVal} ${unit}</span>`;
+      } else {
+        step1Title.textContent = `مرحله ۱: فرمول مساحت مربع (یک ضلع × خودش)`;
+        step1Inputs.innerHTML = `
+          <span>${sideA} × ${sideA} = </span>
+          <input class="box-sq" id="s1_ans" placeholder="پاسخ" inputmode="numeric" autofocus>
+        `;
+        step2Title.textContent = `مرحله ۲: تأیید مقدار مساحت`;
+        step2Inputs.innerHTML = `<span>مساحت = ${finalVal} ${unit}</span>`;
+      }
+    }
+    else if(shape === 'rect'){
+      if(targetType === 'perimeter'){
+        step1Title.textContent = `مرحله ۱: جمع طول و عرض (${sideA} + ${sideB})`;
+        step1Inputs.innerHTML = `
+          <span>${sideA} + ${sideB} = </span>
+          <input class="box-sq" id="s1_ans" placeholder="جمع" inputmode="numeric" autofocus>
+        `;
+        step2Title.textContent = `مرحله ۲: ضرب حاصل در ۲ ((طول + عرض) × ۲)`;
+        step2Inputs.innerHTML = `
+          <span>محیط مستطیل = </span>
+          <input class="box-sq" id="s2_ans" placeholder="محیط" inputmode="numeric" disabled>
+        `;
+      } else {
+        step1Title.textContent = `مرحله ۱: فرمول مساحت مستطیل (طول × عرض)`;
+        step1Inputs.innerHTML = `
+          <span>${sideA} × ${sideB} = </span>
+          <input class="box-sq" id="s1_ans" placeholder="پاسخ" inputmode="numeric" autofocus>
+        `;
+        step2Title.textContent = `مرحله ۲: تأیید مقدار مساحت`;
+        step2Inputs.innerHTML = `<span>مساحت = ${finalVal} ${unit}</span>`;
+      }
+    }
+    else if(shape === 'triangle'){
+      if(targetType === 'perimeter'){
+        step1Title.textContent = `مرحله ۱: مجموع دو ضلع اول (${sideA} + ${sideB})`;
+        step1Inputs.innerHTML = `
+          <span>${sideA} + ${sideB} = </span>
+          <input class="box-sq" id="s1_ans" placeholder="حاصل" inputmode="numeric" autofocus>
+        `;
+        step2Title.textContent = `مرحله ۲: اضافه کردن ضلع سوم (${sideC})`;
+        step2Inputs.innerHTML = `
+          <span>محیط کل = </span>
+          <input class="box-sq" id="s2_ans" placeholder="محیط" inputmode="numeric" disabled>
+        `;
+      } else {
+        step1Title.textContent = `مرحله ۱: ضرب قاعده در ارتفاع (${sideA} × ${height})`;
+        step1Inputs.innerHTML = `
+          <span>${sideA} × ${height} = </span>
+          <input class="box-sq" id="s1_ans" placeholder="حاصل" inputmode="numeric" autofocus>
+        `;
+        step2Title.textContent = `مرحله ۲: تقسیم بر ۲ ((قاعده × ارتفاع) ÷ ۲)`;
+        step2Inputs.innerHTML = `
+          <span>مساحت مثلث = </span>
+          <input class="box-sq" id="s2_ans" placeholder="مساحت" inputmode="numeric" disabled>
+        `;
+      }
+    }
+    else if(shape === 'composite'){
+      step1Title.textContent = `مرحله ۱: محاسبه اولیه اضلاع`;
+      step1Inputs.innerHTML = `
+        <span>حاصل جمع (${sideA} + ${sideB}) = </span>
+        <input class="box-sq" id="s1_ans" placeholder="جمع" inputmode="numeric" autofocus>
+      `;
+      step2Title.textContent = `مرحله ۲: محاسبه ${targetType === 'perimeter' ? 'محیط' : 'مساحت'} نهایی`;
+      step2Inputs.innerHTML = `
+        <span>پاسخ نهایی = </span>
+        <input class="box-sq" id="s2_ans" placeholder="مقدار" inputmode="numeric" disabled>
+      `;
+    }
+
+    stepCard1.classList.add('active');
+    stepCard2.classList.remove('active');
+    step1Status.textContent = 'در حال تکمیل...';
+    step2Status.textContent = 'قفل';
+
+    updateHelp();
+    setupListeners();
+  }
+
+  function updateHelp(){
+    if(targetType === 'perimeter'){
+      if(shape === 'square') stepHelpText.innerHTML = `📐 محیط مربع = یک ضلع × ۴ = ${sideA} × ۴ = ${sideA * 4}`;
+      else if(shape === 'rect') stepHelpText.innerHTML = `📐 محیط مستطیل = (طول + عرض) × ۲ = (${sideA} + ${sideB}) × ۲ = ${finalVal}`;
+      else if(shape === 'triangle') stepHelpText.innerHTML = `📐 محیط مثلث = مجموع اضلاع = ${sideA} + ${sideB} + ${sideC} = ${finalVal}`;
+      else stepHelpText.innerHTML = `📐 محیط شکل یعنی مجموع طول تمام اضلاع دور تا دور شکل = ${finalVal}`;
+    } else {
+      if(shape === 'square') stepHelpText.innerHTML = `📐 مساحت مربع = یک ضلع × خودش = ${sideA} × ${sideA} = ${sideA * sideA}`;
+      else if(shape === 'rect') stepHelpText.innerHTML = `📐 مساحت مستطیل = طول × عرض = ${sideA} × ${sideB} = ${sideA * sideB}`;
+      else if(shape === 'triangle') stepHelpText.innerHTML = `📐 مساحت مثلث = (قاعده × ارتفاع) ÷ ۲ = (${sideA} × ${height}) ÷ ۲ = ${finalVal}`;
+      else stepHelpText.innerHTML = `📐 مساحت شکل ترکیبی یعنی مساحت مستطیل بزرگ منهای بخش خالی = ${finalVal}`;
+    }
+  }
+
+  function setupListeners(){
+    const in1 = document.getElementById('s1_ans');
+    const in2 = document.getElementById('s2_ans');
+
+    const isSingleStep = (shape === 'square') || (shape === 'rect' && targetType === 'area');
+
+    in1.oninput = () => {
+      const val = parseInt(in1.value.trim(), 10);
+      const expected1 = isSingleStep ? finalVal : intermediateVal;
+
+      if(val === expected1){
+        in1.classList.add('ok');
+        in1.disabled = true;
+
+        if(isSingleStep){
+          complete();
+        } else {
+          playTone(550, 0.2);
+          activeStep = 2;
+          step1Status.textContent = '✓ درست';
+          step2Status.textContent = 'در حال تکمیل...';
+          stepCard1.classList.remove('active');
+          stepCard2.classList.add('active');
+          in2.disabled = false;
+          in2.focus();
+        }
+      }
+    };
+
+    if(in2){
+      in2.oninput = () => {
+        const val = parseInt(in2.value.trim(), 10);
+        if(val === finalVal){
+          in2.classList.add('ok');
+          in2.disabled = true;
+          complete();
+        }
+      };
+    }
+
+    setTimeout(() => { in1?.focus(); }, 100);
+  }
+
+  function complete(){
+    correctCount++;
+    updateChart();
+    playTone(660, 0.3);
+    triggerConfetti();
+
+    try {
+      window.parent?.postMessage({
+        type: 'MATH_APP_COMPLETED',
+        appId: 'g3-perimeter-area',
+        gradeId: 'g3',
+        shape,
+        targetType,
+        correctCount
+      }, '*');
+    } catch(e){}
+
+    setTimeout(generateProblem, 1600);
+  }
+
+  function updateChart(){
+    goodCount.textContent = correctCount;
+    badCount.textContent = wrongCount;
+    const total = correctCount + wrongCount;
+    let pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+    accuracyVal.textContent = pct + '%';
+    const maxVal = Math.max(correctCount, wrongCount, 5);
+    barGood.style.height = (correctCount / maxVal) * 100 + '%';
+    barBad.style.height = (wrongCount / maxVal) * 100 + '%';
+  }
+
+  function triggerConfetti(){
+    confettiBox.innerHTML = '';
+    const colors = ['#38bdf8', '#f59e0b', '#22c55e', '#a855f7'];
+    for(let i=0; i<60; i++){
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+      confettiBox.appendChild(p);
+    }
+    setTimeout(() => { confettiBox.innerHTML = ''; }, 2000);
+  }
+
+  document.querySelectorAll('#opNavPills .op-pill-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#opNavPills .op-pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      shape = btn.getAttribute('data-shape');
+      generateProblem();
+    };
+  });
+
+  btnPerimeter.onclick = () => {
+    btnPerimeter.classList.add('active');
+    btnArea.classList.remove('active');
+    targetType = 'perimeter';
+    generateProblem();
+  };
+
+  btnArea.onclick = () => {
+    btnArea.classList.add('active');
+    btnPerimeter.classList.remove('active');
+    targetType = 'area';
+    generateProblem();
+  };
+
+  newBtn.onclick = generateProblem;
+  resetBtn.onclick = renderUI;
+  diffSelect.onchange = generateProblem;
+  exportBtn.onclick = () => window.print();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('studentName')){
+    studentName.textContent = decodeURIComponent(urlParams.get('studentName') || '');
+  }
+
+  generateProblem();
+})();
+</script>
+</body>
+</html>

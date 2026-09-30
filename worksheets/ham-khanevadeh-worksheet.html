@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>کاربرگ کلمات هم‌خانواده، نشانه‌های نگارشی و تبدیل گفتار به نوشتار — فارسی سوم دبستان (درس سوم: آسمانِ آبی، طبیعتِ پاک)</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap');
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --primary-color: #0288d1;
+  --secondary-color: #2e7d32;
+  --accent-color: #e91e63;
+  --warning-color: #ef6c00;
+  --purple-color: #7b1fa2;
+  --teal-color: #00897b;
+  --text-dark: #263238;
+}
+
+@page{
+  size: A4 portrait;
+  margin: 7mm;
+}
+
+body{
+  direction: rtl;
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #e1f5fe, #e8f5e9, #f3e5f5);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   نوار ابزار تعاملی معلق (Floating Action Bar)
+===================================================== */
+.floating-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  border: 2px solid #e0e0e0;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-print { background: linear-gradient(135deg, #7b1fa2, #e91e63); }
+.btn-draw { background: linear-gradient(135deg, #0288d1, #00acc1); }
+.btn-draw.active { background: linear-gradient(135deg, #e65100, #f57c00); box-shadow: 0 0 10px #f57c00; }
+.btn-check { background: linear-gradient(135deg, #2e7d32, #43a047); }
+.btn-answer { background: linear-gradient(135deg, #f57c00, #ff9800); }
+.btn-reset { background: linear-gradient(135deg, #546e7a, #78909c); }
+
+/* پالت رنگ و کنترل نقاشی */
+.draw-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #ede7f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #b39ddb;
+}
+
+.draw-controls.show {
+  display: inline-flex;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+
+.color-dot:hover, .color-dot.active {
+  transform: scale(1.25);
+  border-color: #212121;
+}
+
+.pen-size-btn, .eraser-btn, .clear-canvas-btn {
+  background: #fff;
+  border: 1px solid #b39ddb;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #4527a0;
+}
+
+.eraser-btn.active {
+  background: #d1c4e9;
+  border-color: #512da8;
+}
+
+/* =====================================================
+   چیدمان صفحه‌ها (A4 Pages Layout)
+===================================================== */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 18px auto 28px;
+  padding: 7.5mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+  page-break-after: always;
+}
+
+.page:last-of-type {
+  page-break-after: auto;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+}
+
+/* بوم نقاشی قلم نوری */
+.draw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.draw-canvas.active-mode {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+/* تزیینات پس‌زمینه */
+.blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.blob.one {
+  width: 230px;
+  height: 230px;
+  top: -100px;
+  right: -90px;
+  background: radial-gradient(circle, rgba(2,136,209,0.16), transparent 70%);
+}
+.blob.two {
+  width: 270px;
+  height: 270px;
+  bottom: -110px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(46,125,50,0.16), transparent 70%);
+}
+.blob.three {
+  width: 190px;
+  height: 190px;
+  top: 42%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(123,31,162,0.16), transparent 70%);
+}
+
+.corner {
+  position: absolute;
+  z-index: 1;
+  font-size: 28px;
+  opacity: 0.22;
+  user-select: none;
+}
+.top-right { top: 8px; right: 10px; }
+.top-left { top: 8px; left: 10px; }
+.bottom-right { bottom: 8px; right: 10px; }
+.bottom-left { bottom: 8px; left: 10px; }
+
+/* =====================================================
+   سربرگ‌ها و کادرهای اطلاعات
+===================================================== */
+.header {
+  margin-bottom: 8px;
+  padding: 10px 16px;
+  color: #fff;
+  text-align: center;
+  border: 3px solid #fff;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0288d1, #2e7d32, #00897b, #7b1fa2);
+  box-shadow: 0 5px 16px rgba(0,0,0,0.15);
+}
+
+.header h1 {
+  font-size: 18.5px;
+  font-weight: 900;
+  text-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+  margin-top: 3px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.header .emoji {
+  font-size: 19px;
+}
+
+.header.small {
+  padding: 8px 14px;
+  border-radius: 16px;
+  margin-bottom: 7px;
+}
+
+.header.small h1 {
+  font-size: 17px;
+}
+
+/* مشخصات دانش‌آموز */
+.student-info {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1.2fr 1fr;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.info-box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 4px 8px;
+  color: #01579b;
+  font-size: 11px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+  border: 1.8px dashed #0288d1;
+  border-radius: 10px;
+}
+
+.info-box input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-bottom: 1.5px dotted #0288d1;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #01579b;
+  padding: 1px 4px;
+  outline: none;
+}
+
+/* =====================================================
+   جعبه‌های آموزش و یادگیری (قواعد)
+===================================================== */
+.learn-box {
+  position: relative;
+  padding: 9px 12px 7px;
+  margin: 6px 0 5px;
+  background: linear-gradient(135deg, #fff8e1, #ffecb3);
+  border: 2.5px solid #ffb300;
+  border-radius: 14px;
+  box-shadow: 0 3px 8px rgba(255,179,0,0.15);
+}
+
+.learn-badge {
+  position: absolute;
+  top: -11px;
+  right: 14px;
+  padding: 2px 11px;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 900;
+  background: #ef6c00;
+  border: 2px solid #fff;
+  border-radius: 18px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.learn-box p {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.85;
+}
+
+.highlight {
+  padding: 1px 6px;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.h-pink{background:#e91e63;}
+.h-blue{background:#0288d1;}
+.h-green{background:#2e7d32;}
+.h-purple{background:#7b1fa2;}
+.h-orange{background:#ef6c00;}
+.h-teal{background:#00897b;}
+
+/* کارت‌های آموزشی ۳ گانه */
+.rule-cards-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.rcard {
+  padding: 6px 7px;
+  border: 2px solid;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.rcard.rc-family { border-color: #0288d1; background: linear-gradient(135deg, #e1f5fe, #fff); }
+.rcard.rc-punct { border-color: #7b1fa2; background: linear-gradient(135deg, #f3e5f5, #fff); }
+.rcard.rc-speech { border-color: #2e7d32; background: linear-gradient(135deg, #e8f5e9, #fff); }
+
+.rcard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 900;
+  margin-bottom: 3px;
+}
+
+.rc-family .rcard-head { color: #0277bd; }
+.rc-punct .rcard-head { color: #7b1fa2; }
+.rc-speech .rcard-head { color: #2e7d32; }
+
+.rcard-desc {
+  font-size: 10px;
+  color: #37474f;
+  line-height: 1.65;
+}
+
+.rcard-samples {
+  margin-top: 3px;
+  padding: 2px 4px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #bf360c;
+}
+
+/* جدول نشانه‌های نگارشی */
+.punct-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 5px 0 4px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  font-size: 11px;
+}
+
+.punct-table th {
+  padding: 5px;
+  color: #fff;
+  font-weight: 900;
+  text-align: center;
+  background: #7b1fa2;
+}
+
+.punct-table td {
+  padding: 4px 6px;
+  text-align: center;
+  border-bottom: 1px solid #eceff1;
+  font-weight: 700;
+}
+
+.punct-table tr:nth-child(even) {
+  background: #fdfbfd;
+}
+
+.sign-badge {
+  display: inline-block;
+  min-width: 24px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  background: #d81b60;
+}
+
+/* عنوان بخش‌ها */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 4px;
+  padding: 4px 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 11px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  break-inside: avoid;
+}
+
+.section-title small {
+  margin-right: auto;
+  padding: 1px 6px;
+  font-size: 9.5px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.purple{background:linear-gradient(135deg,#6a1b9a,#ab47bc);}
+.blue{background:linear-gradient(135deg,#0288d1,#03a9f4);}
+.orange{background:linear-gradient(135deg,#e65100,#ff9800);}
+.green{background:linear-gradient(135deg,#1b5e20,#43a047);}
+.pink{background:linear-gradient(135deg,#ad1457,#ec407a);}
+.teal{background:linear-gradient(135deg,#00695c,#26a69a);}
+
+/* =====================================================
+   تمرین‌های تعاملی
+===================================================== */
+/* کارت‌های هم‌خانواده */
+.family-build-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.fb-card {
+  padding: 6px 5px 7px;
+  text-align: center;
+  background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+  border: 2px solid #0288d1;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.fb-card .root-word {
+  color: #01579b;
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+
+.fb-card input {
+  width: 90%;
+  margin-top: 2px;
+  text-align: center;
+  border: none;
+  background: #fff;
+  border-radius: 6px;
+  border-bottom: 2px dashed #0288d1;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+  color: #01579b;
+  padding: 2px 4px;
+  outline: none;
+}
+
+/* جدول تبدیل گفتار به نوشتار */
+.speech-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.speech-row {
+  display: grid;
+  grid-template-columns: 1fr 20px 1.2fr;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 7px;
+  background: linear-gradient(135deg, #e8f5e9, #fff);
+  border: 2px solid #43a047;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.speech-row .spoken {
+  padding: 2px 6px;
+  text-align: center;
+  color: #d84315;
+  font-size: 11px;
+  font-weight: 900;
+  background: #fbe9e7;
+  border-radius: 8px;
+}
+
+.speech-row .arrow {
+  text-align: center;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.interactive-input {
+  width: 100%;
+  border: none;
+  background: #fff;
+  border-bottom: 2px dashed #2e7d32;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+  color: #1b5e20;
+  text-align: center;
+  padding: 2px 4px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.interactive-input:focus {
+  border-bottom-color: #d81b60;
+  background: #e8f5e9;
+}
+
+.interactive-input.correct {
+  background-color: #e8f5e9 !important;
+  border-bottom-color: #2e7d32 !important;
+  color: #1b5e20 !important;
+}
+
+.interactive-input.incorrect {
+  background-color: #ffebee !important;
+  border-bottom-color: #c62828 !important;
+  color: #b71c1c !important;
+}
+
+/* وصل کردن تعاملی */
+.match-box {
+  display: grid;
+  grid-template-columns: 1fr 35px 1.2fr;
+  gap: 6px;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.match-column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.match-item {
+  min-height: 32px;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: #fff;
+  border: 2px solid;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.match-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.match-column.right-col .match-item {
+  color: #0288d1;
+  border-color: #03a9f4;
+}
+
+.match-column.left-col .match-item {
+  color: #7b1fa2;
+  font-size: 11.5px;
+  border-color: #ab47bc;
+}
+
+.match-item.selected {
+  background: #fff9c4 !important;
+  border-color: #fbc02d !important;
+  box-shadow: 0 0 10px rgba(251,192,45,0.8);
+}
+
+.match-item.matched-0 { background: #e8f5e9 !important; border-color: #43a047 !important; color: #1b5e20 !important; }
+.match-item.matched-1 { background: #e3f2fd !important; border-color: #1e88e5 !important; color: #0d47a1 !important; }
+.match-item.matched-2 { background: #f3e5f5 !important; border-color: #ab47bc !important; color: #4a148c !important; }
+.match-item.matched-3 { background: #fff3e0 !important; border-color: #fb8c00 !important; color: #e65100 !important; }
+
+.match-middle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #ff9800;
+}
+
+/* جمله‌ها و جای‌گذاری نشانه‌های نگارشی */
+.punct-sentence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+}
+
+.punct-sentence {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 38px;
+  padding: 4px 7px;
+  background: #fff;
+  border: 1.8px solid #ab47bc;
+  border-radius: 11px;
+  color: #4a148c;
+  font-size: 11px;
+  font-weight: 700;
+  break-inside: avoid;
+}
+
+.punct-input {
+  width: 30px;
+  height: 24px;
+  border: 1.5px dashed #7b1fa2;
+  border-radius: 6px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  color: #d81b60;
+  outline: none;
+  background: #fdfbfd;
+}
+
+.punct-input:focus {
+  background: #fff;
+  border-color: #e91e63;
+}
+
+/* گزینه‌های تستی */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 38px;
+  padding: 4px;
+  background: #fff;
+  border: 2px solid #ff7043;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.choice .or {
+  color: #bf360c;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.choice .ctext {
+  width: 100%;
+  text-align: center;
+  color: #37474f;
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.num-c {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  background: #ff7043;
+  border-radius: 50%;
+}
+
+.opt-btn {
+  padding: 2px 8px;
+  color: #0288d1;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: #e1f5fe;
+  border: 1.2px dashed #03a9f4;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  outline: none;
+}
+
+.opt-btn:hover {
+  background: #b3e5fc;
+  transform: scale(1.05);
+}
+
+.opt-btn.selected {
+  background: #0288d1 !important;
+  color: #fff !important;
+  border-style: solid !important;
+  box-shadow: 0 2px 6px rgba(2,136,209,0.4);
+}
+
+.opt-btn.is-correct {
+  background: #2e7d32 !important;
+  color: #fff !important;
+  border-color: #1b5e20 !important;
+}
+
+.opt-btn.is-wrong {
+  background: #c62828 !important;
+  color: #fff !important;
+  border-color: #b71c1c !important;
+}
+
+/* خودت بنویس خلاقانه */
+.creative-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.creative-card {
+  padding: 7px;
+  color: #004d40;
+  font-size: 10.5px;
+  font-weight: 900;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
+  border: 1.8px solid #00897b;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.creative-card textarea {
+  width: 100%;
+  height: 38px;
+  margin-top: 4px;
+  padding: 3px;
+  border: none;
+  background: rgba(255,255,255,0.75);
+  border-bottom: 2px dashed #00897b;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  color: #004d40;
+  resize: none;
+  outline: none;
+}
+
+/* کلید پاسخ‌نامه تعاملی */
+.answer-key-box {
+  display: none;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #e8f5e9;
+  border: 2px solid #43a047;
+  border-radius: 10px;
+  font-size: 10.5px;
+  color: #1b5e20;
+  line-height: 1.7;
+}
+
+.answer-key-box.show {
+  display: block;
+}
+
+/* =====================================================
+   پانوشت و خودارزیابی
+===================================================== */
+.footer {
+  margin-top: 6px;
+  padding: 6px 10px;
+  text-align: center;
+  background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+  border: 1.8px solid #7986cb;
+  border-radius: 11px;
+}
+
+.footer .creator {
+  color: #283593;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.footer .message {
+  margin-top: 2px;
+  color: #3949ab;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+
+.self-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  color: #283593;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.star-rating {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.star-btn {
+  color: #b0bec5;
+  transition: color 0.15s, transform 0.15s;
+  user-select: none;
+}
+
+.star-btn:hover, .star-btn.active {
+  color: #ff9800;
+  transform: scale(1.15);
+}
+
+/* =====================================================
+   قوانین پرینت استاندارد A4
+===================================================== */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .no-print, .floating-toolbar, .draw-controls {
+    display: none !important;
+  }
+
+  .page {
+    width: 100% !important;
+    min-height: 290mm !important;
+    margin: 0 !important;
+    padding: 6mm !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-after: always !important;
+  }
+
+  .page:last-of-type {
+    page-break-after: auto !important;
+  }
+
+  .interactive-input, .punct-input, .info-box input, .fb-card input, .creative-card textarea {
+    border-bottom: 1.5px dashed #000 !important;
+    background: transparent !important;
+    color: #000 !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .page {
+    width: 100%;
+    margin: 10px 0;
+    padding: 8px;
+  }
+
+  .student-info, .speech-grid, .punct-sentence-grid, .creative-grid, .choice-grid, .rule-cards-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .family-build-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- نوار ابزار تعاملی شناور بالای صفحه -->
+<aside class="floating-toolbar no-print" aria-label="نوار ابزار تعاملی کاربرگ">
+  <button class="tool-btn btn-print" onclick="window.print()">
+    🖨️ چاپ برگه A4
+  </button>
+  
+  <button class="tool-btn btn-draw" id="drawToggleBtn" onclick="toggleDrawingMode()">
+    ✏️ نوشتن با قلم نوری
+  </button>
+
+  <div class="draw-controls" id="drawControls">
+    <span style="font-size: 11px; font-weight: 700; color:#4527a0;">رنگ مداد:</span>
+    <div class="color-dot active" style="background:#000;" onclick="setPenColor('#000000', this)"></div>
+    <div class="color-dot" style="background:#1565c0;" onclick="setPenColor('#1565c0', this)"></div>
+    <div class="color-dot" style="background:#c62828;" onclick="setPenColor('#c62828', this)"></div>
+    <div class="color-dot" style="background:#2e7d32;" onclick="setPenColor('#2e7d32', this)"></div>
+    
+    <button class="eraser-btn" id="eraserBtn" onclick="toggleEraser()">🧹 پاک‌کن</button>
+    <button class="clear-canvas-btn" onclick="clearCurrentCanvas()">🗑️ پاکسازی دست‌خط</button>
+  </div>
+
+  <button class="tool-btn btn-check" onclick="checkAllAnswers()">
+    ✅ بررسی پاسخ‌ها
+  </button>
+
+  <button class="tool-btn btn-answer" onclick="toggleAnswerKey()">
+    🔑 کلید پاسخ‌نامه
+  </button>
+
+  <button class="tool-btn btn-reset" onclick="resetWorksheet()">
+    🔄 بازنشانی
+  </button>
+</aside>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی اول: آموزش کلمات هم‌خانواده، نگارش و گفتار/نوشتار -->
+<!-- ===================================================== -->
+<section class="page" id="page-1">
+  <canvas class="draw-canvas" id="canvas-1"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌲</div>
+  <div class="corner top-left">🏞️</div>
+  <div class="corner bottom-right">✍️</div>
+  <div class="corner bottom-left">🌟</div>
+
+  <div class="content">
+
+    <header class="header">
+      <div class="emoji">🌲 «آسمان آبی، طبیعت پاک» ✍️ «نشانه‌های نگارشی» 👨‍👩‍👧‍👦 «هم‌خانواده‌ها»</div>
+      <h1>کاربرگ آموزشی کلمات هم‌خانواده، نشانه‌های نگارشی و تبدیل گفتار به نوشتار</h1>
+      <p>فارسی پایه‌ی سوم دبستان (فصل دوم: بهداشت — درس سوم: آسمانِ آبی، طبیعتِ پاک و شعر هم‌بازی)</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 دبستان و کلاس:
+        <input type="text" placeholder="کلاس سوم...">
+      </div>
+      <div class="info-box">
+        👩‍🏫 نام آموزگار:
+        <input type="text" placeholder="آموزگار محترم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <!-- ۳ کارت آموزش قواعد درس سوم -->
+    <div class="rule-cards-3">
+
+      <div class="rcard rc-family">
+        <div class="rcard-head">
+          <span>👨‍👩‍👧‍👦 ۱. کلمات هم‌خانواده</span>
+          <span class="highlight h-blue">ریشه یکسان</span>
+        </div>
+        <div class="rcard-desc">
+          کلماتی که از یک <b>ریشه مشترک</b> ساخته شده‌اند، <b>حروف اصلی</b> آن‌ها به یک ترتیب تکرار می‌شود و در <b>معنا</b> با هم ارتباط دارند.
+        </div>
+        <div class="rcard-samples">
+          نظر ⬅ ناظر، منظور، مناظر<br>
+          حفظ ⬅ حافظ، محافظت، محفوظ<br>
+          شکر ⬅ شاکر، تشکر، متشکر
+        </div>
+      </div>
+
+      <div class="rcard rc-punct">
+        <div class="rcard-head">
+          <span>✍️ ۲. نشانه‌های نگارشی</span>
+          <span class="highlight h-purple">درست‌خوانی</span>
+        </div>
+        <div class="rcard-desc">
+          علامت‌هایی که برای فهم بهتر متن، تعیین لحن و مکث در خواندن و نوشتن به کار می‌روند: نقطه، ویرگول، پرسش، تعجب و گیومه.
+        </div>
+        <div class="rcard-samples">
+          نقطه (.) ⬅ پایان جمله<br>
+          ویرگول (،) ⬅ مکث کوتاه<br>
+          پرسش (؟) | تعجب (!) | گیومه « »
+        </div>
+      </div>
+
+      <div class="rcard rc-speech">
+        <div class="rcard-head">
+          <span>🗣️ ۳. گفتار به نوشتار</span>
+          <span class="highlight h-green">زبان معیار</span>
+        </div>
+        <div class="rcard-desc">
+          در زبان محاوره‌ای کلمات گاهی شکسته ادا می‌شوند، اما در نوشتن انشا و گزارش باید به صورت <b>کامل، رسمی و نوشتاری معیار</b> نوشته شوند.
+        </div>
+        <div class="rcard-samples">
+          می‌رم ⬅ می‌روم<br>
+          خونه ⬅ خانه<br>
+          می‌خوام برم ⬅ می‌خواهم بروم
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-title purple">
+      <span>📖</span>
+      جدول کاربرد نشانه‌های نگارشی در متن درس «آسمانِ آبی، طبیعتِ پاک»
+      <small>یاد بگیریم</small>
+    </div>
+
+    <table class="punct-table">
+      <thead>
+        <tr>
+          <th>نام نشانه</th>
+          <th>علامت</th>
+          <th>محل کاربرد در جمله</th>
+          <th>مثال از متن درس ۳</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>نقطه</b></td>
+          <td><span class="sign-badge">.</span></td>
+          <td>در پایان تمام جمله‌های خبری و امری ساده</td>
+          <td>دانش‌آموزان به دامنه‌ی کوهی رفتند<b>.</b></td>
+        </tr>
+        <tr>
+          <td><b>ویرگول (کاما)</b></td>
+          <td><span class="sign-badge">،</span></td>
+          <td>برای ایجاد مکث کوتاه میان بخش‌های جمله و تفکیک کلمات</td>
+          <td>نوشته‌ی شما، کوتاه<b>،</b> گویا و خوب بود.</td>
+        </tr>
+        <tr>
+          <td><b>علامت پرسش</b></td>
+          <td><span class="sign-badge">؟</span></td>
+          <td>در پایان جمله‌های پرسشی و سوالی</td>
+          <td>چگونه می‌توانیم طبیعت را پاکیزه نگه داریم<b>؟</b></td>
+        </tr>
+        <tr>
+          <td><b>علامت تعجب (عاطفه)</b></td>
+          <td><span class="sign-badge">!</span></td>
+          <td>در پایان جملات عاطفی، شادی، تعجب، تحسین و ندا</td>
+          <td>تماشای قلّه، چقدر لذّت‌بخش بود<b>!</b></td>
+        </tr>
+        <tr>
+          <td><b>دو نقطه</b></td>
+          <td><span class="sign-badge">:</span></td>
+          <td>قبل از نقل قول مستقیم یا هنگام توضیح دادن و برشمردن</td>
+          <td>معلّم از سعید تشکّر کرد و گفت<b>:</b> «نوشته‌ی شما...»</td>
+        </tr>
+        <tr>
+          <td><b>گیومه</b></td>
+          <td><span class="sign-badge">« »</span></td>
+          <td>برای دربرگرفتن سخن مستقیم دیگران یا نام‌های ویژه</td>
+          <td>آموزگار گفت: <b>«</b>به همه چیز خوب نگاه کنید.<b>»</b></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="learn-box">
+      <div class="learn-badge">💡 قاعده طلایی هم‌خانواده‌ها</div>
+      <p>
+        برای پیدا کردن کلمات هم‌خانواده به ۳ حرف اصلی کلمه دقت کنید:
+        مثلاً در واژه‌های <b>(حفظ، حافظ، محافظ، محفوظ، حفاظت)</b> سه حرف <b>«ح - ف - ظ»</b> به ترتیب در همه تکرار شده و همگی به معنیِ مراقبت و نگهبانی هستند.
+      </p>
+    </div>
+
+    <footer class="footer">
+      <div class="creator">🎓 طرّاح و مؤلف کاربرگ: نیما آزمکان</div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی دوم: تمرین‌های هم‌خانواده و گفتار به نوشتار   -->
+<!-- ===================================================== -->
+<section class="page" id="page-2">
+  <canvas class="draw-canvas" id="canvas-2"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌻</div>
+  <div class="corner top-left">🎈</div>
+  <div class="corner bottom-right">🍀</div>
+  <div class="corner bottom-left">🌟</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 تمرین‌های کلمات هم‌خانواده و تبدیل گفتار به نوشتار</h1>
+      <p>با دقت بخوان، کلمات هم‌خانواده را بساز و جملات محاوره‌ای را به نوشتاری تبدیل کن.</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" placeholder="کلاس سوم...">
+      </div>
+      <div class="info-box">
+        👩‍🏫 نام آموزگار:
+        <input type="text" placeholder="آموزگار محترم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <div class="section-title blue">
+      <span>🧩</span>
+      تمرین ۱: برای هر کلمه، دو هم‌خانواده مناسب بنویس.
+      <small>هم‌خانواده‌سازی</small>
+    </div>
+
+    <div class="family-build-grid">
+
+      <div class="fb-card">
+        <div class="root-word">علم</div>
+        <input type="text" class="interactive-input" data-ans="عالم|معلم|معلوم|تعلیم" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="تعلیم|معلم|عالم|معلوم" placeholder="هم‌خانواده ۲...">
+      </div>
+
+      <div class="fb-card">
+        <div class="root-word">نظر</div>
+        <input type="text" class="interactive-input" data-ans="ناظر|منظور|مناظر|نظارت" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="منظور|ناظر|مناظر|نظارت" placeholder="هم‌خانواده ۲...">
+      </div>
+
+      <div class="fb-card">
+        <div class="root-word">حفظ</div>
+        <input type="text" class="interactive-input" data-ans="حافظ|محافظ|محفوظ|حفاظت" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="محافظت|حافظ|محفوظ|حفاظت" placeholder="هم‌خانواده ۲...">
+      </div>
+
+      <div class="fb-card">
+        <div class="root-word">شکر</div>
+        <input type="text" class="interactive-input" data-ans="شاکر|تشکر|متشکر" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="تشکر|شاکر|متشکر" placeholder="هم‌خانواده ۲...">
+      </div>
+
+      <div class="fb-card">
+        <div class="root-word">عمل</div>
+        <input type="text" class="interactive-input" data-ans="عامل|معمول|عملیات" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="عملیات|عامل|معمول" placeholder="هم‌خانواده ۲...">
+      </div>
+
+      <div class="fb-card">
+        <div class="root-word">سالم</div>
+        <input type="text" class="interactive-input" data-ans="سلامت|سلامتی|سلیم" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="سلامتی|سلامت|سلیم" placeholder="هم‌خانواده ۲...">
+      </div>
+
+      <div class="fb-card">
+        <div class="root-word">جمع</div>
+        <input type="text" class="interactive-input" data-ans="جماعت|مجموع|جامعه" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="مجموع|جماعت|جامعه" placeholder="هم‌خانواده ۲...">
+      </div>
+
+      <div class="fb-card">
+        <div class="root-word">پاک</div>
+        <input type="text" class="interactive-input" data-ans="پاکیزه|پاکیزگی|پاک‌کن" placeholder="هم‌خانواده ۱...">
+        <input type="text" class="interactive-input" data-ans="پاکیزگی|پاکیزه|پاک‌کن" placeholder="هم‌خانواده ۲...">
+      </div>
+
+    </div>
+
+    <div class="section-title green">
+      <span>🗣️ ⬅ ✍️</span>
+      تمرین ۲: جمله‌های گفتاری (شکسته) زیر را به جمله‌های نوشتاری (رسمی و معیار) تبدیل کن.
+      <small>گفتار به نوشتار</small>
+    </div>
+
+    <div class="speech-grid">
+
+      <div class="speech-row">
+        <span class="spoken">بچّه‌ها دارن بازی می‌کنن.</span>
+        <span class="arrow">⬅</span>
+        <input type="text" class="interactive-input" data-ans="بچّه‌ها دارند بازی می‌کنند.|بچه‌ها دارند بازی می‌کنند." placeholder="بچّه‌ها دارند بازی می‌کنند.">
+      </div>
+
+      <div class="speech-row">
+        <span class="spoken">ما فردا می‌ریم کوه.</span>
+        <span class="arrow">⬅</span>
+        <input type="text" class="interactive-input" data-ans="ما فردا به کوه می‌رویم.|ما فردا می‌رویم کوه." placeholder="ما فردا به کوه می‌رویم.">
+      </div>
+
+      <div class="speech-row">
+        <span class="spoken">آشغال نریزیم تو جوب.</span>
+        <span class="arrow">⬅</span>
+        <input type="text" class="interactive-input" data-ans="آشغال در جوی آب نریزیم.|آشغال در جوی نریزیم." placeholder="آشغال در جوی آب نریزیم.">
+      </div>
+
+      <div class="speech-row">
+        <span class="spoken">اونا دیروز اومدن خونمون.</span>
+        <span class="arrow">⬅</span>
+        <input type="text" class="interactive-input" data-ans="آن‌ها دیروز به خانه‌ی ما آمدند.|آن‌ها دیروز به خانه ما آمدند." placeholder="آن‌ها دیروز به خانه‌ی ما آمدند.">
+      </div>
+
+      <div class="speech-row">
+        <span class="spoken">می‌خوام گزارشمو بنویسم.</span>
+        <span class="arrow">⬅</span>
+        <input type="text" class="interactive-input" data-ans="می‌خواهم گزارشم را بنویسم.|می خواهم گزارشم را بنویسم." placeholder="می‌خواهم گزارشم را بنویسم.">
+      </div>
+
+      <div class="speech-row">
+        <span class="spoken">هوا خیلی خوبه!</span>
+        <span class="arrow">⬅</span>
+        <input type="text" class="interactive-input" data-ans="هوا بسیار خوب است!|هوا خیلی خوب است!" placeholder="هوا بسیار خوب است!">
+      </div>
+
+    </div>
+
+    <div class="section-title purple">
+      <span>⭕</span>
+      تمرین ۳: کلمه‌ای که با بقیه هم‌خانواده نیست را با کلیک مشخص کن.
+      <small>تشخیص کلمه ناهماهنگ</small>
+    </div>
+
+    <div class="choice-grid">
+
+      <div class="choice">
+        <span class="num-c">۱</span>
+        <div class="ctext">کدام کلمه هم‌خانواده نیست؟</div>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">حافظ</button>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">حاضر</button>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">محفوظ</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۲</span>
+        <div class="ctext">کدام کلمه هم‌خانواده نیست؟</div>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">عالم</button>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">معلم</button>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">عامل</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۳</span>
+        <div class="ctext">کدام کلمه هم‌خانواده نیست؟</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">شمال</button>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">شاکر</button>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">تشکر</button>
+      </div>
+
+    </div>
+
+    <div class="answer-key-box" id="answer-p2">
+      <b>🔑 کلید پاسخ‌های صفحه ۲:</b><br>
+      <b>تمرین ۱:</b> علم (عالم، معلم) | نظر (ناظر، منظور) | حفظ (حافظ، محافظت) | شکر (شاکر، تشکر) | عمل (عامل، معمول) | سالم (سلامت، سلامتی) | جمع (مجموع، جامعه) | پاک (پاکیزه، پاکیزگی)<br>
+      <b>تمرین ۲:</b> بچه‌ها دارند بازی می‌کنند | ما فردا به کوه می‌رویم | آشغال در جوی آب نریزیم | آن‌ها دیروز به خانه‌ی ما آمدند | می‌خواهم گزارشم را بنویسم | هوا بسیار خوب است<br>
+      <b>تمرین ۳:</b> ۱. حاضر | ۲. عامل | ۳. شمال
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <div class="star-rating">
+          <span class="star-btn" onclick="rateStars(1, this)">★</span>
+          <span class="star-btn" onclick="rateStars(2, this)">★</span>
+          <span class="star-btn" onclick="rateStars(3, this)">★</span>
+          <span class="star-btn" onclick="rateStars(4, this)">★</span>
+          <span class="star-btn" onclick="rateStars(5, this)">★</span>
+        </div>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و مؤلف کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو دانش‌آموز دوست‌دار طبیعت و پاکیزگی! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی سوم: تمرین‌های نشانه‌های نگارشی و ارزشیابی     -->
+<!-- ===================================================== -->
+<section class="page" id="page-3">
+  <canvas class="draw-canvas" id="canvas-3"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌼</div>
+  <div class="corner top-left">🎨</div>
+  <div class="corner bottom-right">🌷</div>
+  <div class="corner bottom-left">✨</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 تمرین‌های کاربردی نشانه‌های نگارشی و ارزشیابی تکمیلی</h1>
+      <p>نشانه‌های نگارشی مناسب (. ، ؟ ! : « ») را در جای خالی قرار بده.</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" placeholder="کلاس سوم...">
+      </div>
+      <div class="info-box">
+        👩‍🏫 نام آموزگار:
+        <input type="text" placeholder="آموزگار محترم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <div class="section-title purple">
+      <span>✍️</span>
+      تمرین ۱: در مربع‌های خالی، نشانه‌ی نگارشی مناسب (. یا ، یا ؟ یا ! یا : یا « ») بگذار.
+      <small>نشانه‌گذاری متن</small>
+    </div>
+
+    <div class="punct-sentence-grid">
+
+      <div class="punct-sentence">
+        <span>۱. دانش‌آموزان به گردش علمی رفتند</span>
+        <input type="text" class="punct-input" data-ans=".">
+      </div>
+
+      <div class="punct-sentence">
+        <span>۲. تماشای قله چقدر زیبا بود</span>
+        <input type="text" class="punct-input" data-ans="!">
+      </div>
+
+      <div class="punct-sentence">
+        <span>۳. چرا باید طبیعت را تمیز نگه داریم</span>
+        <input type="text" class="punct-input" data-ans="؟">
+      </div>
+
+      <div class="punct-sentence">
+        <span>۴. آموزگار گفت</span>
+        <input type="text" class="punct-input" data-ans=":">
+        <span>«به آفریده‌ها دقت کنید.»</span>
+      </div>
+
+      <div class="punct-sentence">
+        <span>۵. هوا پاکیزه</span>
+        <input type="text" class="punct-input" data-ans="،">
+        <span>سالم و دلپذیر بود.</span>
+      </div>
+
+      <div class="punct-sentence">
+        <span>۶. کودک گفت: </span>
+        <input type="text" class="punct-input" data-ans="«">
+        <span>یک نفر هم‌بازیست!</span>
+        <input type="text" class="punct-input" data-ans="»">
+      </div>
+
+    </div>
+
+    <div class="section-title blue">
+      <span>🔗</span>
+      تمرین ۲: هر نشانه را به کاربرد صحیح آن وصل کن (روی نشانه و سپس کاربرد کلیک کن).
+    </div>
+
+    <div class="match-box" id="match-wrapper-p3">
+
+      <div class="match-column right-col">
+        <div class="match-item" data-id="0" onclick="handleMatchClick(this, 'p3')">علامت نقطه (.)</div>
+        <div class="match-item" data-id="1" onclick="handleMatchClick(this, 'p3')">علامت ویرگول (،)</div>
+        <div class="match-item" data-id="2" onclick="handleMatchClick(this, 'p3')">علامت پرسش (؟)</div>
+        <div class="match-item" data-id="3" onclick="handleMatchClick(this, 'p3')">علامت تعجب (!)</div>
+      </div>
+
+      <div class="match-middle">〰️</div>
+
+      <div class="match-column left-col">
+        <div class="match-item" data-match="2" onclick="handleMatchTarget(this, 'p3')">پایان جمله‌ی سوالی و پرسشی</div>
+        <div class="match-item" data-match="3" onclick="handleMatchTarget(this, 'p3')">پایان جمله‌ی احساسی، شادی و تعجب</div>
+        <div class="match-item" data-match="0" onclick="handleMatchTarget(this, 'p3')">پایان جمله‌ی خبری کامل</div>
+        <div class="match-item" data-match="1" onclick="handleMatchTarget(this, 'p3')">مکث کوتاه بین کلمات هم‌پایه</div>
+      </div>
+
+    </div>
+
+    <div class="section-title orange">
+      <span>⭕</span>
+      تمرین ۳: گزینه‌ی درست را با کلیک انتخاب کن.
+      <small>آزمون نگارش و املا</small>
+    </div>
+
+    <div class="choice-grid">
+
+      <div class="choice">
+        <span class="num-c">۱</span>
+        <div class="ctext">نشانه‌ی پایان جمله‌ی «چه گل زیبایی!» چیست؟</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">علامت تعجب (!)</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">نقطه (.)</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۲</span>
+        <div class="ctext">شکل نوشتاریِ «می‌خوام» کدام است؟</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">می‌خواهم</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">می‌خام</button>
+      </div>
+
+      <div class="choice">
+        <span class="num-c">۳</span>
+        <div class="ctext">کدام کلمه با «حفظ» هم‌خانواده است؟</div>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this)">محافظت</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this)">محبت</button>
+      </div>
+
+    </div>
+
+    <div class="section-title teal">
+      <span>⭐</span>
+      تمرین ۴: خودت بنویس (خلاقیت و نگارش دانش‌آموز).
+    </div>
+
+    <div class="creative-grid">
+
+      <div class="creative-card">
+        یک جمله‌ی پرسشی (همراه با علامت ؟) درباره پاکیزگی طبیعت بنویس:
+        <textarea placeholder="چگونه می‌توانیم محیط زیست را..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        یک جمله‌ی تعجبی و زیبا (همراه با علامت !) درباره آسمان آبی بنویس:
+        <textarea placeholder="آسمان پاک و آبی چقدر..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        با کلمه‌ی هم‌خانواده‌ی «تشکر» یک جمله‌ی باادبانه بنویس:
+        <textarea placeholder="من از آموزگار مهربانم تشکر می‌کنم..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="answer-key-box" id="answer-p3">
+      <b>🔑 کلید پاسخ‌های صفحه ۳:</b><br>
+      <b>تمرین ۱:</b> ۱. نقطه (.) | ۲. تعجب (!) | ۳. پرسش (؟) | ۴. دو نقطه (:) | ۵. ویرگول (،) | ۶. گیومه (« »)<br>
+      <b>تمرین ۲:</b> نقطه ⬅ پایان جمله‌ی خبری | ویرگول ⬅ مکث کوتاه | پرسش ⬅ پایان جمله‌ی سوالی | تعجب ⬅ پایان جمله‌ی احساسی<br>
+      <b>تمرین ۳:</b> ۱. علامت تعجب (!) | ۲. می‌خواهم | ۳. محافظت<br>
+      <b>تمرین ۴:</b> پاسخ‌های انشایی و جمله‌نویسی دانش‌آموز.
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <div class="star-rating">
+          <span class="star-btn" onclick="rateStars(1, this)">★</span>
+          <span class="star-btn" onclick="rateStars(2, this)">★</span>
+          <span class="star-btn" onclick="rateStars(3, this)">★</span>
+          <span class="star-btn" onclick="rateStars(4, this)">★</span>
+          <span class="star-btn" onclick="rateStars(5, this)">★</span>
+        </div>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و مؤلف کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو دانش‌آموز دانا، نویسنده و آینده‌ساز ایران‌زمین! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- اسکریپت‌های تعاملی و بوم قلم نوری -->
+<script>
+// تنظیمات بوم نقاشی قلم نوری
+let isDrawingMode = false;
+let isEraser = false;
+let currentColor = '#000000';
+let currentLineWidth = 2.5;
+
+const canvases = [];
+const contexts = [];
+
+function initCanvases() {
+  const pageCanvases = document.querySelectorAll('.draw-canvas');
+  pageCanvases.forEach((c, index) => {
+    const parent = c.parentElement;
+    c.width = parent.clientWidth || 794;
+    c.height = parent.clientHeight || 1123;
+    const ctx = c.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    canvases.push(c);
+    contexts.push(ctx);
+
+    let drawing = false;
+
+    function getCoords(e) {
+      const rect = c.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (c.width / rect.width),
+        y: (clientY - rect.top) * (c.height / rect.height)
+      };
+    }
+
+    function startDraw(e) {
+      if (!isDrawingMode) return;
+      e.preventDefault();
+      drawing = true;
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(coords.x, coords.y);
+    }
+
+    function draw(e) {
+      if (!drawing || !isDrawingMode) return;
+      e.preventDefault();
+      const coords = getCoords(e);
+      ctx.strokeStyle = isEraser ? '#ffffff' : currentColor;
+      ctx.lineWidth = isEraser ? 16 : currentLineWidth;
+      ctx.lineTo(coords.x, coords.y);
+      ctx.stroke();
+    }
+
+    function stopDraw() {
+      drawing = false;
+    }
+
+    c.addEventListener('mousedown', startDraw);
+    c.addEventListener('mousemove', draw);
+    c.addEventListener('mouseup', stopDraw);
+    c.addEventListener('mouseleave', stopDraw);
+
+    c.addEventListener('touchstart', startDraw, { passive: false });
+    c.addEventListener('touchmove', draw, { passive: false });
+    c.addEventListener('touchend', stopDraw);
+  });
+}
+
+function toggleDrawingMode() {
+  isDrawingMode = !isDrawingMode;
+  const btn = document.getElementById('drawToggleBtn');
+  const controls = document.getElementById('drawControls');
+  
+  if (isDrawingMode) {
+    btn.classList.add('active');
+    btn.innerHTML = '✏️ غیرفعال‌سازی قلم';
+    controls.classList.add('show');
+    canvases.forEach(c => c.classList.add('active-mode'));
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '✏️ نوشتن با قلم نوری';
+    controls.classList.remove('show');
+    canvases.forEach(c => c.classList.remove('active-mode'));
+  }
+}
+
+function setPenColor(color, dot) {
+  currentColor = color;
+  isEraser = false;
+  document.getElementById('eraserBtn').classList.remove('active');
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  dot.classList.add('active');
+}
+
+function toggleEraser() {
+  isEraser = !isEraser;
+  const btn = document.getElementById('eraserBtn');
+  if (isEraser) {
+    btn.classList.add('active');
+  } else {
+    btn.classList.remove('active');
+  }
+}
+
+function clearCurrentCanvas() {
+  contexts.forEach((ctx, idx) => {
+    ctx.clearRect(0, 0, canvases[idx].width, canvases[idx].height);
+  });
+}
+
+function clearAllCanvases() {
+  contexts.forEach((ctx, idx) => {
+    ctx.clearRect(0, 0, canvases[idx].width, canvases[idx].height);
+  });
+}
+
+// اتصال ستونی
+let selectedRightMatch = null;
+function handleMatchClick(el, pagePrefix) {
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  wrapper.querySelectorAll('.match-column.right-col .match-item').forEach(item => {
+    item.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  selectedRightMatch = el.getAttribute('data-id');
+}
+
+function handleMatchTarget(item, pagePrefix) {
+  if (selectedRightMatch === null) return;
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  const targetMatch = item.getAttribute('data-match');
+  
+  if (targetMatch === selectedRightMatch) {
+    const rightEl = wrapper.querySelector(`.match-column.right-col .match-item[data-id="${selectedRightMatch}"]`);
+    
+    for (let i = 0; i < 4; i++) {
+      rightEl.classList.remove(`matched-${i}`);
+      item.classList.remove(`matched-${i}`);
+    }
+
+    rightEl.classList.add(`matched-${selectedRightMatch}`);
+    item.classList.add(`matched-${selectedRightMatch}`);
+
+    rightEl.classList.remove('selected');
+    selectedRightMatch = null;
+  }
+}
+
+// انتخاب گزینه‌ها
+function selectChoice(btn) {
+  const parent = btn.closest('.choice');
+  parent.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected', 'is-correct', 'is-wrong');
+  });
+  btn.classList.add('selected');
+}
+
+// امتیاز ستاره‌ها
+function rateStars(num, btn) {
+  const container = btn.closest('.star-rating');
+  const buttons = container.querySelectorAll('.star-btn');
+  buttons.forEach((b, idx) => {
+    if (idx < num) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+}
+
+// بررسی خودکار پاسخ‌ها و محاسبه نمره
+function checkAllAnswers() {
+  let total = 0;
+  let correct = 0;
+
+  const inputs = document.querySelectorAll('input[data-ans]');
+  inputs.forEach(input => {
+    total++;
+    const userVal = input.value.trim().replace(/\s+/g, ' ');
+    const accepted = input.getAttribute('data-ans').split('|').map(s => s.trim());
+    
+    let isMatch = accepted.some(ans => {
+      return userVal === ans || userVal.replace(/‌/g, '') === ans.replace(/‌/g, '');
+    });
+
+    if (userVal && isMatch) {
+      correct++;
+      input.classList.remove('incorrect');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct');
+      if (userVal) input.classList.add('incorrect');
+    }
+  });
+
+  const choices = document.querySelectorAll('.choice');
+  choices.forEach(c => {
+    const selected = c.querySelector('.opt-btn.selected');
+    if (selected) {
+      total++;
+      if (selected.getAttribute('data-correct') === 'true') {
+        correct++;
+        selected.classList.add('is-correct');
+      } else {
+        selected.classList.add('is-wrong');
+      }
+    }
+  });
+
+  alert(`🎯 نتیجه بررسی کاربرگ:\nتعداد پاسخ‌های صحیح: ${correct} از ${total}\nنمره تقریبی: ${Math.round((correct/total)*100)} از ۱۰۰`);
+}
+
+// نمایش/مخفی پاسخنامه
+function toggleAnswerKey() {
+  const p2Ans = document.getElementById('answer-p2');
+  const p3Ans = document.getElementById('answer-p3');
+  const isShown = p2Ans.classList.contains('show');
+  
+  if (isShown) {
+    p2Ans.classList.remove('show');
+    p3Ans.classList.remove('show');
+  } else {
+    p2Ans.classList.add('show');
+    p3Ans.classList.add('show');
+  }
+}
+
+// بازنشانی کاربرگ
+function resetWorksheet() {
+  if (confirm('آیا می‌خواهید تمام پاسخ‌ها و یادداشت‌های این کاربرگ پاک شوند؟')) {
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      el.value = '';
+      el.classList.remove('correct', 'incorrect');
+    });
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      b.classList.remove('selected', 'is-correct', 'is-wrong');
+    });
+    document.querySelectorAll('.match-item').forEach(el => {
+      el.classList.remove('selected', 'matched-0', 'matched-1', 'matched-2', 'matched-3');
+    });
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    clearAllCanvases();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initCanvases();
+});
+</script>
+
+</body>
+</html>

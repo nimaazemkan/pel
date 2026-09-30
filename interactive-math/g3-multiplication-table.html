@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>کارگاه بی‌پایان جدول ضرب و تقسیم سرعتی — ریاضی سوم دبستان</title>
+  <style>
+    :root{
+      --bg1: #091e3a;
+      --bg2: #1e1035;
+      --card: rgba(255, 255, 255, 0.08);
+      --stroke: rgba(255, 255, 255, 0.15);
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent2: #fbbf24;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.2), transparent 50%),
+                  radial-gradient(circle at 15% 85%, rgba(251, 191, 36, 0.18), transparent 50%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      padding: 15px;
+    }
+    .container{ max-width: 960px; margin: 0 auto; }
+    .topbar{
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      padding-bottom: 15px; border-bottom: 1px solid var(--stroke); margin-bottom: 20px;
+    }
+    .topbar h1{ margin: 0; font-size: 20px; color: var(--accent); }
+    .badge{
+      background: rgba(255,255,255,0.1); border: 1px solid var(--stroke); padding: 6px 14px;
+      border-radius: 999px; font-size: 13px;
+    }
+    .grid-box{ display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+    @media (max-width: 768px){ .grid-box{ grid-template-columns: 1fr; } }
+    .card{
+      background: var(--card); border: 1px solid var(--stroke); border-radius: 20px;
+      padding: 22px; box-shadow: var(--shadow); backdrop-filter: blur(10px);
+    }
+    .card-title{ font-size: 16px; font-weight: bold; margin-top: 0; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
+    
+    .table-filter-chips{ display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0; }
+    .chip-btn{
+      background: rgba(255,255,255,0.08); border: 1px solid var(--stroke); color: #fff;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px;
+    }
+    .chip-btn.active{ background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
+
+    .problem-box{
+      background: rgba(0,0,0,0.3); border-radius: 16px; padding: 25px; text-align: center; margin: 15px 0;
+    }
+    .equation-text{ font-size: 48px; font-weight: 900; color: #fff; direction: ltr; margin: 10px 0; }
+    .input-ans{
+      width: 140px; font-size: 36px; font-weight: 900; text-align: center; border-radius: 12px;
+      border: 2px solid var(--stroke); background: rgba(0,0,0,0.4); color: #fff; padding: 6px;
+      outline: none; transition: all 0.2s;
+    }
+    .input-ans:focus{ border-color: var(--accent); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.3); }
+    .input-ans.ok{ border-color: var(--good); background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+    .input-ans.bad{ border-color: var(--bad); background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    .btn-submit{
+      background: linear-gradient(135deg, #38bdf8, #818cf8); border: none; color: #000;
+      font-weight: 900; font-size: 16px; padding: 12px 30px; border-radius: 12px; cursor: pointer;
+      margin-top: 15px;
+    }
+    .timer-bar{ width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; margin-top: 15px; overflow: hidden; }
+    .timer-fill{ height: 100%; background: var(--accent2); width: 100%; transition: width 0.1s linear; }
+
+    .stat-row{ display: flex; justify-content: space-around; text-align: center; margin-top: 20px; }
+    .stat-card{ background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; min-width: 80px; border: 1px solid var(--stroke); }
+    .stat-val{ font-size: 24px; font-weight: 900; }
+    .stat-lbl{ font-size: 11px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header class="topbar">
+    <h1>⚡ کارگاه بی‌پایان جدول ضرب شگفت‌انگیز و تقسیم</h1>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <div class="badge">دانش‌آموز: <strong id="studentName">قهرمان ریاضی</strong></div>
+      <div class="badge">طراح: <strong>نیما آزمکان</strong></div>
+    </div>
+  </header>
+
+  <div class="grid-box">
+    <section class="card">
+      <div class="card-title">
+        <span>انتخاب پایه جدول ضرب:</span>
+        <button id="modeToggle" class="chip-btn active" style="font-size:12px;">حالت: ضرب ✖️</button>
+      </div>
+
+      <div class="table-filter-chips" id="numberPills">
+        <button class="chip-btn active" data-num="all">تمام جدول (۱ تا ۱۰)</button>
+        <button class="chip-btn" data-num="2">جدول ۲</button>
+        <button class="chip-btn" data-num="3">جدول ۳</button>
+        <button class="chip-btn" data-num="4">جدول ۴</button>
+        <button class="chip-btn" data-num="5">جدول ۵</button>
+        <button class="chip-btn" data-num="6">جدول ۶</button>
+        <button class="chip-btn" data-num="7">جدول ۷</button>
+        <button class="chip-btn" data-num="8">جدول ۸</button>
+        <button class="chip-btn" data-num="9">جدول ۹</button>
+      </div>
+
+      <div class="problem-box">
+        <div class="equation-text" id="eqText">7 × 8 = ?</div>
+        <input type="text" id="ansInput" class="input-ans" placeholder="جواب؟" autofocus autocomplete="off" inputmode="numeric">
+        <div>
+          <button class="btn-submit" id="submitBtn">ثبت پاسخ (Enter) 🚀</button>
+        </div>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <div class="card-title">آمار و سرعت شما</div>
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-val" style="color:var(--good)" id="goodCount">0</div>
+          <div class="stat-lbl">پاسخ درست</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" style="color:var(--bad)" id="badCount">0</div>
+          <div class="stat-lbl">نادرست</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" style="color:var(--accent2)" id="streakCount">0</div>
+          <div class="stat-lbl">زنجیره موفق 🔥</div>
+        </div>
+      </div>
+      <p id="helpBox" style="font-size:13px; color:rgba(255,255,255,0.7); line-height:1.8; margin-top:20px;">
+        پاسخ را سریع وارد کن و دکمه Enter را بزن تا امتیاز بیشتری بگیری!
+      </p>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+  let mode = 'mul'; // 'mul' or 'div'
+  let selectedTable = 'all';
+  let A = 7, B = 8, target = 56;
+  let good = 0, bad = 0, streak = 0;
+
+  const eqText = document.getElementById('eqText');
+  const ansInput = document.getElementById('ansInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const goodCount = document.getElementById('goodCount');
+  const badCount = document.getElementById('badCount');
+  const streakCount = document.getElementById('streakCount');
+  const helpBox = document.getElementById('helpBox');
+  const modeToggle = document.getElementById('modeToggle');
+  const studentName = document.getElementById('studentName');
+
+  let audioCtx = null;
+  function playTone(freq, dur=0.15){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch(e){}
+  }
+
+  function nextProblem(){
+    ansInput.value = '';
+    ansInput.classList.remove('ok', 'bad');
+
+    if(selectedTable === 'all'){
+      A = Math.floor(Math.random() * 9) + 2;
+    } else {
+      A = parseInt(selectedTable, 10);
+    }
+    B = Math.floor(Math.random() * 9) + 2;
+
+    if(mode === 'mul'){
+      target = A * B;
+      eqText.textContent = `${A} × ${B} = ?`;
+    } else {
+      target = B;
+      const product = A * B;
+      eqText.textContent = `${product} ÷ ${A} = ?`;
+    }
+    ansInput.focus();
+  }
+
+  function check(){
+    const val = parseInt(ansInput.value.trim(), 10);
+    if(isNaN(val)) return;
+
+    if(val === target){
+      ansInput.classList.add('ok');
+      playTone(587, 0.2);
+      good++;
+      streak++;
+      goodCount.textContent = good;
+      streakCount.textContent = streak;
+      helpBox.innerHTML = `🌟 عالی! پاسخ درست بود.`;
+
+      try {
+        window.parent?.postMessage({
+          type: 'MATH_APP_COMPLETED',
+          appId: 'g3-multiplication-table',
+          gradeId: 'g3',
+          correctCount: good
+        }, '*');
+      } catch(e){}
+
+      setTimeout(nextProblem, 500);
+    } else {
+      ansInput.classList.add('bad');
+      playTone(200, 0.25);
+      bad++;
+      streak = 0;
+      badCount.textContent = bad;
+      streakCount.textContent = streak;
+      helpBox.innerHTML = `❌ جواب درست عدد ${target} بود.`;
+      setTimeout(nextProblem, 1200);
+    }
+  }
+
+  submitBtn.onclick = check;
+  ansInput.onkeydown = (e) => { if(e.key === 'Enter') check(); };
+
+  modeToggle.onclick = () => {
+    mode = mode === 'mul' ? 'div' : 'mul';
+    modeToggle.textContent = mode === 'mul' ? 'حالت: ضرب ✖️' : 'حالت: تقسیم ➗';
+    nextProblem();
+  };
+
+  document.querySelectorAll('#numberPills .chip-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#numberPills .chip-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedTable = btn.getAttribute('data-num');
+      nextProblem();
+    };
+  });
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('studentName')){
+    studentName.textContent = decodeURIComponent(urlParams.get('studentName') || '');
+  }
+
+  nextProblem();
+})();
+</script>
+</body>
+</html>

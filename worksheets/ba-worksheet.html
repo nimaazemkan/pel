@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کاربرگ آموزشی واژه‌سازی با پیشوند «با»</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page { size: A4; margin: 8mm; }
+
+  body {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    background: #EDE7F6;
+    direction: rtl;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 12px auto;
+    background: #fff;
+    padding: 10mm;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  }
+
+  /* ===== تزئینات پس‌زمینه ===== */
+  .blob { position: absolute; border-radius: 50%; z-index: 0; pointer-events: none; }
+  .blob.b1 { top: -70px; left: -70px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(41,121,255,0.20), transparent 70%); }
+  .blob.b2 { bottom: -60px; right: -60px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(0,191,165,0.20), transparent 70%); }
+  .blob.b3 { top: 40%; left: -80px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,171,0,0.16), transparent 70%); }
+  .blob.b4 { top: 30%; right: -90px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(124,77,255,0.16), transparent 70%); }
+
+  .corner { position: absolute; font-size: 34px; opacity: 0.16; z-index: 0; }
+  .corner.tl { top: 8px; left: 10px; }
+  .corner.tr { top: 8px; right: 10px; }
+  .corner.bl { bottom: 8px; left: 10px; }
+  .corner.br { bottom: 8px; right: 10px; }
+
+  .content { position: relative; z-index: 1; }
+
+  /* ===== سربرگ ===== */
+  .header {
+    background: linear-gradient(135deg, #2979FF, #00BFA5, #FFAB00, #7C4DFF, #4CAF50);
+    background-size: 300% 300%;
+    animation: shift 8s ease infinite;
+    border-radius: 22px;
+    padding: 12px 18px 10px;
+    text-align: center;
+    color: #fff;
+    border: 3px solid #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+  }
+  @keyframes shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .header .emojis { font-size: 22px; margin-bottom: 2px; }
+  .header h1 { font-size: 22px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+  .header .sub { font-size: 12.5px; font-weight: 700; margin-top: 3px; text-shadow: 1px 1px 2px rgba(0,0,0,0.25); }
+
+  .header.slim { padding: 8px 16px; border-radius: 16px; }
+  .header.slim h1 { font-size: 17px; }
+
+  /* ===== مشخصات دانش‌آموز ===== */
+  .info { display: flex; gap: 8px; margin-bottom: 10px; }
+  .info div {
+    flex: 1; display: flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, #E0F7FA, #B2EBF2);
+    border: 2px dashed #26C6DA; border-radius: 12px;
+    padding: 7px 10px; font-size: 12.5px; font-weight: 700; color: #00695C;
+  }
+  .info .line { flex: 1; border-bottom: 2px dotted #26A69A; height: 16px; }
+
+  /* ===== عنوان بخش‌ها ===== */
+  .stitle {
+    display: flex; align-items: center; gap: 8px;
+    margin: 10px 0 8px; padding: 7px 14px; border-radius: 14px;
+    font-size: 14px; font-weight: 900; color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .stitle .ic { font-size: 20px; }
+  .stitle small { font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.28); padding: 1px 9px; border-radius: 10px; }
+  .c-pink   { background: linear-gradient(135deg, #E91E63, #FF6090); }
+  .c-blue   { background: linear-gradient(135deg, #1E63E9, #42A5F5); }
+  .c-orange { background: linear-gradient(135deg, #F4511E, #FF9800); }
+  .c-green  { background: linear-gradient(135deg, #2E7D32, #66BB6A); }
+  .c-purple { background: linear-gradient(135deg, #6A1B9A, #AB47BC); }
+  .c-teal   { background: linear-gradient(135deg, #00796B, #26A69A); }
+  .c-indigo { background: linear-gradient(135deg, #3949AB, #5C6BC0); }
+
+  /* ===== جعبه آموزش ===== */
+  .teach {
+    background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+    border: 3px solid #FFC107; border-radius: 18px;
+    padding: 14px 14px 10px; margin-bottom: 6px; position: relative;
+  }
+  .teach .badge {
+    position: absolute; top: -13px; right: 14px;
+    background: #FF6F00; color: #fff; font-size: 12px; font-weight: 900;
+    padding: 2px 12px; border-radius: 20px; border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .teach p { font-size: 12.5px; font-weight: 700; color: #4E342E; line-height: 1.9; }
+  .teach .hl { background: #1565C0; color: #fff; padding: 0 9px; border-radius: 8px; font-size: 15px; }
+  .teach .hw { background: #fff; padding: 0 7px; border-radius: 6px; border: 1.5px solid #FFB300; color: #E65100; }
+  .teach .u { text-decoration: underline wavy #1565C0; text-underline-offset: 3px; }
+
+  .frow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+  .fbox {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 58px; padding: 3px 12px; border-radius: 12px;
+    font-size: 16px; font-weight: 900; border: 2.5px solid; background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  }
+  .fbox.w { border-color: #2979FF; color: #1565C0; }
+  .fbox.s { border-color: #1565C0; color: #0D47A1; background: #E3F2FD; }
+  .fbox.r { border-color: #00BFA5; color: #00695C; font-size: 18px; background: #E0F2F1; }
+  .fbox.r .ey { color: #1565C0; }
+  .fop { font-size: 18px; font-weight: 900; color: #FF6F00; }
+  .fmean { font-size: 12px; font-weight: 700; color: #6D4C41; background: #fff; padding: 3px 10px; border-radius: 20px; border: 1.5px dashed #FFB300; }
+
+  .rw { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .rw span { font-size: 13.5px; font-weight: 900; padding: 3px 14px; border-radius: 20px; border: 2.5px solid; }
+  .rw .no { border-color: #E53935; color: #B71C1C; background: #FFEBEE; }
+  .rw .ok { border-color: #43A047; color: #1B5E20; background: #E8F5E9; }
+  .rw .tip { border: none; background: transparent; color: #4E342E; font-size: 12px; font-weight: 700; padding: 0; }
+
+  /* ===== کارت‌های نمونه ===== */
+  .exg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 4px; }
+  .exc {
+    background: #fff; border-radius: 14px; border: 2.5px solid;
+    padding: 6px 4px 6px; text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.07);
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .exc:nth-child(5n+1) { border-color: #2979FF; background: linear-gradient(180deg, #F0F7FF, #fff); }
+  .exc:nth-child(5n+2) { border-color: #00BFA5; background: linear-gradient(180deg, #E0F7F4, #fff); }
+  .exc:nth-child(5n+3) { border-color: #FFAB00; background: linear-gradient(180deg, #FFF8E1, #fff); }
+  .exc:nth-child(5n+4) { border-color: #7C4DFF; background: linear-gradient(180deg, #F0EAFF, #fff); }
+  .exc:nth-child(5n+5) { border-color: #4CAF50; background: linear-gradient(180deg, #F1F8E9, #fff); }
+  .exc .em { font-size: 20px; line-height: 1.2; }
+  .exc .fm { font-size: 10px; color: #8D6E63; font-weight: 700; margin-top: 1px; }
+  .exc .rs { font-size: 15px; font-weight: 900; color: #263238; margin-top: 1px; }
+  .exc .rs .ey { color: #1565C0; }
+  .exc .mn { display: inline-block; margin-top: 3px; font-size: 9.5px; font-weight: 700; color: #37474F; background: #ECEFF1; border-radius: 10px; padding: 1px 8px; }
+
+  /* ===== تمرین ۱: ساخت کلمه ===== */
+  .bgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 4px; }
+  .bitem {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB); border: 2.5px solid #42A5F5;
+    border-radius: 14px; padding: 8px 6px 7px; text-align: center; break-inside: avoid; page-break-inside: avoid;
+  }
+  .bitem .pt { font-size: 15px; font-weight: 900; color: #0D47A1; }
+  .bitem .pt b { color: #1565C0; }
+  .bitem .ar { font-size: 13px; color: #1E88E5; line-height: 1.2; }
+  .bitem .al { width: 85%; margin: 3px auto 0; border-bottom: 2.5px dashed #1E88E5; height: 22px; }
+
+  /* ===== تمرین ۲: انتخاب درست ===== */
+  .cgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 4px; }
+  .citem {
+    background: #fff; border: 2.5px solid #FF7043; border-radius: 14px; padding: 7px 8px;
+    display: flex; align-items: center; justify-content: center; gap: 6px; break-inside: avoid; page-break-inside: avoid;
+  }
+  .citem .n { background: #FF7043; color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; flex-shrink: 0; }
+  .citem .op { font-size: 14px; font-weight: 900; color: #37474F; border: 2px dotted #FFAB91; border-radius: 20px; padding: 2px 10px; background: #FBE9E7; }
+  .citem .or { font-size: 11px; color: #BF360C; font-weight: 700; }
+
+  /* ===== تمرین ۳: جای خالی ===== */
+  .bank { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; padding: 7px; background: linear-gradient(135deg, #F1F8E9, #DCEDC8); border: 2px dashed #7CB342; border-radius: 14px; margin-bottom: 7px; }
+  .bank span { background: #fff; border: 2px solid #8BC34A; color: #33691E; font-size: 14px; font-weight: 900; padding: 2px 12px; border-radius: 20px; }
+  .bank .lbl { border: none; background: transparent; font-size: 12px; color: #558B2F; }
+  .fgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 4px; }
+  .fitem { background: #fff; border: 2px solid #AED581; border-radius: 12px; padding: 7px 10px; font-size: 12.5px; font-weight: 700; color: #33691E; line-height: 2; display: flex; gap: 6px; align-items: flex-start; break-inside: avoid; page-break-inside: avoid; }
+  .fitem .n { background: #7CB342; color: #fff; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 3px; flex-shrink: 0; }
+  .fitem .bl { display: inline-block; width: 66px; height: 20px; border-bottom: 2.5px dashed #7CB342; margin: 0 3px; vertical-align: middle; }
+
+  /* ===== تمرین ۴: رنگ‌آمیزی ===== */
+  .cw { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 4px; }
+  .cw .w { background: #fff; border: 2.5px solid #78909C; border-radius: 30px; padding: 4px 14px; font-size: 16px; font-weight: 900; color: #263238; }
+  .cw .w .t { color: #1565C0; border: 2px dashed #1565C0; border-radius: 6px; padding: 0 4px; }
+
+  /* ===== تمرین ۵: درست یا نادرست ===== */
+  .tfgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 4px; }
+  .tfitem {
+    background: #fff; border: 2.5px solid #90A4AE; border-radius: 14px;
+    padding: 6px 10px; display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; font-size: 13.5px; font-weight: 900; color: #37474F; break-inside: avoid; page-break-inside: avoid;
+  }
+  .tfitem .word { color: #1565C0; }
+  .tfitem .circles { display: flex; gap: 10px; align-items: center; }
+  .tfitem .c { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid #90A4AE; background: #fff; }
+  .tfitem .lbl { font-size: 11.5px; font-weight: 700; color: #607D8B; }
+
+  /* ===== تمرین ۶: چالشی ===== */
+  .chal { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); border: 2.5px solid #AB47BC; border-radius: 14px; padding: 8px 14px; margin-bottom: 6px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .chal .row { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 900; color: #6A1B9A; }
+  .chal .row b { color: #1565C0; }
+  .chal .ln { flex: 1; border-bottom: 2.5px dashed #8E24AA; height: 22px; }
+
+  /* ===== پانوشت ===== */
+  .footer { margin-top: 6px; text-align: center; padding: 8px; background: linear-gradient(135deg, #E8EAF6, #C5CAE9); border-radius: 14px; border: 2px solid #7986CB; }
+  .footer .creator { font-size: 14px; font-weight: 900; color: #283593; }
+  .footer p { font-size: 11px; font-weight: 700; color: #3949AB; }
+  .stars { font-size: 14px; letter-spacing: 2px; }
+  .self { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 3px 0; font-size: 12px; font-weight: 700; color: #283593; }
+  .self .st { font-size: 22px; color: #FFB300; letter-spacing: 4px; }
+
+  /* ===== چاپ ===== */
+  @media print {
+    body { background: #fff; }
+    .page { width: auto; min-height: auto; margin: 0; padding: 0; box-shadow: none; border-radius: 0; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+    .header { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<style>
+  /* ===== نوار ابزار تعاملی و شناور کاربرگ ===== */
+  .ws-toolbar {
+    position: sticky;
+    top: 10px;
+    z-index: 9999;
+    max-width: 900px;
+    margin: 10px auto 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 2px solid #6366f1;
+    border-radius: 16px;
+    padding: 10px 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    direction: rtl;
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+  }
+
+  .ws-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ws-btn {
+    background: #f3f4f6;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    color: #374151;
+  }
+
+  .ws-btn:hover {
+    background: #e0e7ff;
+    border-color: #6366f1;
+    color: #4338ca;
+    transform: translateY(-1px);
+  }
+
+  .ws-btn.active {
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4338ca;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  }
+
+  .ws-btn-print {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .ws-btn-print:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+  }
+
+  .ws-btn-ans {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+  }
+
+  .ws-btn-ans:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    color: white;
+  }
+
+  .color-picker-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1.5px #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s;
+  }
+
+  .color-picker-dot:hover {
+    transform: scale(1.2);
+  }
+
+  .color-picker-dot.active {
+    box-shadow: 0 0 0 2.5px #4f46e5;
+    transform: scale(1.2);
+  }
+
+  /* استایل اینپوت‌های کاربرگ */
+  input.ws-input {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    font-weight: 700;
+    color: #1e3a8a;
+    background: #f8fafc;
+    border: 1.5px solid #93c5fd;
+    border-radius: 8px;
+    padding: 2px 8px;
+    text-align: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    direction: rtl;
+  }
+
+  input.ws-input:focus {
+    background: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    outline: none;
+  }
+
+  input.ws-input.info-input {
+    width: 140px;
+    height: 26px;
+    background: #ffffff;
+  }
+
+  input.ws-input.fill-blank-input {
+    width: 100px;
+    height: 28px;
+    font-size: 14px;
+    color: #6b21a8;
+    border-color: #c084fc;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  input.ws-input.build-ans-input {
+    width: 130px;
+    height: 28px;
+    font-size: 15px;
+    font-weight: 900;
+    color: #c2410c;
+    border-color: #fdba74;
+    margin-top: 4px;
+  }
+
+  input.ws-input.basket-ans-input {
+    width: 90%;
+    margin: 3px auto;
+    display: block;
+    height: 26px;
+    font-size: 13px;
+  }
+
+  input.ws-input.chal-ans-input {
+    width: 120px;
+    height: 26px;
+    font-size: 14px;
+  }
+
+  /* هایلایت کلمات قابل کلیک */
+  .cw .w {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+
+  .cw .w:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  }
+
+  .cw .w.active-colored {
+    background: #fdf2f8 !important;
+    border-color: #ec4899 !important;
+    color: #be185d !important;
+    box-shadow: 0 0 0 2.5px #f472b6 !important;
+  }
+
+  /* گزینه‌های انتخابی تمرین ۲ */
+  .citem .op {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .citem .op:hover {
+    background: #ffe4e6;
+  }
+
+  .citem .op.selected-right {
+    background: #dcfce7 !important;
+    border: 2px solid #22c55e !important;
+    color: #15803d !important;
+    font-weight: 900 !important;
+  }
+
+  .citem .op.selected-wrong {
+    background: #fee2e2 !important;
+    border: 2px solid #ef4444 !important;
+    color: #b91c1c !important;
+    text-decoration: line-through !important;
+  }
+
+  /* گزینه‌های درست و نادرست تمرین ۵ */
+  .tfitem .circles .c {
+    cursor: pointer;
+    transition: transform 0.15s, background-color 0.15s;
+  }
+
+  .tfitem .circles .c:hover {
+    transform: scale(1.2);
+    border-color: #3b82f6;
+  }
+
+  .tfitem .circles .c.checked {
+    background-color: #3b82f6 !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 0 0 2px #93c5fd;
+  }
+
+  /* پاسخ‌نامه خودکار */
+  .ans-badge {
+    display: none;
+    background: #10b981;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 6px;
+    margin-right: 4px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .show-answers .ans-badge {
+    display: inline-block;
+  }
+
+  /* لایه رسم قلم */
+  .canvas-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .canvas-wrapper.drawing-active {
+    pointer-events: auto;
+    cursor: crosshair;
+  }
+
+  canvas.drawing-layer {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ستاره‌های خودارزیابی */
+  .st span {
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+
+  .st span.filled {
+    color: #f59e0b;
+  }
+
+  /* استایل چاپ */
+  @media print {
+    .ws-toolbar {
+      display: none !important;
+    }
+    body {
+      background: white !important;
+      padding: 0 !important;
+    }
+    .page {
+      margin: 0 !important;
+      padding: 6mm !important;
+      box-shadow: none !important;
+      page-break-after: always;
+      width: 100% !important;
+      min-height: auto !important;
+    }
+    input.ws-input {
+      border-bottom: 1.5px solid #000 !important;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+    }
+  }
+</style>
+
+<!-- نوار ابزار تعاملی بالای کاربرگ -->
+<div class="ws-toolbar no-print" id="wsToolbar">
+  <div class="ws-toolbar-group">
+    <button type="button" class="ws-btn ws-btn-print" onclick="window.print()" title="چاپ استاندارد A4 یا ذخیره به صورت PDF">
+      🖨️ چاپ کاربرگ (A4 / PDF)
+    </button>
+    <button type="button" class="ws-btn active" id="btnModeType" onclick="setMode('type')" title="تایپ کردن در جاهای خالی">
+      ⌨️ حالت تایپ
+    </button>
+    <button type="button" class="ws-btn" id="btnModeDraw" onclick="setMode('draw')" title="نوشتن و نقاشی با قلم نوری یا ماوس">
+      ✏️ حالت قلم دستی
+    </button>
+  </div>
+
+  <div class="ws-toolbar-group" id="drawingToolsGroup" style="display: none;">
+    <span style="font-size: 12px; font-weight: bold; color: #4b5563;">رنگ قلم:</span>
+    <button type="button" class="color-picker-dot active" style="background: #1e3a8a;" onclick="setPenColor('#1e3a8a', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #dc2626;" onclick="setPenColor('#dc2626', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #16a34a;" onclick="setPenColor('#16a34a', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #9333ea;" onclick="setPenColor('#9333ea', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #111827;" onclick="setPenColor('#111827', this)"></button>
+
+    <button type="button" class="ws-btn" id="btnEraser" onclick="toggleEraser()">
+      🧹 پاک‌کن
+    </button>
+    <button type="button" class="ws-btn" onclick="clearCurrentCanvas()" style="color: #dc2626;">
+      🗑️ پاک کردن کل دست‌خط
+    </button>
+  </div>
+
+  <div class="ws-toolbar-group">
+    <button type="button" class="ws-btn ws-btn-ans" onclick="toggleAnswerKey()" title="مشاهده کلید پاسخ‌ها و راهنمای معلم">
+      💡 پاسخ‌نامه و راهنما
+    </button>
+    <button type="button" class="ws-btn" onclick="resetWorksheet()" title="خالی کردن تمام فیلدها">
+      🔄 بازنشانی
+    </button>
+  </div>
+</div>
+
+<script>
+  // سیستم تعاملی کاربرگ و رسم قلم
+  let currentMode = 'type';
+  let penColor = '#1e3a8a';
+  let penSize = 3;
+  let isEraser = false;
+
+  function initWorksheet() {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach((page, index) => {
+      if (page.querySelector('.canvas-wrapper')) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'canvas-wrapper';
+      wrapper.id = 'canvasWrapper_' + index;
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'drawing-layer';
+      canvas.id = 'drawingCanvas_' + index;
+
+      wrapper.appendChild(canvas);
+      page.appendChild(wrapper);
+
+      setupCanvas(canvas, wrapper);
+    });
+
+    // کلمات رنگ‌آمیزی
+    document.querySelectorAll('.cw .w').forEach(el => {
+      el.addEventListener('click', function() {
+        this.classList.toggle('active-colored');
+        saveState();
+      });
+    });
+
+    // گزینه‌های تمرین ۲
+    document.querySelectorAll('.citem .op').forEach(op => {
+      op.addEventListener('click', function() {
+        const parent = this.closest('.citem');
+        parent.querySelectorAll('.op').forEach(o => o.classList.remove('selected-right', 'selected-wrong'));
+        const text = this.textContent.trim();
+        if (text === 'باادب' || text === 'باهوش' || text === 'باصفا' || text === 'بانشاط' || text === 'بانظم' || text === 'بادقت') {
+          this.classList.add('selected-right');
+        } else {
+          this.classList.add('selected-wrong');
+        }
+        saveState();
+      });
+    });
+
+    // درست / نادرست تمرین ۵
+    document.querySelectorAll('.tfitem .circles .c').forEach(circle => {
+      circle.addEventListener('click', function() {
+        const parent = this.closest('.circles');
+        parent.querySelectorAll('.c').forEach(c => c.classList.remove('checked'));
+        this.classList.add('checked');
+        saveState();
+      });
+    });
+
+    // ذخیره خودکار اینپوت‌ها
+    document.querySelectorAll('input.ws-input').forEach(input => {
+      input.addEventListener('input', saveState);
+    });
+
+    loadState();
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    const btnType = document.getElementById('btnModeType');
+    const btnDraw = document.getElementById('btnModeDraw');
+    const drawGroup = document.getElementById('drawingToolsGroup');
+
+    if (mode === 'draw') {
+      btnDraw.classList.add('active');
+      btnType.classList.remove('active');
+      drawGroup.style.display = 'flex';
+      document.querySelectorAll('.canvas-wrapper').forEach(w => w.classList.add('drawing-active'));
+    } else {
+      btnType.classList.add('active');
+      btnDraw.classList.remove('active');
+      drawGroup.style.display = 'none';
+      document.querySelectorAll('.canvas-wrapper').forEach(w => w.classList.remove('drawing-active'));
+    }
+  }
+
+  function setPenColor(color, btn) {
+    penColor = color;
+    isEraser = false;
+    document.getElementById('btnEraser').classList.remove('active');
+    document.querySelectorAll('.color-picker-dot').forEach(d => d.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  function toggleEraser() {
+    isEraser = !isEraser;
+    const btn = document.getElementById('btnEraser');
+    if (isEraser) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  }
+
+  function setupCanvas(canvas, wrapper) {
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function resize() {
+      const rect = wrapper.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    setTimeout(resize, 100);
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function startDraw(e) {
+      if (currentMode !== 'draw') return;
+      resize();
+      isDrawing = true;
+      const pos = getCoords(e);
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function draw(e) {
+      if (!isDrawing || currentMode !== 'draw') return;
+      e.preventDefault();
+      const pos = getCoords(e);
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = 18;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSize;
+      }
+
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function stopDraw() {
+      if (isDrawing) {
+        isDrawing = false;
+        saveState();
+      }
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDraw);
+
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('touchend', stopDraw);
+  }
+
+  function clearCurrentCanvas() {
+    if (confirm('آیا مایلید تمام دست‌خط‌ها و نقاشی‌های این صفحه پاک شوند؟')) {
+      document.querySelectorAll('canvas.drawing-layer').forEach(c => {
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, c.width, c.height);
+      });
+      saveState();
+    }
+  }
+
+  function toggleAnswerKey() {
+    document.body.classList.toggle('show-answers');
+  }
+
+  function resetWorksheet() {
+    if (confirm('آیا می‌خواهید تمام پاسخ‌ها و نوشته‌ها بازنشانی شوند؟')) {
+      document.querySelectorAll('input.ws-input').forEach(i => i.value = '');
+      document.querySelectorAll('.active-colored, .selected-right, .selected-wrong, .checked').forEach(el => {
+        el.classList.remove('active-colored', 'selected-right', 'selected-wrong', 'checked');
+      });
+      clearCurrentCanvas();
+      localStorage.removeItem('ws_data_' + window.location.pathname);
+    }
+  }
+
+  function saveState() {
+    try {
+      const data = {
+        inputs: {},
+        colored: []
+      };
+      document.querySelectorAll('input.ws-input').forEach((input, i) => {
+        data.inputs[input.id || ('input_' + i)] = input.value;
+      });
+      document.querySelectorAll('.active-colored').forEach((el) => {
+        data.colored.push(el.innerText || el.textContent);
+      });
+      localStorage.setItem('ws_data_' + window.location.pathname, JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem('ws_data_' + window.location.pathname);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.inputs) {
+        Object.keys(data.inputs).forEach((key, i) => {
+          const el = document.getElementById(key) || document.querySelectorAll('input.ws-input')[i];
+          if (el) el.value = data.inputs[key];
+        });
+      }
+    } catch(e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', initWorksheet);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initWorksheet();
+  }
+</script>
+
+
+<!-- ============================================================ -->
+<!-- ==================== صفحه‌ی اوّل: آموزش ===================== -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+  <div class="corner tl">🌸</div><div class="corner tr">🦋</div><div class="corner bl">🌈</div><div class="corner br">⭐</div>
+
+  <div class="content">
+
+    <div class="header">
+      <div class="emojis">😊 ✨ 🧠 📚 🌻</div>
+      <h1>کاربرگ آموزشی واژه‌سازی با پیشوند «با»</h1>
+      <div class="sub">پایه‌ی دوم دبستان &nbsp;|&nbsp; فارسی (بخوان و بنویس)</div>
+    </div>
+
+    <div class="info">
+      <div>👤 نام و نام‌خانوادگی: <span class="line"></span></div>
+      <div>📅 تاریخ: <span class="line"></span></div>
+      <div>🏫 کلاس: <span class="line"></span></div>
+    </div>
+
+    <!-- جعبه‌ی آموزش -->
+    <div class="teach">
+      <div class="badge">💡 یاد بگیریم</div>
+      <p>بچّه‌های عزیز! کلمه‌ی <span class="hl">با</span> را می‌توانیم اوّل بعضی از کلمه‌ها بگذاریم.</p>
+      <p>وقتی <span class="hl">با</span> را اوّل یک کلمه می‌گذاریم، یک <span class="u">کلمه‌ی جدید</span> می‌سازیم.</p>
+      <p><span class="hl">با</span> در این کلمه‌ها یعنی <strong>«دارا بودن»</strong> یا <strong>«داشتن»</strong>.</p>
+
+      <div class="frow">
+        <span class="fbox w">ادب</span><span class="fop">+</span><span class="fbox s">با</span><span class="fop">=</span>
+        <span class="fbox r">با<span class="ey">ادب</span></span>
+        <span class="fmean">یعنی: کسی که ادب دارد 😊</span>
+      </div>
+
+      <div class="frow">
+        <span class="fbox w">هوش</span><span class="fop">+</span><span class="fbox s">با</span><span class="fop">=</span>
+        <span class="fbox r">با<span class="ey">هوش</span></span>
+        <span class="fmean">یعنی: کسی که هوش دارد 🧠</span>
+      </div>
+
+      <div class="rw">
+        <span class="ok">✅ باادب</span>
+        <span class="ok">✅ باهوش</span>
+        <span class="tip">🖊️ این کلمه‌ها با هم <strong>چسبیده</strong> نوشته می‌شوند.</span>
+      </div>
+    </div>
+
+    <!-- نمونه‌ها -->
+    <div class="stitle c-blue"><span class="ic">💙</span> نمونه‌ها را بخوان و یاد بگیر!</div>
+    <div class="exg">
+      <div class="exc"><div class="em">😊</div><div class="fm">با + ادب</div><div class="rs">با<span class="ey">ادب</span></div><div class="mn">کسی که ادب دارد</div></div>
+      <div class="exc"><div class="em">🧠</div><div class="fm">با + هوش</div><div class="rs">با<span class="ey">هوش</span></div><div class="mn">کسی که هوش دارد</div></div>
+      <div class="exc"><div class="em">💚</div><div class="fm">با + صفا</div><div class="rs">با<span class="ey">صفا</span></div><div class="mn">صمیمی و مهربان</div></div>
+      <div class="exc"><div class="em">😄</div><div class="fm">با + نشاط</div><div class="rs">با<span class="ey">نشاط</span></div><div class="mn">شاد و سرحال</div></div>
+      <div class="exc"><div class="em">🕊️</div><div class="fm">با + ایمان</div><div class="rs">با<span class="ey">ایمان</span></div><div class="mn">کسی که ایمان دارد</div></div>
+      <div class="exc"><div class="em">🙏</div><div class="fm">با + تقوا</div><div class="rs">با<span class="ey">تقوا</span></div><div class="mn">پرهیزگار</div></div>
+      <div class="exc"><div class="em">📚</div><div class="fm">با + علم</div><div class="rs">با<span class="ey">علم</span></div><div class="mn">دانشمند، عالم</div></div>
+      <div class="exc"><div class="em">🎓</div><div class="fm">با + دانش</div><div class="rs">با<span class="ey">دانش</span></div><div class="mn">کسی که دانش دارد</div></div>
+      <div class="exc"><div class="em">🎨</div><div class="fm">با + هنر</div><div class="rs">با<span class="ey">هنر</span></div><div class="mn">کسی که هنر دارد</div></div>
+      <div class="exc"><div class="em">💡</div><div class="fm">با + ذوق</div><div class="rs">با<span class="ey">ذوق</span></div><div class="mn">ذوق و سلیقه‌دار</div></div>
+      <div class="exc"><div class="em">💭</div><div class="fm">با + فکر</div><div class="rs">با<span class="ey">فکر</span></div><div class="mn">تیزهوش و اندیشمند</div></div>
+      <div class="exc"><div class="em">🔍</div><div class="fm">با + دقت</div><div class="rs">با<span class="ey">دقت</span></div><div class="mn">مراقب و دقیق</div></div>
+      <div class="exc"><div class="em">📐</div><div class="fm">با + نظم</div><div class="rs">با<span class="ey">نظم</span></div><div class="mn">منظم و مرتب</div></div>
+      <div class="exc"><div class="em">❤️</div><div class="fm">با + محبت</div><div class="rs">با<span class="ey">محبت</span></div><div class="mn">مهربان</div></div>
+      <div class="exc"><div class="em">🏛️</div><div class="fm">با + فرهنگ</div><div class="rs">با<span class="ey">فرهنگ</span></div><div class="mn">فرهنگ‌دار</div></div>
+      <div class="exc"><div class="em">🗝️</div><div class="fm">با + تجربه</div><div class="rs">با<span class="ey">تجربه</span></div><div class="mn">کسی که تجربه دارد</div></div>
+      <div class="exc"><div class="em">💪</div><div class="fm">با + شجاعت</div><div class="rs">با<span class="ey">شجاعت</span></div><div class="mn">دلیر و شجاع</div></div>
+      <div class="exc"><div class="em">🌟</div><div class="fm">با + استعداد</div><div class="rs">با<span class="ey">استعداد</span></div><div class="mn">کسی که استعداد دارد</div></div>
+      <div class="exc"><div class="em">👤</div><div class="fm">با + شخصیت</div><div class="rs">با<span class="ey">شخصیت</span></div><div class="mn">باوقار و محترم</div></div>
+      <div class="exc"><div class="em">🤝</div><div class="fm">با + اخلاق</div><div class="rs">با<span class="ey">اخلاق</span></div><div class="mn">خوش‌اخلاق</div></div>
+    </div>
+
+    <div class="footer">
+      <p class="creator">🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ==================== صفحه‌ی دوم: تمرین‌ها =================== -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+  <div class="corner tl">🌻</div><div class="corner tr">🎈</div><div class="corner bl">🍀</div><div class="corner br">🌟</div>
+
+  <div class="content">
+
+    <div class="header slim">
+      <h1>📝 تمرین‌های واژه‌سازی با پیشوند «با»</h1>
+      <div class="sub">نام: <input type="text" class="ws-input info-input" placeholder="نام..."> &nbsp;&nbsp;&nbsp; کلاس: <input type="text" class="ws-input info-input" style="width:70px" placeholder="کلاس..."></div>
+    </div>
+
+    <!-- تمرین ۱ -->
+    <div class="stitle c-blue"><span class="ic">🧩</span> تمرین ۱: کلمه‌ها را با «با» بساز و بنویس!</div>
+    <div class="bgrid">
+      <div class="bitem"><div class="pt"><b>با</b> + ادب</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="باادب" data-ans="باادب"><div class="ans-badge">✓ باادب</div></div>
+      <div class="bitem"><div class="pt"><b>با</b> + هوش</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="باهوش" data-ans="باهوش"><div class="ans-badge">✓ باهوش</div></div>
+      <div class="bitem"><div class="pt"><b>با</b> + صفا</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="باصفا" data-ans="باصفا"><div class="ans-badge">✓ باصفا</div></div>
+      <div class="bitem"><div class="pt"><b>با</b> + نشاط</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="بانشاط" data-ans="بانشاط"><div class="ans-badge">✓ بانشاط</div></div>
+      <div class="bitem"><div class="pt"><b>با</b> + نظم</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="بانظم" data-ans="بانظم"><div class="ans-badge">✓ بانظم</div></div>
+      <div class="bitem"><div class="pt"><b>با</b> + دقت</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="بادقت" data-ans="بادقت"><div class="ans-badge">✓ بادقت</div></div>
+      <div class="bitem"><div class="pt"><b>با</b> + هنر</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="باهنر" data-ans="باهنر"><div class="ans-badge">✓ باهنر</div></div>
+      <div class="bitem"><div class="pt"><b>با</b> + فکر</div><div class="ar">⬇️</div><input type="text" class="ws-input build-ans-input" placeholder="بافکر" data-ans="بافکر"><div class="ans-badge">✓ بافکر</div></div>
+    </div>
+
+    <!-- تمرین ۲ -->
+    <div class="stitle c-orange"><span class="ic">🔍</span> تمرین ۲: کدام کلمه با پیشوند «با» درست ساخته شده؟ دور آن خط بکش!</div>
+    <div class="cgrid">
+      <div class="citem"><span class="n">۱</span><span class="op">باادب</span><span class="or">یا</span><span class="op">بادب</span></div>
+      <div class="citem"><span class="n">۲</span><span class="op">باهوش</span><span class="or">یا</span><span class="op">با هوش</span></div>
+      <div class="citem"><span class="n">۳</span><span class="op">با صفا</span><span class="or">یا</span><span class="op">باصفا</span></div>
+      <div class="citem"><span class="n">۴</span><span class="op">بانشاط</span><span class="or">یا</span><span class="op">با نشاط</span></div>
+      <div class="citem"><span class="n">۵</span><span class="op">بانظم</span><span class="or">یا</span><span class="op">با نظم</span></div>
+      <div class="citem"><span class="n">۶</span><span class="op">با دقت</span><span class="or">یا</span><span class="op">بادقت</span></div>
+    </div>
+
+    <!-- تمرین ۳ -->
+    <div class="stitle c-green"><span class="ic">✏️</span> تمرین ۳: جاهای خالی را با کلمه‌های داخل جعبه پُر کن!</div>
+    <div class="bank">
+      <span class="lbl">🧺 جعبه‌ی کلمه‌ها:</span>
+      <span>باادب</span><span>باهوش</span><span>باصفا</span><span>بانشاط</span><span>بانظم</span><span>بادقت</span>
+    </div>
+    <div class="fgrid">
+      <div class="fitem"><span class="n">1</span><span>دانش‌آموز <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="باادب"><span class="ans-badge">✓ باادب</span> دستش را بالا می‌آورد.</span></div>
+      <div class="fitem"><span class="n">2</span><span>امیر پسر خیلی <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="باهوش"><span class="ans-badge">✓ باهوش</span> است.</span></div>
+      <div class="fitem"><span class="n">3</span><span>مهمانان ما خیلی <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="باصفا"><span class="ans-badge">✓ باصفا</span> بودند.</span></div>
+      <div class="fitem"><span class="n">4</span><span>بچه‌ها امروز خیلی <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="بانشاط"><span class="ans-badge">✓ بانشاط</span> وارد کلاس شدند.</span></div>
+      <div class="fitem"><span class="n">5</span><span>کتابم همیشه <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="بانظم"><span class="ans-badge">✓ بانظم</span> و مرتب است.</span></div>
+      <div class="fitem"><span class="n">6</span><span>علی تکالیفش را <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="بادقت"><span class="ans-badge">✓ بادقت</span> انجام می‌دهد.</span></div>
+    </div>
+
+    <!-- تمرین ۴ -->
+    <div class="stitle c-purple"><span class="ic">🎨</span> تمرین ۴: پیشوند «با» را در کلمه‌های زیر با مداد رنگی رنگ بزن!</div>
+    <div class="cw">
+      <span class="w"><span class="t">با</span>ادب</span>
+      <span class="w"><span class="t">با</span>هوش</span>
+      <span class="w"><span class="t">با</span>صفا</span>
+      <span class="w"><span class="t">با</span>تجربه</span>
+      <span class="w"><span class="t">با</span>فرهنگ</span>
+      <span class="w"><span class="t">با</span>شجاعت</span>
+      <span class="w"><span class="t">با</span>استعداد</span>
+      <span class="w"><span class="t">با</span>اخلاق</span>
+    </div>
+
+    <!-- تمرین ۵ -->
+    <div class="stitle c-indigo"><span class="ic">✅</span> تمرین ۵: درست یا نادرست؟ علامت بزن!</div>
+    <div class="tfgrid">
+      <div class="tfitem">
+        <span>کلمه‌ی «باهوش» با پیشوند «با» ساخته شده است.</span>
+        <div class="circles"><span class="lbl">درست</span><span class="c"></span><span class="lbl">نادرست</span><span class="c"></span></div>
+      </div>
+      <div class="tfitem">
+        <span>کلمه‌ی «با ادب» چسبیده نوشته می‌شود.</span>
+        <div class="circles"><span class="lbl">درست</span><span class="c"></span><span class="lbl">نادرست</span><span class="c"></span></div>
+      </div>
+      <div class="tfitem">
+        <span>«باصفا» یعنی کسی که صفا و مهربانی دارد.</span>
+        <div class="circles"><span class="lbl">درست</span><span class="c"></span><span class="lbl">نادرست</span><span class="c"></span></div>
+      </div>
+      <div class="tfitem">
+        <span>«بانشاط» یعنی غمگین و ناراحت.</span>
+        <div class="circles"><span class="lbl">درست</span><span class="c"></span><span class="lbl">نادرست</span><span class="c"></span></div>
+      </div>
+      <div class="tfitem">
+        <span>«باادب» یعنی کسی که ادب دارد.</span>
+        <div class="circles"><span class="lbl">درست</span><span class="c"></span><span class="lbl">نادرست</span><span class="c"></span></div>
+      </div>
+      <div class="tfitem">
+        <span>کلمه‌های «با + هوش = باهوش» چسبیده نوشته می‌شوند.</span>
+        <div class="circles"><span class="lbl">درست</span><span class="c"></span><span class="lbl">نادرست</span><span class="c"></span></div>
+      </div>
+    </div>
+
+    <!-- تمرین ۶ -->
+    <div class="stitle c-pink"><span class="ic">⭐</span> تمرین ۶ (چالشی!): خودت سه کلمه‌ی جدید با «با» بساز!</div>
+    <div class="chal"><div class="row"><b>با</b> + <input type="text" class="ws-input chal-ans-input" placeholder="مثال: محبت"> = <input type="text" class="ws-input chal-ans-input" placeholder="بامحبت"></div><div class="row"><b>با</b> + <input type="text" class="ws-input chal-ans-input" placeholder="مثال: ایمان"> = <input type="text" class="ws-input chal-ans-input" placeholder="باایمان"></div><div class="row"><b>با</b> + <input type="text" class="ws-input chal-ans-input" placeholder="مثال: تجربه"> = <input type="text" class="ws-input chal-ans-input" placeholder="باتجربه"></div></div>
+
+    <!-- پانوشت -->
+    <div class="footer">
+      <div class="stars">⭐🌟⭐🌟⭐🌟⭐🌟⭐</div>
+      <div class="self">امروز چقدر یاد گرفتم؟ ستاره‌هایم را رنگ می‌زنم: <span class="st" style="cursor:pointer;"><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 0 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 1 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 2 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 3 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 4 ? '★' : '☆')">☆</span></span></div>
+      <p class="creator">🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان</p>
+      <p>آفرین به تو که با دقّت تمرین کردی! 💖</p>
+      <div class="stars">🌸🌺🌻🌼🌷🌹🌸🌺🌻🌼</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

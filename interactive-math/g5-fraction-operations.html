@@ -1,0 +1,1425 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>کارگاه جامع و بی‌پایان کسرها و اعداد مخلوط — سازنده: نیما آزمکان</title>
+  <style>
+    :root{
+      --bg1: #062419;
+      --bg2: #0f172a;
+      --card: rgba(255, 255, 255, 0.07);
+      --stroke: rgba(255, 255, 255, 0.15);
+      --text: #f0fdf4;
+      --muted: rgba(240, 253, 244, 0.75);
+      --good: #22c55e;
+      --bad: #ef4444;
+      --accent: #34d399;
+      --accent2: #38bdf8;
+      --accent3: #fbbf24;
+      --shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    *{ box-sizing: border-box; }
+
+    body{
+      margin: 0;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(1000px 600px at 15% 15%, rgba(52, 211, 153, 0.22), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(56, 189, 248, 0.2), transparent 60%),
+        radial-gradient(800px 500px at 50% 90%, rgba(251, 191, 36, 0.15), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+      padding-bottom: 30px;
+    }
+
+    /* Modal for Student Name */
+    .modal-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 10, 20, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card{
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke);
+      border-radius: 24px;
+      padding: 30px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .modal-card h2{ margin-top: 0; color: var(--accent); font-size: 20px; }
+    .modal-card input{
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+      margin: 15px 0 20px;
+    }
+
+    /* Top Bar */
+    .topbar{
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 20px 18px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .brand h1{
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #34d399, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .user-info{ display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .badge{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      backdrop-filter: blur(8px);
+    }
+    .badge strong{ color: var(--accent); }
+
+    /* Main Grid */
+    main{
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 10px 18px 30px;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px){ main{ grid-template-columns: 1fr; } }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+
+    .cardHeader{
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--stroke);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(0,0,0,0.15);
+      flex-wrap: wrap;
+    }
+    .cardHeader .title{ font-weight: 800; font-size: 15px; color: var(--accent); }
+
+    .controls{ display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    select, button{
+      font-family: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.3);
+      color: var(--text);
+      padding: 8px 12px;
+      outline: none;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    select option { background: #0f172a; color: #fff; }
+    button:hover{ border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); }
+    .btn-primary{
+      background: linear-gradient(135deg, #34d399, #059669);
+      border: none;
+      color: #000;
+      font-weight: 800;
+    }
+    .btn-export{
+      background: rgba(56, 189, 248, 0.2);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #7dd3fc;
+    }
+    .btn-export:hover{ background: rgba(56, 189, 248, 0.3); }
+
+    .content{ padding: 20px; }
+
+    .instruction{
+      background: rgba(52, 211, 153, 0.1);
+      border-right: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      color: var(--muted);
+    }
+
+    /* Operation Selection Pills */
+    .op-nav-pills{
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      background: rgba(0,0,0,0.25);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+    }
+    .op-pill-btn{
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .op-pill-btn:hover{ color: #fff; background: rgba(255,255,255,0.05); }
+    .op-pill-btn.active{
+      background: var(--accent);
+      color: #000;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(52, 211, 153, 0.3);
+    }
+
+    /* Fraction Display System */
+    .fraction-block{
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      margin: 0 4px;
+      min-width: 44px;
+    }
+    .f-num{
+      border-bottom: 2px solid rgba(255,255,255,0.7);
+      padding-bottom: 3px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+    .f-den{
+      padding-top: 3px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+    .f-whole{
+      font-size: 28px;
+      font-weight: 900;
+      margin-left: 6px;
+      color: var(--accent3);
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .math-canvas{
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+      direction: ltr;
+    }
+
+    .problem-row{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 26px;
+      font-weight: 900;
+      flex-wrap: wrap;
+    }
+    .op-symbol-lg{
+      font-size: 30px;
+      color: var(--accent2);
+      margin: 0 6px;
+    }
+
+    /* Step-by-Step Boxes Container */
+    .step-block-card{
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s;
+    }
+    .step-block-card.active{
+      background: rgba(52, 211, 153, 0.08);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(52, 211, 153, 0.15);
+    }
+    .step-title-row{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      direction: rtl;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .step-math-flow{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 22px;
+      flex-wrap: wrap;
+    }
+
+    /* Fraction Input Box */
+    .fraction-input-block{
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      margin: 0 4px;
+    }
+    .box-input-sq{
+      width: 54px;
+      height: 48px;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .box-input-sq:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.25);
+      background: rgba(6, 78, 59, 0.8);
+    }
+    .box-input-sq[disabled]{
+      opacity: 0.5;
+      cursor: not-allowed;
+      border-color: rgba(255,255,255,0.1);
+    }
+    .box-input-sq.ok{
+      border-color: var(--good) !important;
+      background: rgba(34, 197, 94, 0.2) !important;
+      color: #4ade80 !important;
+    }
+    .box-input-sq.bad{
+      border-color: var(--bad) !important;
+      background: rgba(239, 68, 68, 0.25) !important;
+      color: #f87171 !important;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    .whole-input-sq{
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      border: 2px solid var(--accent3);
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+      outline: none;
+      margin-right: 4px;
+    }
+    .whole-input-sq:focus{
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.3);
+    }
+    .whole-input-sq.ok{
+      border-color: var(--good) !important;
+      background: rgba(34, 197, 94, 0.2) !important;
+      color: #4ade80 !important;
+    }
+    .whole-input-sq.bad{
+      border-color: var(--bad) !important;
+      background: rgba(239, 68, 68, 0.25) !important;
+      color: #f87171 !important;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    .fraction-line-sep{
+      width: 54px;
+      height: 2px;
+      background: rgba(255,255,255,0.6);
+      margin: 3px auto;
+      border-radius: 2px;
+    }
+
+    @keyframes shake{
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+
+    /* Visual Fraction Bar */
+    .visual-fraction-bar{
+      width: 100%;
+      max-width: 460px;
+      height: 18px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--stroke);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      margin: 10px auto 0;
+    }
+    .visual-slice{
+      height: 100%;
+      border-left: 1px solid rgba(0,0,0,0.3);
+      transition: background 0.3s;
+    }
+    .slice-active1{ background: #34d399; }
+    .slice-active2{ background: #38bdf8; }
+    .slice-empty{ background: rgba(255,255,255,0.05); }
+
+    /* Side Panel & Stats */
+    .side-panel{ padding: 20px; }
+    .info-box{
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .info-box h3{ margin: 0 0 10px; font-size: 14px; color: var(--accent); }
+
+    /* Bar Chart Component */
+    .chart-container{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 120px;
+      padding-top: 15px;
+      border-bottom: 1px solid var(--stroke);
+      margin-bottom: 10px;
+    }
+    .bar-wrapper{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 45%;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar{
+      width: 100%;
+      max-width: 40px;
+      border-radius: 8px 8px 0 0;
+      transition: height 0.5s ease;
+      min-height: 4px;
+    }
+    .bar-good{ background: linear-gradient(180deg, #4ade80, #16a34a); }
+    .bar-bad{ background: linear-gradient(180deg, #f87171, #dc2626); }
+    .bar-label{ font-size: 11px; color: var(--muted); }
+    .bar-val{ font-size: 12px; font-weight: bold; }
+
+    .gauge-box{ text-align: center; padding: 8px 0; }
+    .gauge-val{ font-size: 26px; font-weight: 900; color: var(--accent); }
+
+    /* Print / PDF Styles */
+    @media print{
+      body{ background: #fff !important; color: #000 !important; }
+      .modal-overlay, .controls, .topbar, .instruction, .op-nav-pills, button, select{ display: none !important; }
+      main{ display: block !important; padding: 0 !important; }
+      .card{ background: #fff !important; color: #000 !important; border: 2px solid #333 !important; box-shadow: none !important; margin-bottom: 20px !important; }
+      .cardHeader{ background: #eee !important; color: #000 !important; border-bottom: 2px solid #333 !important; }
+      .box-input-sq{ background: #fff !important; color: #000 !important; border: 2px solid #333 !important; }
+      .print-header{ display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #000; padding-bottom: 15px; }
+      .bar-good{ background: #22c55e !important; }
+      .bar-bad{ background: #ef4444 !important; }
+    }
+
+    .print-header{ display: none; }
+
+    /* Confetti Canvas */
+    .confetti-container{ position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti-piece{ position: absolute; width: 10px; height: 14px; border-radius: 2px; animation: fall 2s ease-out forwards; }
+    @keyframes fall{
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Printable Header for PDF Export -->
+  <div class="print-header">
+    <h2>کارنامه ریاضی — محاسبات کسرها و اعداد مخلوط</h2>
+    <p>طراح برنامه: <b>نیما آزمکان</b></p>
+    <p>نام دانش‌آموز: <b id="printStudentName">---</b> | تاریخ: <b id="printDate">---</b></p>
+  </div>
+
+  <!-- Modal Get Student Name -->
+  <div class="modal-overlay" id="nameModal">
+    <div class="modal-card">
+      <h2>کارگاه محاسبات کسرها (پایه پنجم)</h2>
+      <p style="font-size: 13px; color: var(--muted);">لطفاً نام دانش‌آموز را وارد کنید:</p>
+      <input type="text" id="studentNameInput" placeholder="مثلاً: علی رضایی" autofocus>
+      <button class="btn-primary" id="startBtn" style="width: 100%; padding: 12px;">شروع کارگاه کسرها</button>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand">
+      <h1>کارگاه محاسبات کسرها و اعداد مخلوط</h1>
+    </div>
+    <div class="user-info">
+      <div class="badge">دانش‌آموز: <strong id="studentNameBadge">---</strong></div>
+      <button id="changeNameBtn" style="font-size:11px; padding:4px 8px;">تغییر نام</button>
+      <div class="badge">طراح: <strong>نیما آزمکان</strong></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left Card: Main Problem & Steps -->
+    <section class="card">
+      <div class="cardHeader">
+        <div class="title">مسئله کسرها</div>
+        <div class="controls">
+          <select id="diffSelect" title="سطح سختی">
+            <option value="easy">سطح: آسان (مخرج‌های مضرب هم)</option>
+            <option value="medium" selected>سطح: متوسط (مخرج‌های متفاوت)</option>
+            <option value="hard">سطح: سخت (اعداد مخلوط + ساده‌سازی)</option>
+          </select>
+          <button class="btn-primary" id="newBtn">مسئله جدید 🎲</button>
+          <button id="resetBtn">پاک کردن 🔄</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Navigation Pills for Operations -->
+        <div class="op-nav-pills" id="opNavPills">
+          <button type="button" class="op-pill-btn active" data-mode="unlike_add">➕ جمع مخرج‌های متفاوت</button>
+          <button type="button" class="op-pill-btn" data-mode="unlike_sub">➖ تفریق مخرج‌های متفاوت</button>
+          <button type="button" class="op-pill-btn" data-mode="mul">✖️ ضرب کسرها</button>
+          <button type="button" class="op-pill-btn" data-mode="div">➗ تقسیم کسرها</button>
+          <button type="button" class="op-pill-btn" data-mode="mixed">🍰 اعداد مخلوط</button>
+          <button type="button" class="op-pill-btn" data-mode="simplify">✂️ ساده‌سازی کسر</button>
+        </div>
+
+        <div class="instruction" id="instructionText">
+          مرحله به مرحله مخرج مشترک و صورت‌های جدید را در مربع‌ها وارد کنید.
+        </div>
+
+        <!-- Math Workspace -->
+        <div class="math-canvas">
+          <!-- Problem Presentation -->
+          <div class="problem-row" id="problemDisplay">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Step 1: Common Denominator / Conversion / Reciprocal -->
+          <div class="step-block-card active" id="stepCard1">
+            <div class="step-title-row">
+              <span id="step1Title">مرحله ۱: هم‌مخرج کردن (کسرهای مساوی با مخرج مشترک)</span>
+              <span id="step1Status">در حال تکمیل...</span>
+            </div>
+            <div class="step-math-flow" id="step1Inputs">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Step 2: Final Operation & Simplification -->
+          <div class="step-block-card" id="stepCard2">
+            <div class="step-title-row">
+              <span id="step2Title">مرحله ۲: محاسبه حاصل و ساده‌سازی نهایی</span>
+              <span id="step2Status">قفل</span>
+            </div>
+            <div class="step-math-flow" id="step2Inputs">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Card: Stats & Chart -->
+    <aside class="card">
+      <div class="cardHeader">
+        <div class="title">کارنامه و عملکرد</div>
+        <button class="btn-export" id="exportBtn">🖨️ چاپ / PDF</button>
+      </div>
+      <div class="side-panel">
+
+        <div class="info-box">
+          <h3>نمودار پاسخ‌ها</h3>
+          <div class="chart-container">
+            <div class="bar-wrapper">
+              <span class="bar-val" id="correctCountText">0</span>
+              <div class="bar bar-good" id="barGood" style="height: 0%;"></div>
+              <span class="bar-label">درست</span>
+            </div>
+            <div class="bar-wrapper">
+              <span class="bar-val" id="wrongCountText">0</span>
+              <div class="bar bar-bad" id="barBad" style="height: 0%;"></div>
+              <span class="bar-label">نادرست</span>
+            </div>
+          </div>
+
+          <div class="gauge-box">
+            <div style="font-size: 12px; color: var(--muted);">درصد تسلط کسری</div>
+            <div class="gauge-val" id="accuracyVal">0%</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <h3>راهنمای آموزشی هوشمند</h3>
+          <p id="stepHelpText" style="font-size:13px; line-height:1.8; color:var(--muted); margin:0;">
+            از مرحله اول شروع کنید.
+          </p>
+        </div>
+
+      </div>
+    </aside>
+  </main>
+
+  <div class="confetti-container" id="confettiBox"></div>
+
+<script>
+(() => {
+  // Elements
+  const nameModal = document.getElementById('nameModal');
+  const studentNameInput = document.getElementById('studentNameInput');
+  const startBtn = document.getElementById('startBtn');
+  const studentNameBadge = document.getElementById('studentNameBadge');
+  const changeNameBtn = document.getElementById('changeNameBtn');
+
+  const diffSelect = document.getElementById('diffSelect');
+  const newBtn = document.getElementById('newBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const opNavPills = document.getElementById('opNavPills');
+
+  const problemDisplay = document.getElementById('problemDisplay');
+  const stepCard1 = document.getElementById('stepCard1');
+  const stepCard2 = document.getElementById('stepCard2');
+  const step1Title = document.getElementById('step1Title');
+  const step2Title = document.getElementById('step2Title');
+  const step1Status = document.getElementById('step1Status');
+  const step2Status = document.getElementById('step2Status');
+  const step1Inputs = document.getElementById('step1Inputs');
+  const step2Inputs = document.getElementById('step2Inputs');
+
+  const correctCountText = document.getElementById('correctCountText');
+  const wrongCountText = document.getElementById('wrongCountText');
+  const barGood = document.getElementById('barGood');
+  const barBad = document.getElementById('barBad');
+  const accuracyVal = document.getElementById('accuracyVal');
+  const stepHelpText = document.getElementById('stepHelpText');
+  const instructionText = document.getElementById('instructionText');
+  const confettiBox = document.getElementById('confettiBox');
+
+  const printStudentName = document.getElementById('printStudentName');
+  const printDate = document.getElementById('printDate');
+
+  // Math App State
+  let studentName = 'دانش‌آموز';
+  let mode = 'unlike_add'; // unlike_add, unlike_sub, mul, div, mixed, simplify
+  let difficulty = 'medium';
+  let correctCount = 0, wrongCount = 0;
+  let activeStep = 1;
+
+  // Problem data
+  let n1 = 1, d1 = 2, n2 = 1, d2 = 3;
+  let w1 = 0, w2 = 0; // whole parts
+  let commonD = 6;
+  let eqN1 = 3, eqN2 = 2; // equivalent numerators
+  let resNum = 5, resDen = 6, resWhole = 0;
+  let simpNum = 5, simpDen = 6, simpWhole = 0;
+
+  // Sound Synth
+  let audioCtx = null;
+  function initAudio(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) audioCtx = new AC();
+    }
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function playSoundStepSuccess(){
+    initAudio(); if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, t);
+    osc.frequency.setValueAtTime(659.25, t + 0.08);
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.26);
+  }
+
+  function playSoundBoo(){
+    initAudio(); if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    for(let i = 0; i < 2; i++){
+      const startTime = t + i * 0.18;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(160, startTime);
+      osc.frequency.exponentialRampToValueAtTime(100, startTime + 0.14);
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(startTime); osc.stop(startTime + 0.16);
+    }
+  }
+
+  function playSoundApplause(){
+    initAudio(); if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t + idx*0.06);
+      gain.gain.setValueAtTime(0.001, t + idx*0.06);
+      gain.gain.exponentialRampToValueAtTime(0.12, t + idx*0.06 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t + idx*0.06); osc.stop(t + 0.65);
+    });
+  }
+
+  function gcd(a, b){
+    a = Math.abs(a); b = Math.abs(b);
+    while(b){ const t = b; b = a % b; a = t; }
+    return a || 1;
+  }
+
+  function lcm(a, b){
+    return (a * b) / gcd(a, b);
+  }
+
+  function randInt(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Generate Problem based on Mode & Difficulty
+  function generateProblem(){
+    difficulty = diffSelect.value;
+
+    if(mode === 'unlike_add' || mode === 'unlike_sub'){
+      if(difficulty === 'easy'){
+        // Denominators are multiples of each other, e.g. 2 & 4, 3 & 6, 4 & 8
+        d1 = [2, 3, 4, 5][randInt(0, 3)];
+        const mult = [2, 3][randInt(0, 1)];
+        d2 = d1 * mult;
+        if(Math.random() > 0.5){ const tmp = d1; d1 = d2; d2 = tmp; }
+      } else if(difficulty === 'medium'){
+        d1 = [2, 3, 4, 5, 6][randInt(0, 4)];
+        d2 = [3, 4, 5, 7, 8][randInt(0, 4)];
+        while(d1 === d2){ d2 = [3, 4, 5, 7, 8][randInt(0, 4)]; }
+      } else {
+        // hard
+        d1 = [4, 6, 8, 9, 10, 12][randInt(0, 5)];
+        d2 = [6, 8, 9, 12, 15][randInt(0, 4)];
+        while(d1 === d2){ d2 = [6, 8, 9, 12, 15][randInt(0, 4)]; }
+      }
+
+      commonD = lcm(d1, d2);
+      n1 = randInt(1, d1 - 1);
+      n2 = randInt(1, d2 - 1);
+
+      eqN1 = n1 * (commonD / d1);
+      eqN2 = n2 * (commonD / d2);
+
+      if(mode === 'unlike_sub'){
+        // ensure first fraction is bigger
+        if(eqN1 <= eqN2){
+          const tN = n1; const tD = d1; n1 = n2; d1 = d2; n2 = tN; d2 = tD;
+          commonD = lcm(d1, d2);
+          eqN1 = n1 * (commonD / d1);
+          eqN2 = n2 * (commonD / d2);
+          if(eqN1 <= eqN2){ n1 = d1 - 1; eqN1 = n1 * (commonD / d1); }
+        }
+        resNum = eqN1 - eqN2;
+      } else {
+        resNum = eqN1 + eqN2;
+      }
+      resDen = commonD;
+      const g = gcd(resNum, resDen);
+      simpNum = resNum / g;
+      simpDen = resDen / g;
+      w1 = 0; w2 = 0;
+    }
+    else if(mode === 'mul'){
+      d1 = randInt(2, 8);
+      n1 = randInt(1, d1);
+      d2 = randInt(2, 8);
+      n2 = randInt(1, d2);
+      resNum = n1 * n2;
+      resDen = d1 * d2;
+      const g = gcd(resNum, resDen);
+      simpNum = resNum / g;
+      simpDen = resDen / g;
+      commonD = resDen;
+    }
+    else if(mode === 'div'){
+      d1 = randInt(2, 6);
+      n1 = randInt(1, d1);
+      d2 = randInt(2, 6);
+      n2 = randInt(1, d2);
+      // division: n1/d1 ÷ n2/d2 = n1/d1 × d2/n2
+      resNum = n1 * d2;
+      resDen = d1 * n2;
+      const g = gcd(resNum, resDen);
+      simpNum = resNum / g;
+      simpDen = resDen / g;
+      commonD = resDen;
+    }
+    else if(mode === 'mixed'){
+      w1 = randInt(1, 3);
+      d1 = [2, 3, 4, 5][randInt(0, 3)];
+      n1 = randInt(1, d1 - 1);
+
+      w2 = randInt(1, 2);
+      d2 = [2, 3, 4, 6][randInt(0, 3)];
+      n2 = randInt(1, d2 - 1);
+
+      commonD = lcm(d1, d2);
+      eqN1 = n1 * (commonD / d1);
+      eqN2 = n2 * (commonD / d2);
+
+      resWhole = w1 + w2;
+      resNum = eqN1 + eqN2;
+      resDen = commonD;
+
+      if(resNum >= resDen){
+        resWhole += Math.floor(resNum / resDen);
+        resNum = resNum % resDen;
+      }
+      const g = gcd(resNum, resDen);
+      simpNum = resNum / g;
+      simpDen = resDen / g;
+      simpWhole = resWhole;
+    }
+    else if(mode === 'simplify'){
+      const factor = [2, 3, 4, 5, 6, 8][randInt(0, 5)];
+      simpDen = randInt(2, 9);
+      simpNum = randInt(1, simpDen - 1);
+      while(gcd(simpNum, simpDen) !== 1){
+        simpDen = randInt(2, 9);
+        simpNum = randInt(1, simpDen - 1);
+      }
+      n1 = simpNum * factor;
+      d1 = simpDen * factor;
+      resNum = simpNum;
+      resDen = simpDen;
+      commonD = factor;
+    }
+
+    renderUI();
+  }
+
+  function renderUI(){
+    activeStep = 1;
+
+    // Render Problem Row
+    let probHtml = '';
+    const opSignText = (mode === 'unlike_sub') ? '−' : (mode === 'mul') ? '×' : (mode === 'div') ? '÷' : '+';
+
+    if(mode === 'mixed'){
+      probHtml = `
+        <div class="fraction-block">
+          <span class="f-whole">${w1}</span>
+          <span class="f-num">${n1}</span>
+          <span class="f-den">${d1}</span>
+        </div>
+        <span class="op-symbol-lg">+</span>
+        <div class="fraction-block">
+          <span class="f-whole">${w2}</span>
+          <span class="f-num">${n2}</span>
+          <span class="f-den">${d2}</span>
+        </div>
+        <span class="op-symbol-lg">=</span>
+        <span style="font-size:32px; color:var(--accent)">؟</span>
+      `;
+    } else if(mode === 'simplify'){
+      probHtml = `
+        <span style="font-size:16px; color:var(--accent); margin-right:10px;">کسر زیر را ساده کنید:</span>
+        <div class="fraction-block">
+          <span class="f-num" style="color:var(--accent3)">${n1}</span>
+          <span class="f-den" style="color:var(--accent3)">${d1}</span>
+        </div>
+        <span class="op-symbol-lg">=</span>
+        <span style="font-size:32px; color:var(--accent)">؟</span>
+      `;
+    } else {
+      probHtml = `
+        <div class="fraction-block">
+          <span class="f-num">${n1}</span>
+          <span class="f-den">${d1}</span>
+        </div>
+        <span class="op-symbol-lg">${opSignText}</span>
+        <div class="fraction-block">
+          <span class="f-num">${n2}</span>
+          <span class="f-den">${d2}</span>
+        </div>
+        <span class="op-symbol-lg">=</span>
+        <span style="font-size:32px; color:var(--accent)">؟</span>
+      `;
+    }
+    problemDisplay.innerHTML = probHtml;
+
+    // Render Step 1
+    if(mode === 'unlike_add' || mode === 'unlike_sub'){
+      step1Title.textContent = `مرحله ۱: هم‌مخرج کردن (پیدا کردن مخرج مشترک ${commonD} و صورت‌های جدید)`;
+      const opS = (mode === 'unlike_sub') ? '−' : '+';
+      step1Inputs.innerHTML = `
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s1_n1" maxlength="2" placeholder="صورت ۱" inputmode="numeric">
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s1_d1" maxlength="2" placeholder="مخرج" inputmode="numeric">
+        </div>
+        <span class="op-symbol-lg">${opS}</span>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s1_n2" maxlength="2" placeholder="صورت ۲" inputmode="numeric">
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s1_d2" maxlength="2" placeholder="مخرج" inputmode="numeric">
+        </div>
+      `;
+      step2Title.textContent = `مرحله ۲: محاسبه حاصل جمع/تفریق با مخرج مشترک`;
+      step2Inputs.innerHTML = `
+        <span style="font-size:18px; margin-right:8px;">حاصل نهایی:</span>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s2_num" maxlength="3" placeholder="صورت" inputmode="numeric" disabled>
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s2_den" maxlength="3" placeholder="مخرج" inputmode="numeric" disabled>
+        </div>
+      `;
+    } else if(mode === 'mul'){
+      step1Title.textContent = `مرحله ۱: ضرب صورت در صورت و مخرج در مخرج (${n1}×${n2} و ${d1}×${d2})`;
+      step1Inputs.innerHTML = `
+        <span style="font-size:16px;">حاصل ضرب اولیه:</span>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s1_n1" maxlength="3" placeholder="${n1}×${n2}" inputmode="numeric">
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s1_d1" maxlength="3" placeholder="${d1}×${d2}" inputmode="numeric">
+        </div>
+      `;
+      step2Title.textContent = `مرحله ۲: ساده‌سازی کسر حاصل به ساده‌ترین شکل ممکن`;
+      step2Inputs.innerHTML = `
+        <span style="font-size:16px;">کسر ساده‌شده:</span>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s2_num" maxlength="3" placeholder="صورت" inputmode="numeric" disabled>
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s2_den" maxlength="3" placeholder="مخرج" inputmode="numeric" disabled>
+        </div>
+      `;
+    } else if(mode === 'div'){
+      step1Title.textContent = `مرحله ۱: تبدیل تقسیم به ضرب و معکوس کردن کسر دوم (معکوس ${n2}/${d2} = ${d2}/${n2})`;
+      step1Inputs.innerHTML = `
+        <div class="fraction-block">
+          <span class="f-num">${n1}</span>
+          <span class="f-den">${d1}</span>
+        </div>
+        <span class="op-symbol-lg">×</span>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s1_n1" maxlength="2" placeholder="معکوس" inputmode="numeric">
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s1_d1" maxlength="2" placeholder="معکوس" inputmode="numeric">
+        </div>
+      `;
+      step2Title.textContent = `مرحله ۲: ضرب کسرها و به دست آوردن پاسخ ساده‌شده`;
+      step2Inputs.innerHTML = `
+        <span style="font-size:16px;">حاصل نهایی:</span>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s2_num" maxlength="3" placeholder="صورت" inputmode="numeric" disabled>
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s2_den" maxlength="3" placeholder="مخرج" inputmode="numeric" disabled>
+        </div>
+      `;
+    } else if(mode === 'mixed'){
+      step1Title.textContent = `مرحله ۱: هم‌مخرج کردن جزءهای کسری با مخرج مشترک ${commonD}`;
+      step1Inputs.innerHTML = `
+        <div class="fraction-block">
+          <span class="f-whole">${w1}</span>
+        </div>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s1_n1" maxlength="2" placeholder="صورت ۱" inputmode="numeric">
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s1_d1" maxlength="2" placeholder="${commonD}" inputmode="numeric">
+        </div>
+        <span class="op-symbol-lg">+</span>
+        <div class="fraction-block">
+          <span class="f-whole">${w2}</span>
+        </div>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s1_n2" maxlength="2" placeholder="صورت ۲" inputmode="numeric">
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s1_d2" maxlength="2" placeholder="${commonD}" inputmode="numeric">
+        </div>
+      `;
+      step2Title.textContent = `مرحله ۲: جمع جزءهای صحیح (${w1}+${w2}) و جزءهای کسری`;
+      step2Inputs.innerHTML = `
+        <span style="font-size:16px;">حاصل عدد مخلوط:</span>
+        <input class="whole-input-sq" id="s2_whole" maxlength="2" placeholder="صحیح" inputmode="numeric" disabled>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s2_num" maxlength="2" placeholder="صورت" inputmode="numeric" disabled>
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s2_den" maxlength="2" placeholder="مخرج" inputmode="numeric" disabled>
+        </div>
+      `;
+    } else if(mode === 'simplify'){
+      step1Title.textContent = `مرحله ۱: تشخیص بزرگترین مقسوم‌علیه مشترک (ب.م.م = ${commonD})`;
+      step1Inputs.innerHTML = `
+        <span style="font-size:16px;">صورت و مخرج هر دو بر چه عددی تقسیم می‌شوند؟</span>
+        <input class="box-input-sq" id="s1_n1" maxlength="2" placeholder="ب.م.م" inputmode="numeric">
+      `;
+      step2Title.textContent = `مرحله ۲: کسر ساده‌شده نهایی`;
+      step2Inputs.innerHTML = `
+        <span style="font-size:16px;">کسر ساده‌شده:</span>
+        <div class="fraction-input-block">
+          <input class="box-input-sq" id="s2_num" maxlength="3" placeholder="صورت" inputmode="numeric" disabled>
+          <div class="fraction-line-sep"></div>
+          <input class="box-input-sq" id="s2_den" maxlength="3" placeholder="مخرج" inputmode="numeric" disabled>
+        </div>
+      `;
+    }
+
+    stepCard1.classList.add('active');
+    stepCard2.classList.remove('active');
+    step1Status.textContent = 'در حال تکمیل...';
+    step2Status.textContent = 'قفل';
+
+    updateHelpText();
+    setupInputListeners();
+  }
+
+  function updateHelpText(){
+    if(activeStep === 1){
+      if(mode === 'unlike_add' || mode === 'unlike_sub'){
+        stepHelpText.innerHTML = `مرحله ۱: مخرج مشترک (${commonD}) و صورت‌های کسرهای مساوی را در مربع‌ها وارد کنید. کسر اول: (${n1}×${commonD/d1})/(${d1}×${commonD/d1}) و کسر دوم: (${n2}×${commonD/d2})/(${d2}×${commonD/d2}).`;
+      } else if(mode === 'mul'){
+        stepHelpText.innerHTML = `مرحله ۱: صورت را در صورت (${n1}×${n2}=${resNum}) و مخرج را در مخرج (${d1}×${d2}=${resDen}) ضرب کن.`;
+      } else if(mode === 'div'){
+        stepHelpText.innerHTML = `مرحله ۱: در تقسیم، کسر دوم معکوس می‌شود؛ یعنی جای صورت و مخرج کسر دوم (${n2}/${d2}) عوض شده و تبدیل به ${d2}/${n2} می‌شود.`;
+      } else if(mode === 'mixed'){
+        stepHelpText.innerHTML = `مرحله ۱: مخرج مشترک جزءهای کسری برابر ${commonD} است. صورت‌های کسرهای مساوی را بنویس.`;
+      } else if(mode === 'simplify'){
+        stepHelpText.innerHTML = `مرحله ۱: هر دو عدد ${n1} و ${d1} بر عدد ${commonD} بخش‌پذیر هستند. عدد ${commonD} را وارد کن.`;
+      }
+    } else if(activeStep === 2){
+      stepHelpText.innerHTML = `مرحله ۲: اکنون حاصل نهایی را با دقت وارد کن!`;
+    } else {
+      stepHelpText.innerHTML = `<b style="color:var(--good)">آفرین ${studentName}! مسئله با موفقیت حل شد.</b>`;
+    }
+  }
+
+  function setupInputListeners(){
+    const s1Inputs = stepCard1.querySelectorAll('input');
+    s1Inputs.forEach((inp, idx) => {
+      inp.oninput = () => {
+        initAudio();
+        inp.value = inp.value.replace(/[^\d]/g, '');
+        if(inp.value.length >= inp.maxLength && idx < s1Inputs.length - 1){
+          s1Inputs[idx + 1].focus();
+        }
+        checkStep1();
+      };
+      inp.onkeydown = (e) => {
+        initAudio();
+        if(e.key === 'Backspace' && !inp.value && idx > 0){
+          s1Inputs[idx - 1].focus();
+        }
+      };
+    });
+
+    const s2Inputs = stepCard2.querySelectorAll('input');
+    s2Inputs.forEach((inp, idx) => {
+      inp.oninput = () => {
+        initAudio();
+        inp.value = inp.value.replace(/[^\d]/g, '');
+        if(inp.value.length >= inp.maxLength && idx < s2Inputs.length - 1){
+          s2Inputs[idx + 1].focus();
+        }
+        checkStep2();
+      };
+    });
+
+    setTimeout(() => {
+      if(!nameModal.style.display || nameModal.style.display === 'none'){
+        s1Inputs[0]?.focus();
+      }
+    }, 100);
+  }
+
+  function checkStep1(){
+    if(activeStep !== 1) return;
+
+    if(mode === 'unlike_add' || mode === 'unlike_sub'){
+      const in_n1 = document.getElementById('s1_n1');
+      const in_d1 = document.getElementById('s1_d1');
+      const in_n2 = document.getElementById('s1_n2');
+      const in_d2 = document.getElementById('s1_d2');
+
+      if(!in_n1.value || !in_d1.value || !in_n2.value || !in_d2.value) return;
+
+      const v_n1 = parseInt(in_n1.value, 10);
+      const v_d1 = parseInt(in_d1.value, 10);
+      const v_n2 = parseInt(in_n2.value, 10);
+      const v_d2 = parseInt(in_d2.value, 10);
+
+      if(v_n1 === eqN1 && v_d1 === commonD && v_n2 === eqN2 && v_d2 === commonD){
+        [in_n1, in_d1, in_n2, in_d2].forEach(i => { i.classList.add('ok'); i.disabled = true; });
+        passStep1();
+      } else {
+        [in_n1, in_d1, in_n2, in_d2].forEach(i => i.classList.add('bad'));
+        playSoundBoo();
+        wrongCount++;
+        updateChart();
+        setTimeout(() => {
+          [in_n1, in_d1, in_n2, in_d2].forEach(i => { i.classList.remove('bad'); i.value = ''; });
+          in_n1.focus();
+        }, 600);
+      }
+    }
+    else if(mode === 'mul'){
+      const in_n1 = document.getElementById('s1_n1');
+      const in_d1 = document.getElementById('s1_d1');
+      if(!in_n1.value || !in_d1.value) return;
+      const v_n1 = parseInt(in_n1.value, 10);
+      const v_d1 = parseInt(in_d1.value, 10);
+      if(v_n1 === resNum && v_d1 === resDen){
+        [in_n1, in_d1].forEach(i => { i.classList.add('ok'); i.disabled = true; });
+        passStep1();
+      } else {
+        [in_n1, in_d1].forEach(i => i.classList.add('bad'));
+        playSoundBoo(); wrongCount++; updateChart();
+        setTimeout(() => { [in_n1, in_d1].forEach(i => { i.classList.remove('bad'); i.value=''; }); in_n1.focus(); }, 600);
+      }
+    }
+    else if(mode === 'div'){
+      const in_n1 = document.getElementById('s1_n1');
+      const in_d1 = document.getElementById('s1_d1');
+      if(!in_n1.value || !in_d1.value) return;
+      const v_n1 = parseInt(in_n1.value, 10);
+      const v_d1 = parseInt(in_d1.value, 10);
+      if(v_n1 === d2 && v_d1 === n2){
+        [in_n1, in_d1].forEach(i => { i.classList.add('ok'); i.disabled = true; });
+        passStep1();
+      } else {
+        [in_n1, in_d1].forEach(i => i.classList.add('bad'));
+        playSoundBoo(); wrongCount++; updateChart();
+        setTimeout(() => { [in_n1, in_d1].forEach(i => { i.classList.remove('bad'); i.value=''; }); in_n1.focus(); }, 600);
+      }
+    }
+    else if(mode === 'mixed'){
+      const in_n1 = document.getElementById('s1_n1');
+      const in_d1 = document.getElementById('s1_d1');
+      const in_n2 = document.getElementById('s1_n2');
+      const in_d2 = document.getElementById('s1_d2');
+      if(!in_n1.value || !in_d1.value || !in_n2.value || !in_d2.value) return;
+      const v_n1 = parseInt(in_n1.value, 10);
+      const v_d1 = parseInt(in_d1.value, 10);
+      const v_n2 = parseInt(in_n2.value, 10);
+      const v_d2 = parseInt(in_d2.value, 10);
+      if(v_n1 === eqN1 && v_d1 === commonD && v_n2 === eqN2 && v_d2 === commonD){
+        [in_n1, in_d1, in_n2, in_d2].forEach(i => { i.classList.add('ok'); i.disabled = true; });
+        passStep1();
+      } else {
+        [in_n1, in_d1, in_n2, in_d2].forEach(i => i.classList.add('bad'));
+        playSoundBoo(); wrongCount++; updateChart();
+        setTimeout(() => { [in_n1, in_d1, in_n2, in_d2].forEach(i => { i.classList.remove('bad'); i.value=''; }); in_n1.focus(); }, 600);
+      }
+    }
+    else if(mode === 'simplify'){
+      const in_n1 = document.getElementById('s1_n1');
+      if(!in_n1.value) return;
+      const v_n1 = parseInt(in_n1.value, 10);
+      if(v_n1 === commonD){
+        in_n1.classList.add('ok'); in_n1.disabled = true;
+        passStep1();
+      } else {
+        in_n1.classList.add('bad');
+        playSoundBoo(); wrongCount++; updateChart();
+        setTimeout(() => { in_n1.classList.remove('bad'); in_n1.value=''; in_n1.focus(); }, 600);
+      }
+    }
+  }
+
+  function passStep1(){
+    playSoundStepSuccess();
+    activeStep = 2;
+    step1Status.textContent = '✓ درست';
+    step2Status.textContent = 'در حال تکمیل...';
+    stepCard1.classList.remove('active');
+    stepCard2.classList.add('active');
+
+    const s2Inputs = stepCard2.querySelectorAll('input');
+    s2Inputs.forEach(i => i.disabled = false);
+    s2Inputs[0]?.focus();
+    updateHelpText();
+  }
+
+  function checkStep2(){
+    if(activeStep !== 2) return;
+
+    if(mode === 'unlike_add' || mode === 'unlike_sub' || mode === 'mul' || mode === 'div'){
+      const in_num = document.getElementById('s2_num');
+      const in_den = document.getElementById('s2_den');
+      if(!in_num.value || !in_den.value) return;
+
+      const v_num = parseInt(in_num.value, 10);
+      const v_den = parseInt(in_den.value, 10);
+
+      // accept either simplified or unsimplified correct answer
+      const isCorrect = (v_num === resNum && v_den === resDen) || (v_num === simpNum && v_den === simpDen);
+
+      if(isCorrect){
+        [in_num, in_den].forEach(i => { i.classList.add('ok'); i.disabled = true; });
+        completeProblem();
+      } else {
+        [in_num, in_den].forEach(i => i.classList.add('bad'));
+        playSoundBoo(); wrongCount++; updateChart();
+        setTimeout(() => {
+          [in_num, in_den].forEach(i => { i.classList.remove('bad'); i.value = ''; });
+          in_num.focus();
+        }, 600);
+      }
+    }
+    else if(mode === 'mixed'){
+      const in_whole = document.getElementById('s2_whole');
+      const in_num = document.getElementById('s2_num');
+      const in_den = document.getElementById('s2_den');
+      if(!in_whole.value || !in_num.value || !in_den.value) return;
+
+      const v_w = parseInt(in_whole.value, 10);
+      const v_n = parseInt(in_num.value, 10);
+      const v_d = parseInt(in_den.value, 10);
+
+      const isCorrect = (v_w === resWhole && v_n === resNum && v_d === resDen) || (v_w === simpWhole && v_n === simpNum && v_d === simpDen);
+
+      if(isCorrect){
+        [in_whole, in_num, in_den].forEach(i => { i.classList.add('ok'); i.disabled = true; });
+        completeProblem();
+      } else {
+        [in_whole, in_num, in_den].forEach(i => i.classList.add('bad'));
+        playSoundBoo(); wrongCount++; updateChart();
+        setTimeout(() => {
+          [in_whole, in_num, in_den].forEach(i => { i.classList.remove('bad'); i.value = ''; });
+          in_whole.focus();
+        }, 600);
+      }
+    }
+    else if(mode === 'simplify'){
+      const in_num = document.getElementById('s2_num');
+      const in_den = document.getElementById('s2_den');
+      if(!in_num.value || !in_den.value) return;
+
+      const v_num = parseInt(in_num.value, 10);
+      const v_den = parseInt(in_den.value, 10);
+
+      if(v_num === simpNum && v_den === simpDen){
+        [in_num, in_den].forEach(i => { i.classList.add('ok'); i.disabled = true; });
+        completeProblem();
+      } else {
+        [in_num, in_den].forEach(i => i.classList.add('bad'));
+        playSoundBoo(); wrongCount++; updateChart();
+        setTimeout(() => {
+          [in_num, in_den].forEach(i => { i.classList.remove('bad'); i.value = ''; });
+          in_num.focus();
+        }, 600);
+      }
+    }
+  }
+
+  function completeProblem(){
+    activeStep = 3;
+    step2Status.textContent = '✓ درست';
+    correctCount++;
+    updateChart();
+    playSoundApplause();
+    triggerConfetti();
+
+    // Broadcast completion to parent frame
+    try{
+      window.parent?.postMessage({
+        type: 'MATH_APP_COMPLETED',
+        appId: 'g5-fraction-operations',
+        gradeId: 'g5',
+        mode: mode,
+        correctCount
+      }, '*');
+    } catch(e){}
+
+    setTimeout(() => {
+      generateProblem();
+    }, 1800);
+  }
+
+  function updateChart(){
+    correctCountText.textContent = correctCount;
+    wrongCountText.textContent = wrongCount;
+
+    const total = correctCount + wrongCount;
+    let pct = 0;
+    if(total > 0){
+      pct = Math.round((correctCount / total) * 100);
+    }
+    accuracyVal.textContent = pct + '%';
+
+    const maxVal = Math.max(correctCount, wrongCount, 5);
+    const goodH = (correctCount / maxVal) * 100;
+    const badH = (wrongCount / maxVal) * 100;
+
+    barGood.style.height = goodH + '%';
+    barBad.style.height = badH + '%';
+
+    saveToLocalStorage();
+  }
+
+  function saveToLocalStorage(){
+    if(!studentName) return;
+    const data = { correct: correctCount, wrong: wrongCount };
+    localStorage.setItem('math_student_g5_' + studentName, JSON.stringify(data));
+  }
+
+  function loadFromLocalStorage(){
+    const raw = localStorage.getItem('math_student_g5_' + studentName);
+    if(raw){
+      try{
+        const data = JSON.parse(raw);
+        correctCount = data.correct || 0;
+        wrongCount = data.wrong || 0;
+      }catch(e){}
+    } else {
+      correctCount = 0; wrongCount = 0;
+    }
+    updateChart();
+  }
+
+  function triggerConfetti(){
+    confettiBox.innerHTML = '';
+    const colors = ['#34d399', '#38bdf8', '#fbbf24', '#f472b6', '#a78bfa'];
+    for(let i=0; i<70; i++){
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+      p.style.animationDelay = (Math.random() * 0.2) + 's';
+      confettiBox.appendChild(p);
+    }
+    setTimeout(() => { confettiBox.innerHTML = ''; }, 2200);
+  }
+
+  // Modal Handlers
+  startBtn.onclick = () => {
+    initAudio();
+    const val = studentNameInput.value.trim();
+    if(val) studentName = val;
+    studentNameBadge.textContent = studentName;
+    nameModal.style.display = 'none';
+    loadFromLocalStorage();
+    updateHelpText();
+    generateProblem();
+  };
+
+  changeNameBtn.onclick = () => {
+    nameModal.style.display = 'flex';
+    studentNameInput.focus();
+  };
+
+  studentNameInput.onkeydown = (e) => {
+    if(e.key === 'Enter') startBtn.click();
+  };
+
+  // Check URL params for studentName
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('studentName')){
+    const qName = decodeURIComponent(urlParams.get('studentName') || '').trim();
+    if(qName){
+      studentName = qName;
+      studentNameBadge.textContent = studentName;
+      nameModal.style.display = 'none';
+      loadFromLocalStorage();
+    }
+  }
+
+  // Message listener from platform
+  window.addEventListener('message', (e) => {
+    if(e.data && e.data.type === 'INIT_STUDENT' && e.data.studentName){
+      studentName = e.data.studentName;
+      studentNameBadge.textContent = studentName;
+      nameModal.style.display = 'none';
+      loadFromLocalStorage();
+      updateHelpText();
+    }
+  });
+
+  // Operation Navigation Pills
+  document.querySelectorAll('#opNavPills .op-pill-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#opNavPills .op-pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.getAttribute('data-mode');
+      generateProblem();
+    };
+  });
+
+  // Controls
+  newBtn.onclick = generateProblem;
+  resetBtn.onclick = () => {
+    renderUI();
+  };
+  diffSelect.onchange = generateProblem;
+
+  // Print
+  exportBtn.onclick = () => {
+    printStudentName.textContent = studentName;
+    printDate.textContent = new Date().toLocaleDateString('fa-IR');
+    window.print();
+  };
+
+  // Init
+  generateProblem();
+})();
+</script>
+</body>
+</html>

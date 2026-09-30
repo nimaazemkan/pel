@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کاربرگ واژه‌سازی با «فروش» و «ساز» و ضمایر اشاره</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+@page{size:A4;margin:7mm;}
+body{
+  direction:rtl;
+  font-family:"Vazirmatn",Tahoma,sans-serif;
+  background:linear-gradient(135deg,#e1f5fe,#f3e5f5,#fff3e0);
+  color:#263238;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+.print-btn{
+  position:fixed;z-index:100;top:16px;left:18px;
+  padding:10px 18px;color:#fff;font-family:inherit;
+  font-size:14px;font-weight:900;cursor:pointer;border:0;
+  border-radius:25px;background:linear-gradient(135deg,#7b1fa2,#e91e63);
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+.print-btn:hover{transform:scale(1.05);}
+.page{
+  width:210mm;min-height:297mm;margin:14px auto;padding:7.5mm;
+  position:relative;overflow:hidden;background:#fff;
+  border-radius:10px;box-shadow:0 10px 35px rgba(0,0,0,.14);
+  page-break-after:always;
+}
+.page:last-of-type{page-break-after:auto;}
+.content{position:relative;z-index:2;}
+.blob{position:absolute;z-index:0;border-radius:50%;pointer-events:none;}
+.blob.one{width:230px;height:230px;top:-100px;right:-90px;background:radial-gradient(circle,rgba(233,30,99,.22),transparent 70%);}
+.blob.two{width:270px;height:270px;bottom:-110px;left:-100px;background:radial-gradient(circle,rgba(0,188,212,.23),transparent 70%);}
+.blob.three{width:190px;height:190px;top:42%;left:-100px;background:radial-gradient(circle,rgba(255,193,7,.20),transparent 70%);}
+.corner{position:absolute;z-index:1;font-size:35px;opacity:.18;}
+.top-right{top:8px;right:10px;}
+.top-left{top:8px;left:10px;}
+.bottom-right{bottom:8px;right:10px;}
+.bottom-left{bottom:8px;left:10px;}
+
+.header{
+  margin-bottom:9px;padding:12px 17px 10px;color:#fff;text-align:center;
+  border:3px solid #fff;border-radius:22px;
+  background:linear-gradient(135deg,#7b1fa2,#3949ab,#0288d1,#00acc1,#43a047);
+  box-shadow:0 6px 17px rgba(0,0,0,.17);
+}
+.header h1{font-size:21px;font-weight:900;text-shadow:1px 2px 3px rgba(0,0,0,.28);}
+.header p{margin-top:3px;font-size:12px;font-weight:700;}
+.header .emoji{font-size:22px;}
+.header.small{padding:9px 16px;border-radius:17px;}
+.header.small h1{font-size:18px;}
+
+.student-info{display:grid;grid-template-columns:2fr 1fr 1fr;gap:7px;margin-bottom:9px;}
+.info-box{
+  display:flex;align-items:center;gap:5px;min-height:35px;padding:6px 9px;
+  color:#00695c;font-size:12px;font-weight:700;
+  background:linear-gradient(135deg,#e0f7fa,#b2ebf2);
+  border:2px dashed #26a69a;border-radius:11px;
+}
+.line{flex:1;height:18px;border-bottom:2px dotted #00897b;}
+
+.learn-box{
+  position:relative;padding:13px 14px 10px;margin:11px 0 8px;
+  background:linear-gradient(135deg,#fff8e1,#ffecb3);
+  border:3px solid #ffb300;border-radius:18px;
+}
+.learn-badge{
+  position:absolute;top:-13px;right:16px;padding:3px 13px;
+  color:#fff;font-size:12px;font-weight:900;background:#ef6c00;
+  border:2px solid #fff;border-radius:20px;box-shadow:0 3px 7px rgba(0,0,0,.17);
+}
+.learn-box p{font-size:12.5px;font-weight:700;line-height:1.9;}
+.highlight{padding:1px 8px;color:#fff;border-radius:8px;}
+.highlight.pink{background:#e91e63;}
+.highlight.blue{background:#2196f3;}
+.highlight.green{background:#4caf50;}
+.highlight.purple{background:#8e24aa;}
+.highlight.orange{background:#ef6c00;}
+
+.section-title{
+  display:flex;align-items:center;gap:7px;margin:9px 0 6px;padding:7px 13px;
+  color:#fff;font-size:13.5px;font-weight:900;border-radius:13px;
+  box-shadow:0 3px 8px rgba(0,0,0,.12);break-inside:avoid;
+}
+.section-title small{margin-right:auto;padding:1px 8px;font-size:10.5px;background:rgba(255,255,255,.25);border-radius:15px;white-space:nowrap;}
+.purple{background:linear-gradient(135deg,#6a1b9a,#ab47bc);}
+.blue{background:linear-gradient(135deg,#0d47a1,#42a5f5);}
+.orange{background:linear-gradient(135deg,#e65100,#ff9800);}
+.green{background:linear-gradient(135deg,#1b5e20,#66bb6a);}
+.pink{background:linear-gradient(135deg,#ad1457,#ec407a);}
+.teal{background:linear-gradient(135deg,#00695c,#26a69a);}
+
+.word-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;}
+.word-card{
+  min-height:78px;padding:6px 3px;text-align:center;
+  background:#fff;border:2.5px solid;border-radius:13px;
+  box-shadow:0 3px 7px rgba(0,0,0,.07);break-inside:avoid;
+}
+.word-card:nth-child(5n+1){border-color:#ab47bc;background:linear-gradient(#f3e5f5,#fff);}
+.word-card:nth-child(5n+2){border-color:#42a5f5;background:linear-gradient(#e3f2fd,#fff);}
+.word-card:nth-child(5n+3){border-color:#26a69a;background:linear-gradient(#e0f2f1,#fff);}
+.word-card:nth-child(5n+4){border-color:#ff9800;background:linear-gradient(#fff3e0,#fff);}
+.word-card:nth-child(5n+5){border-color:#ec407a;background:linear-gradient(#fce4ec,#fff);}
+.word-card .icon{font-size:19px;line-height:1.1;}
+.word-card .build{margin-top:2px;color:#795548;font-size:10px;font-weight:700;}
+.word-card .formed{margin-top:1px;color:#263238;font-size:15px;font-weight:900;}
+.word-card .meaning{display:inline-block;margin-top:3px;padding:1px 7px;color:#455a64;font-size:9.5px;font-weight:700;background:#eceff1;border-radius:12px;}
+.suffix{padding:0 3px;font-weight:900;border-radius:4px;}
+.suffix.forush{color:#c2185b;background:#fce4ec;}
+.suffix.saz{color:#1565c0;background:#bbdefb;}
+
+/* ضمایر اشاره */
+.pointer-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.pointer-card{
+  padding:10px;text-align:center;
+  background:#fff;border:2.5px solid;border-radius:14px;
+  box-shadow:0 3px 7px rgba(0,0,0,.07);break-inside:avoid;
+}
+.pointer-card .scene{font-size:42px;margin-bottom:4px;}
+.pointer-card .word{font-size:20px;font-weight:900;margin-bottom:3px;}
+.pointer-card .desc{font-size:11px;font-weight:700;color:#546e7a;}
+.pointer-card.in{border-color:#4caf50;background:linear-gradient(#e8f5e9,#fff);}
+.pointer-card.in .word{color:#2e7d32;}
+.pointer-card.an{border-color:#ff9800;background:linear-gradient(#fff3e0,#fff);}
+.pointer-card.an .word{color:#e65100;}
+.pointer-card.hamin{border-color:#2196f3;background:linear-gradient(#e3f2fd,#fff);}
+.pointer-card.hamin .word{color:#1565c0;}
+.pointer-card.haman{border-color:#9c27b0;background:linear-gradient(#f3e5f5,#fff);}
+.pointer-card.haman .word{color:#6a1b9a;}
+
+/* تمرین‌ها */
+.build-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.build-card{
+  padding:7px 5px 8px;text-align:center;
+  background:linear-gradient(135deg,#e3f2fd,#bbdefb);
+  border:2.5px solid #42a5f5;border-radius:13px;break-inside:avoid;
+}
+.build-card .q{color:#0d47a1;font-size:14px;font-weight:900;}
+.build-card .q b{color:#e91e63;}
+.build-card .answer-line{width:84%;height:24px;margin:4px auto 0;border-bottom:2.5px dashed #1976d2;}
+
+.bank{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;
+  padding:7px;margin-bottom:7px;background:linear-gradient(135deg,#fff8e1,#ffe0b2);
+  border:2px dashed #fb8c00;border-radius:13px;
+}
+.bank span{padding:2px 10px;color:#e65100;font-size:13px;font-weight:900;background:#fff;border:1.8px solid #ff9800;border-radius:18px;}
+.bank .label{border:0;background:transparent;}
+
+.sentence-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+.sentence-grid.one{grid-template-columns:1fr;}
+.sentence{
+  display:flex;gap:6px;align-items:flex-start;min-height:44px;padding:7px 9px;
+  color:#33691e;font-size:12px;font-weight:700;line-height:1.9;
+  background:#fff;border:2px solid #8bc34a;border-radius:12px;break-inside:avoid;
+}
+.sentence .number{min-width:20px;height:20px;margin-top:2px;font-size:10px;background:#7cb342;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.blank{display:inline-block;min-width:72px;height:19px;border-bottom:2px dashed #558b2f;vertical-align:middle;}
+
+.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.choice{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px;
+  min-height:46px;padding:6px;background:#fff;border:2.5px solid #ff7043;border-radius:13px;break-inside:avoid;
+}
+.choice .number{display:flex;align-items:center;justify-content:center;min-width:21px;height:21px;color:#fff;font-size:11px;font-weight:900;background:#ff7043;border-radius:50%;}
+.choice .opt{padding:2px 9px;color:#6a1b9a;font-size:14px;font-weight:900;background:#f3e5f5;border:1px dashed #ab47bc;border-radius:14px;}
+
+.match-box{display:grid;grid-template-columns:1fr 45px 1fr;gap:8px;align-items:start;}
+.match-column{display:flex;flex-direction:column;gap:7px;}
+.match-item{
+  min-height:36px;padding:6px 10px;text-align:center;font-size:13px;font-weight:900;
+  background:#fff;border:2px solid;border-radius:20px;
+}
+.match-column.right-col .match-item{color:#1565c0;border-color:#42a5f5;}
+.match-column.left-col .match-item{color:#c2185b;border-color:#ec407a;}
+.match-middle{display:flex;align-items:center;justify-content:center;height:165px;color:#ff9800;font-size:34px;}
+
+.creative-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.creative-card{
+  padding:9px;color:#4a148c;font-size:11.5px;font-weight:900;
+  background:linear-gradient(135deg,#f3e5f5,#e1bee7);
+  border:2px solid #ab47bc;border-radius:13px;break-inside:avoid;
+}
+.creative-card .cline{height:24px;margin-top:5px;border-bottom:2px dashed #8e24aa;}
+
+.footer{
+  margin-top:8px;padding:8px;text-align:center;
+  background:linear-gradient(135deg,#e8eaf6,#c5cae9);
+  border:2px solid #7986cb;border-radius:13px;
+}
+.footer .creator{color:#283593;font-size:13px;font-weight:900;}
+.footer .message{margin-top:2px;color:#3949ab;font-size:10.5px;font-weight:700;}
+.self-check{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;color:#283593;font-size:11.5px;font-weight:700;}
+.self-stars{color:#ff9800;font-size:23px;letter-spacing:4px;}
+
+@media print{
+  body{background:#fff;}
+  .no-print{display:none !important;}
+  .page{width:auto;min-height:auto;margin:0;padding:0;border-radius:0;box-shadow:none;}
+}
+@media(max-width:800px){
+  .page{width:100%;min-height:auto;margin:0;border-radius:0;}
+  .student-info,.sentence-grid,.choice-grid,.creative-grid{grid-template-columns:1fr;}
+  .word-grid,.build-grid{grid-template-columns:repeat(2,1fr);}
+  .pointer-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<style>
+  /* ===== نوار ابزار تعاملی و شناور کاربرگ ===== */
+  .ws-toolbar {
+    position: sticky;
+    top: 10px;
+    z-index: 9999;
+    max-width: 900px;
+    margin: 10px auto 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 2px solid #10b981;
+    border-radius: 16px;
+    padding: 10px 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    direction: rtl;
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+  }
+
+  .ws-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ws-btn {
+    background: #f3f4f6;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    color: #374151;
+  }
+
+  .ws-btn:hover {
+    background: #d1fae5;
+    border-color: #10b981;
+    color: #047857;
+    transform: translateY(-1px);
+  }
+
+  .ws-btn.active {
+    background: #059669;
+    color: #ffffff;
+    border-color: #047857;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  }
+
+  .ws-btn-print {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .ws-btn-print:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+  }
+
+  .ws-btn-ans {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+  }
+
+  .ws-btn-ans:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    color: white;
+  }
+
+  .color-picker-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1.5px #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s;
+  }
+
+  .color-picker-dot:hover {
+    transform: scale(1.2);
+  }
+
+  .color-picker-dot.active {
+    box-shadow: 0 0 0 2.5px #059669;
+    transform: scale(1.2);
+  }
+
+  /* استایل اینپوت‌های کاربرگ */
+  input.ws-input {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    font-weight: 700;
+    color: #065f46;
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    border-radius: 8px;
+    padding: 2px 8px;
+    text-align: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    direction: rtl;
+  }
+
+  input.ws-input:focus {
+    background: #ffffff;
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.25);
+    outline: none;
+  }
+
+  input.ws-input.info-input {
+    width: 140px;
+    height: 26px;
+    background: #ffffff;
+  }
+
+  input.ws-input.fill-blank-input {
+    width: 110px;
+    height: 28px;
+    font-size: 14px;
+    color: #047857;
+    border-color: #6ee7b7;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  input.ws-input.build-ans-input {
+    width: 130px;
+    height: 28px;
+    font-size: 15px;
+    font-weight: 900;
+    color: #0284c7;
+    border-color: #7dd3fc;
+    margin-top: 4px;
+  }
+
+  input.ws-input.line-input {
+    width: 90%;
+    margin: 4px auto;
+    display: block;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  /* هایلایت کلمات و گزینه‌ها */
+  .opt, .choice .opt, .match-item {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+
+  .opt:hover, .choice .opt:hover, .match-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  }
+
+  .match-item.selected {
+    background: #d1fae5 !important;
+    border-color: #10b981 !important;
+    color: #047857 !important;
+    box-shadow: 0 0 0 3px #6ee7b7 !important;
+  }
+
+  .match-item.matched-pair {
+    background: #dcfce7 !important;
+    border-color: #22c55e !important;
+    color: #15803d !important;
+  }
+
+  /* گزینه‌های انتخابی */
+  .opt.selected-right, .choice .opt.selected-right {
+    background: #dcfce7 !important;
+    border: 2px solid #22c55e !important;
+    color: #15803d !important;
+    font-weight: 900 !important;
+    border-radius: 8px;
+    padding: 2px 6px;
+  }
+
+  .opt.selected-wrong, .choice .opt.selected-wrong {
+    background: #fee2e2 !important;
+    border: 2px solid #ef4444 !important;
+    color: #b91c1c !important;
+    text-decoration: line-through !important;
+    border-radius: 8px;
+    padding: 2px 6px;
+  }
+
+  /* پاسخ‌نامه خودکار */
+  .ans-badge {
+    display: none;
+    background: #10b981;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 6px;
+    margin-right: 4px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .show-answers .ans-badge {
+    display: inline-block;
+  }
+
+  /* لایه رسم قلم */
+  .canvas-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .canvas-wrapper.drawing-active {
+    pointer-events: auto;
+    cursor: crosshair;
+  }
+
+  canvas.drawing-layer {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ستاره‌های خودارزیابی */
+  .self-stars span {
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+
+  .self-stars span.filled {
+    color: #f59e0b;
+  }
+
+  /* مخفی کردن دکمه پرینت قدیمی */
+  .print-btn {
+    display: none !important;
+  }
+
+  /* استایل چاپ */
+  @media print {
+    .ws-toolbar {
+      display: none !important;
+    }
+    body {
+      background: white !important;
+      padding: 0 !important;
+    }
+    .page {
+      margin: 0 !important;
+      padding: 6mm !important;
+      box-shadow: none !important;
+      page-break-after: always;
+      width: 100% !important;
+      min-height: auto !important;
+    }
+    input.ws-input {
+      border-bottom: 1.5px solid #000 !important;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+    }
+  }
+</style>
+
+<!-- نوار ابزار تعاملی بالای کاربرگ -->
+<div class="ws-toolbar no-print" id="wsToolbar">
+  <div class="ws-toolbar-group">
+    <button type="button" class="ws-btn ws-btn-print" onclick="window.print()" title="چاپ استاندارد A4 یا ذخیره به صورت PDF">
+      🖨️ چاپ کاربرگ (A4 / PDF)
+    </button>
+    <button type="button" class="ws-btn active" id="btnModeType" onclick="setMode('type')" title="تایپ کردن در جاهای خالی">
+      ⌨️ حالت تایپ
+    </button>
+    <button type="button" class="ws-btn" id="btnModeDraw" onclick="setMode('draw')" title="نوشتن و نقاشی با قلم نوری یا ماوس">
+      ✏️ حالت قلم دستی
+    </button>
+  </div>
+
+  <div class="ws-toolbar-group" id="drawingToolsGroup" style="display: none;">
+    <span style="font-size: 12px; font-weight: bold; color: #4b5563;">رنگ قلم:</span>
+    <button type="button" class="color-picker-dot active" style="background: #059669;" onclick="setPenColor('#059669', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #0284c7;" onclick="setPenColor('#0284c7', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #dc2626;" onclick="setPenColor('#dc2626', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #9333ea;" onclick="setPenColor('#9333ea', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #111827;" onclick="setPenColor('#111827', this)"></button>
+
+    <button type="button" class="ws-btn" id="btnEraser" onclick="toggleEraser()">
+      🧹 پاک‌کن
+    </button>
+    <button type="button" class="ws-btn" onclick="clearCurrentCanvas()" style="color: #dc2626;">
+      🗑️ پاک کردن کل دست‌خط
+    </button>
+  </div>
+
+  <div class="ws-toolbar-group">
+    <button type="button" class="ws-btn ws-btn-ans" onclick="toggleAnswerKey()" title="مشاهده کلید پاسخ‌ها و راهنمای معلم">
+      💡 پاسخ‌نامه و راهنما
+    </button>
+    <button type="button" class="ws-btn" onclick="resetWorksheet()" title="خالی کردن تمام فیلدها">
+      🔄 بازنشانی
+    </button>
+  </div>
+</div>
+
+<script>
+  let currentMode = 'type';
+  let penColor = '#059669';
+  let penSize = 3;
+  let isEraser = false;
+
+  function initWorksheet() {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach((page, index) => {
+      if (page.querySelector('.canvas-wrapper')) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'canvas-wrapper';
+      wrapper.id = 'canvasWrapper_' + index;
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'drawing-layer';
+      canvas.id = 'drawingCanvas_' + index;
+
+      wrapper.appendChild(canvas);
+      page.appendChild(wrapper);
+
+      setupCanvas(canvas, wrapper);
+    });
+
+    // تمرین ۴ صفحه ۲ (فروش/ساز) و تمرین‌های ۱ و ۳ صفحه ۳ (این/آن و همین/همان)
+    document.querySelectorAll('.choice .opt').forEach(op => {
+      op.addEventListener('click', function() {
+        const parent = this.closest('.choice');
+        parent.querySelectorAll('.opt').forEach(o => o.classList.remove('selected-right', 'selected-wrong'));
+        const text = this.textContent.trim();
+        const numEl = parent.querySelector('.number');
+        const num = numEl ? parseInt(numEl.textContent) : 0;
+        
+        // Page 2 Ex 4
+        if (text === 'کتاب‌فروش' || text === 'آهنگ‌ساز' || text === 'میوه‌فروش' || text === 'خانه‌ساز' || text === 'کفش‌ساز' || text === 'گل‌فروش') {
+          this.classList.add('selected-right');
+        } else if (text === 'این' || text === 'آن' || text === 'همین' || text === 'همان') {
+          // Page 3 Ex 1 & Ex 3
+          // Ex 1: 1: این, 2: آن, 3: این, 4: آن, 5: این, 6: آن
+          // Ex 3: 1: همین, 2: همان, 3: همین, 4: همان, 5: همین, 6: همان
+          const isOdd = (num % 2 === 1);
+          if (isOdd && (text === 'این' || text === 'همین')) {
+            this.classList.add('selected-right');
+          } else if (!isOdd && (text === 'آن' || text === 'همان')) {
+            this.classList.add('selected-right');
+          } else {
+            this.classList.add('selected-wrong');
+          }
+        } else {
+          this.classList.add('selected-wrong');
+        }
+        saveState();
+      });
+    });
+
+    // تمرین ۵ صفحه ۳: وصل کردن جملات به ضمایر اشاره
+    let selectedRightItem = null;
+    let selectedLeftItem = null;
+
+    const zamirMap = {
+      'کتابی که نزدیک من است': 'این',
+      'پرنده‌ای که دور از من است': 'آن',
+      'تأکید: دقیقاً این کتاب': 'همین',
+      'تأکید: دقیقاً آن پرنده': 'همان',
+      'این': 'کتابی که نزدیک من است',
+      'آن': 'پرنده‌ای که دور از من است',
+      'همین': 'تأکید: دقیقاً این کتاب',
+      'همان': 'تأکید: دقیقاً آن پرنده'
+    };
+
+    document.querySelectorAll('.right-col .match-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.right-col .match-item').forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedRightItem = this;
+        checkZamirMatch();
+      });
+    });
+
+    document.querySelectorAll('.left-col .match-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.left-col .match-item').forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedLeftItem = this;
+        checkZamirMatch();
+      });
+    });
+
+    function checkZamirMatch() {
+      if (selectedRightItem && selectedLeftItem) {
+        const rText = selectedRightItem.textContent.trim();
+        const lText = selectedLeftItem.textContent.trim();
+        if (zamirMap[rText] === lText) {
+          selectedRightItem.classList.remove('selected');
+          selectedLeftItem.classList.remove('selected');
+          selectedRightItem.classList.add('matched-pair');
+          selectedLeftItem.classList.add('matched-pair');
+          selectedRightItem = null;
+          selectedLeftItem = null;
+        } else {
+          selectedRightItem.classList.remove('selected');
+          selectedLeftItem.classList.remove('selected');
+          selectedRightItem = null;
+          selectedLeftItem = null;
+        }
+        saveState();
+      }
+    }
+
+    // ذخیره خودکار اینپوت‌ها
+    document.querySelectorAll('input.ws-input').forEach(input => {
+      input.addEventListener('input', saveState);
+    });
+
+    loadState();
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    const btnType = document.getElementById('btnModeType');
+    const btnDraw = document.getElementById('btnModeDraw');
+    const drawGroup = document.getElementById('drawingToolsGroup');
+
+    if (mode === 'draw') {
+      btnDraw.classList.add('active');
+      btnType.classList.remove('active');
+      drawGroup.style.display = 'flex';
+      document.querySelectorAll('.canvas-wrapper').forEach(w => w.classList.add('drawing-active'));
+    } else {
+      btnType.classList.add('active');
+      btnDraw.classList.remove('active');
+      drawGroup.style.display = 'none';
+      document.querySelectorAll('.canvas-wrapper').forEach(w => w.classList.remove('drawing-active'));
+    }
+  }
+
+  function setPenColor(color, btn) {
+    penColor = color;
+    isEraser = false;
+    document.getElementById('btnEraser').classList.remove('active');
+    document.querySelectorAll('.color-picker-dot').forEach(d => d.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  function toggleEraser() {
+    isEraser = !isEraser;
+    const btn = document.getElementById('btnEraser');
+    if (isEraser) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  }
+
+  function setupCanvas(canvas, wrapper) {
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function resize() {
+      const rect = wrapper.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    setTimeout(resize, 100);
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function startDraw(e) {
+      if (currentMode !== 'draw') return;
+      resize();
+      isDrawing = true;
+      const pos = getCoords(e);
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function draw(e) {
+      if (!isDrawing || currentMode !== 'draw') return;
+      e.preventDefault();
+      const pos = getCoords(e);
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = 18;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSize;
+      }
+
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function stopDraw() {
+      if (isDrawing) {
+        isDrawing = false;
+        saveState();
+      }
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDraw);
+
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('touchend', stopDraw);
+  }
+
+  function clearCurrentCanvas() {
+    if (confirm('آیا مایلید تمام دست‌خط‌ها و نقاشی‌های این صفحه پاک شوند؟')) {
+      document.querySelectorAll('canvas.drawing-layer').forEach(c => {
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, c.width, c.height);
+      });
+      saveState();
+    }
+  }
+
+  function toggleAnswerKey() {
+    document.body.classList.toggle('show-answers');
+  }
+
+  function resetWorksheet() {
+    if (confirm('آیا می‌خواهید تمام پاسخ‌ها و نوشته‌ها بازنشانی شوند؟')) {
+      document.querySelectorAll('input.ws-input').forEach(i => i.value = '');
+      document.querySelectorAll('.selected-right, .selected-wrong, .matched-pair, .selected').forEach(el => {
+        el.classList.remove('selected-right', 'selected-wrong', 'matched-pair', 'selected');
+      });
+      clearCurrentCanvas();
+      localStorage.removeItem('ws_data_' + window.location.pathname);
+    }
+  }
+
+  function saveState() {
+    try {
+      const data = {
+        inputs: {},
+        matched: []
+      };
+      document.querySelectorAll('input.ws-input').forEach((input, i) => {
+        data.inputs[input.id || ('input_' + i)] = input.value;
+      });
+      document.querySelectorAll('.matched-pair').forEach((el) => {
+        data.matched.push(el.innerText || el.textContent);
+      });
+      localStorage.setItem('ws_data_' + window.location.pathname, JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem('ws_data_' + window.location.pathname);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.inputs) {
+        Object.keys(data.inputs).forEach((key, i) => {
+          const el = document.getElementById(key) || document.querySelectorAll('input.ws-input')[i];
+          if (el) el.value = data.inputs[key];
+        });
+      }
+    } catch(e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', initWorksheet);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initWorksheet();
+  }
+</script>
+
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ چاپ کاربرگ</button>
+
+<!-- ===================== صفحه ۱: آموزش ===================== -->
+<section class="page">
+  <div class="blob one"></div><div class="blob two"></div><div class="blob three"></div>
+  <div class="corner top-right"></div><div class="corner top-left"></div>
+  <div class="corner bottom-right">🌸</div><div class="corner bottom-left">⭐</div>
+
+  <div class="content">
+    <header class="header">
+      <div class="emoji">🛒 فروش ✏️ ساز 👉 این و آن 👈</div>
+      <h1>کاربرگ واژه‌سازی با «فروش» و «ساز» و ضمایر اشاره</h1>
+      <p>فارسی پایه‌ی دوم دبستان ـ بخوان، بساز و یاد بگیر!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="ws-input info-input" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" class="ws-input info-input" placeholder="دوم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="ws-input info-input" placeholder="۱۴۰۳/...">
+      </div>
+    </div>
+
+    <!-- بخش فروش -->
+    <div class="learn-box">
+      <div class="learn-badge">💡 واژه‌سازی با «فروش»</div>
+      <p>
+        بچّه‌های عزیز! وقتی کلمه‌ی <span class="highlight pink">«فروش»</span> را به آخر یک کلمه اضافه می‌کنیم،
+        کلمه‌ی جدیدی می‌سازیم که معنی‌اش «کسی که آن چیز را می‌فروشد» است.
+        مثلاً: <b>کتاب</b> + <b>فروش</b> = <b>کتاب‌فروش</b> (کسی که کتاب می‌فروشد).
+      </p>
+    </div>
+
+    <div class="section-title pink">
+      <span></span> کلمه‌های ساخته‌شده با «فروش»
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="word-grid">
+      <div class="word-card">
+        <div class="icon">📚</div>
+        <div class="build">کتاب + فروش</div>
+        <div class="formed">کتاب<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی کتاب</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🌷</div>
+        <div class="build">گل + فروش</div>
+        <div class="formed">گل<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی گل</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🍎</div>
+        <div class="build">میوه + فروش</div>
+        <div class="formed">میوه<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی میوه</div>
+      </div>
+      <div class="word-card">
+        <div class="icon"></div>
+        <div class="build">نان + فروش</div>
+        <div class="formed">نان<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی نان</div>
+      </div>
+      <div class="card">
+        <div class="icon">🥩</div>
+        <div class="build">گوشت + فروش</div>
+        <div class="formed">گوشت<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی گوشت</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">💊</div>
+        <div class="build">دارو + فروش</div>
+        <div class="formed">دارو<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی دارو</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">👕</div>
+        <div class="build">لباس + فروش</div>
+        <div class="formed">لباس<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی لباس</div>
+      </div>
+      <div class="word-card">
+        <div class="icon"></div>
+        <div class="build">روزنامه + فروش</div>
+        <div class="formed">روزنامه<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی روزنامه</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🍯</div>
+        <div class="build">عسل + فروش</div>
+        <div class="formed">عسل<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی عسل</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🧸</div>
+        <div class="build">اسباب‌بازی + فروش</div>
+        <div class="formed">اسباب‌بازی<span class="suffix forush">فروش</span></div>
+        <div class="meaning">فروشنده‌ی اسباب‌بازی</div>
+      </div>
+    </div>
+
+    <!-- بخش ساز -->
+    <div class="learn-box">
+      <div class="learn-badge">💡 واژه‌سازی با «ساز»</div>
+      <p>
+        وقتی کلمه‌ی <span class="highlight blue">«ساز»</span> را به آخر یک کلمه اضافه می‌کنیم،
+        کلمه‌ی جدیدی می‌سازیم که معنی‌اش «کسی که آن چیز را می‌سازد» است.
+        مثلاً: <b>خانه</b> + <b>ساز</b> = <b>خانه‌ساز</b> (کسی که خانه می‌سازد).
+      </p>
+    </div>
+
+    <div class="section-title blue">
+      <span>🔨</span> کلمه‌های ساخته‌شده با «ساز»
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="word-grid">
+      <div class="word-card">
+        <div class="icon"></div>
+        <div class="build">آهنگ + ساز</div>
+        <div class="formed">آهنگ<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی آهنگ</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🏠</div>
+        <div class="build">خانه + ساز</div>
+        <div class="formed">خانه<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی خانه</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">👟</div>
+        <div class="build">کفش + ساز</div>
+        <div class="formed">کفش<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی کفش</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">⛵</div>
+        <div class="build">قایق + ساز</div>
+        <div class="formed">قایق<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی قایق</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🚗</div>
+        <div class="build">ماشین + ساز</div>
+        <div class="formed">ماشین<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی ماشین</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🚢</div>
+        <div class="build">کشتی + ساز</div>
+        <div class="formed">کشتی<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی کشتی</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">✈️</div>
+        <div class="build">هواپیما + ساز</div>
+        <div class="formed">هواپیما<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی هواپیما</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🎸</div>
+        <div class="build">ساز + ساز</div>
+        <div class="formed">ساز<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی ساز</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">🧸</div>
+        <div class="build">عروسک + ساز</div>
+        <div class="formed">عروسک<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی عروسک</div>
+      </div>
+      <div class="word-card">
+        <div class="icon">📖</div>
+        <div class="build">کتاب + ساز</div>
+        <div class="formed">کتاب<span class="suffix saz">ساز</span></div>
+        <div class="meaning">سازنده‌ی کتاب</div>
+      </div>
+    </div>
+
+    <!-- بخش ضمایر اشاره -->
+    <div class="learn-box">
+      <div class="learn-badge">💡 ضمایر اشاره</div>
+      <p>
+        بچّه‌های عزیز! وقتی می‌خواهیم به چیزی اشاره کنیم، از کلمه‌های
+        <span class="highlight green">این</span>،
+        <span class="highlight orange">آن</span>،
+        <span class="highlight blue">همین</span> و
+        <span class="highlight purple">همان</span>
+        استفاده می‌کنیم.
+        <br>
+        <b>این</b> = چیزی که نزدیک ماست. &nbsp;|&nbsp; <b>آن</b> = چیزی که از ما دور است.
+        <br>
+        <b>همین</b> = تأکید روی چیزی که نزدیک است. &nbsp;|&nbsp; <b>همان</b> = تأکید روی چیزی که دور است.
+      </p>
+    </div>
+
+    <div class="section-title green">
+      <span>👉</span> ضمایر اشاره: این، آن، همین، همان
+      <small>ضمایر</small>
+    </div>
+
+    <div class="pointer-grid">
+      <div class="pointer-card in">
+        <div class="scene">👉📗</div>
+        <div class="word">این</div>
+        <div class="desc">کتابی که نزدیک من است</div>
+      </div>
+      <div class="pointer-card an">
+        <div class="scene">👉&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📗</div>
+        <div class="word">آن</div>
+        <div class="desc">کتابی که از من دور است</div>
+      </div>
+      <div class="pointer-card hamin">
+        <div class="scene">👉📗✨</div>
+        <div class="word">همین</div>
+        <div class="desc">تأکید: دقیقاً این کتاب نزدیک</div>
+      </div>
+      <div class="pointer-card haman">
+        <div class="scene">👉&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📗✨</div>
+        <div class="word">همان</div>
+        <div class="desc">تأکید: دقیقاً آن کتاب دور</div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="creator">🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان</div>
+    </footer>
+  </div>
+</section>
+
+<!-- ===================== صفحه ۲: تمرین فروش و ساز ===================== -->
+<section class="page">
+  <div class="blob one"></div><div class="blob two"></div><div class="blob three"></div>
+  <div class="corner top-right">🌻</div><div class="corner top-left">🎈</div>
+  <div class="corner bottom-right"></div><div class="corner bottom-left"></div>
+
+  <div class="content">
+    <header class="header small">
+      <h1>📝 تمرین‌های واژه‌سازی با «فروش» و «ساز»</h1>
+      <p>با دقّت بخوان، فکر کن و بنویس!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">👤 نام و نام خانوادگی: <span class="line"></span></div>
+      <div class="info-box">🏫 کلاس: <span class="line"></span></div>
+      <div class="info-box"> تاریخ: <span class="line"></span></div>
+    </div>
+
+    <div class="section-title pink">
+      <span></span> تمرین ۱: کلمه‌ها را با «فروش» بساز و بنویس.
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="build-grid">
+      <div class="build-card">
+        <div class="q">کتاب + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="کتاب‌فروش" data-ans="کتاب‌فروش">
+        <div class="ans-badge">✓ کتاب‌فروش</div>
+      </div>
+      <div class="build-card">
+        <div class="q">گل + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="گل‌فروش" data-ans="گل‌فروش">
+        <div class="ans-badge">✓ گل‌فروش</div>
+      </div>
+      <div class="build-card">
+        <div class="q">میوه + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="میوه‌فروش" data-ans="میوه‌فروش">
+        <div class="ans-badge">✓ میوه‌فروش</div>
+      </div>
+      <div class="build-card">
+        <div class="q">نان + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="نان‌فروش" data-ans="نان‌فروش">
+        <div class="ans-badge">✓ نان‌فروش</div>
+      </div>
+      <div class="build-card">
+        <div class="q">دارو + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="داروفروش" data-ans="داروفروش">
+        <div class="ans-badge">✓ داروفروش</div>
+      </div>
+      <div class="build-card">
+        <div class="q">لباس + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="فروش" data-ans="فروش">
+        <div class="ans-badge">✓ فروش</div>
+      </div>
+      <div class="build-card">
+        <div class="q">عسل + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="فروش" data-ans="فروش">
+        <div class="ans-badge">✓ فروش</div>
+      </div>
+      <div class="build-card">
+        <div class="q">روزنامه + <b>فروش</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="فروش" data-ans="فروش">
+        <div class="ans-badge">✓ فروش</div>
+      </div>
+    </div>
+
+    <div class="section-title blue">
+      <span>🔨</span> تمرین ۲: کلمه‌ها را با «ساز» بساز و بنویس.
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="build-grid">
+      <div class="build-card">
+        <div class="q">آهنگ + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="آهنگ‌ساز" data-ans="آهنگ‌ساز">
+        <div class="ans-badge">✓ آهنگ‌ساز</div>
+      </div>
+      <div class="build-card">
+        <div class="q">خانه + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="خانه‌ساز" data-ans="خانه‌ساز">
+        <div class="ans-badge">✓ خانه‌ساز</div>
+      </div>
+      <div class="build-card">
+        <div class="q">کفش + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="کفش‌ساز" data-ans="کفش‌ساز">
+        <div class="ans-badge">✓ کفش‌ساز</div>
+      </div>
+      <div class="build-card">
+        <div class="q">قایق + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="قایق‌ساز" data-ans="قایق‌ساز">
+        <div class="ans-badge">✓ قایق‌ساز</div>
+      </div>
+      <div class="build-card">
+        <div class="q">ماشین + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="ماشین‌ساز" data-ans="ماشین‌ساز">
+        <div class="ans-badge">✓ ماشین‌ساز</div>
+      </div>
+      <div class="build-card">
+        <div class="q">کشتی + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="کشتی‌ساز" data-ans="کشتی‌ساز">
+        <div class="ans-badge">✓ کشتی‌ساز</div>
+      </div>
+      <div class="build-card">
+        <div class="q">هواپیما + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="هواپیماساز" data-ans="هواپیماساز">
+        <div class="ans-badge">✓ هواپیماساز</div>
+      </div>
+      <div class="build-card">
+        <div class="q">عروسک + <b>ساز</b></div>
+        <input type="text" class="ws-input build-ans-input" placeholder="عروسک‌ساز" data-ans="عروسک‌ساز">
+        <div class="ans-badge">✓ عروسک‌ساز</div>
+      </div>
+    </div>
+
+    <div class="section-title orange">
+      <span>️</span> تمرین ۳: جاهای خالی را با کلمه‌های داخل جعبه کامل کن.
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی کلمه‌ها:</span>
+      <span>میوه‌فروش</span><span>نان‌فروش</span><span>آهنگ‌ساز</span><span>کفش‌ساز</span><span>خانه‌ساز</span><span>گل‌فروش</span>
+    </div>
+
+    <div class="sentence-grid">
+      <div class="sentence"><span class="number">۱</span><span>پدرم هر روز از <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="نان‌فروش"><span class="ans-badge">✓ نان‌فروش</span> نان تازه می‌خرد.</span></div>
+      <div class="sentence"><span class="number">۲</span><span><input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="میوه‌فروش"><span class="ans-badge">✓ میوه‌فروش</span> مهربان، سیب‌های خوش‌مزه دارد.</span></div>
+      <div class="sentence"><span class="number">۳</span><span><input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="آهنگ‌ساز"><span class="ans-badge">✓ آهنگ‌ساز</span> برای مادرم یک آهنگ زیبا ساخت.</span></div>
+      <div class="sentence"><span class="number">۴</span><span><input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="کفش‌ساز"><span class="ans-badge">✓ کفش‌ساز</span> برای برادرم یک جفت کفش نو ساخت.</span></div>
+      <div class="sentence"><span class="number">۵</span><span><input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="خانه‌ساز"><span class="ans-badge">✓ خانه‌ساز</span> در محله‌ی ما یک خانه‌ی بزرگ ساخت.</span></div>
+      <div class="sentence"><span class="number">۶</span><span><input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="گل‌فروش"><span class="ans-badge">✓ گل‌فروش</span> گل‌های رنگارنگ را به مادربزرگم داد.</span></div>
+    </div>
+
+    <div class="section-title green">
+      <span></span> تمرین ۴: کدام کلمه درست است؟ دور آن خط بکش.
+    </div>
+
+    <div class="choice-grid">
+      <div class="choice"><span class="number">۱</span><span class="opt">کتاب‌فروش</span><span>یا</span><span class="opt">کتاب‌ساز</span></div>
+      <div class="choice"><span class="number">۲</span><span class="opt">آهنگ‌ساز</span><span>یا</span><span class="opt">آهنگ‌فروش</span></div>
+      <div class="choice"><span class="number">۳</span><span class="opt">میوه‌فروش</span><span>یا</span><span class="opt">میوه‌ساز</span></div>
+      <div class="choice"><span class="number">۴</span><span class="opt">خانه‌ساز</span><span>یا</span><span class="opt">خانه‌فروش</span></div>
+      <div class="choice"><span class="number"></span><span class="opt">کفش‌ساز</span><span>یا</span><span class="opt">کفش‌فروش</span></div>
+      <div class="choice"><span class="number">۶</span><span class="opt">گل‌فروش</span><span>یا</span><span class="opt">گل‌ساز</span></div>
+    </div>
+
+    <div class="section-title purple">
+      <span>⭐</span> تمرین ۵: خودت بنویس!
+    </div>
+
+    <div class="creative-grid">
+      <div class="creative-card">دو کلمه‌ی جدید با «فروش» بساز:<input type="text" class="ws-input line-input" placeholder="مثال: بستنی‌فروش"><input type="text" class="ws-input line-input" placeholder="مثال: پرنده‌فروش"><div class="ans-badge">✓ بستنی‌فروش ، پرنده‌فروش</div></div>
+      <div class="creative-card">دو کلمه‌ی جدید با «ساز» بساز:<input type="text" class="ws-input line-input" placeholder="مثال: جعبه‌ساز"><input type="text" class="ws-input line-input" placeholder="مثال: ساعت‌ساز"><div class="ans-badge">✓ جعبه‌ساز ، ساعت‌ساز</div></div>
+      <div class="creative-card">با یکی از کلمه‌هایت جمله بساز:<input type="text" class="ws-input line-input" placeholder="جمله خود را بنویسید..."><div class="ans-badge">✓ مثال: ساعت‌ساز ساعت دیواری را تعمیر کرد.</div></div>
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">امروز چقدر خوب یاد گرفتم؟ <span class="self-stars" style="cursor:pointer;"><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 0 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 1 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 2 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 3 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 4 ? '★' : '☆')">☆</span></span></div>
+      <div class="creator">🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان</div>
+      <div class="message">آفرین به تو دانش‌آموز پرتلاش! </div>
+    </footer>
+  </div>
+</section>
+
+<!-- ===================== صفحه ۳: تمرین ضمایر اشاره ===================== -->
+<section class="page">
+  <div class="blob one"></div><div class="blob two"></div><div class="blob three"></div>
+  <div class="corner top-right">🌼</div><div class="corner top-left"></div>
+  <div class="corner bottom-right">🌷</div><div class="corner bottom-left">✨</div>
+
+  <div class="content">
+    <header class="header small">
+      <h1>📝 تمرین‌های ضمایر اشاره: این، آن، همین، همان</h1>
+      <p>به تصویر نگاه کن و ضمیر درست را انتخاب کن!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="ws-input info-input" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" class="ws-input info-input" placeholder="دوم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="ws-input info-input" placeholder="۱۴۰۳/...">
+      </div>
+    </div>
+
+    <div class="section-title green">
+      <span></span> تمرین ۱: «این» یا «آن»؟ دور کلمه‌ی درست خط بکش.
+      <small>نزدیک یا دور؟</small>
+    </div>
+
+    <div class="choice-grid">
+      <div class="choice"><span class="number">۱</span><span>👉📗</span><span class="opt">این</span><span>یا</span><span class="opt">آن</span></div>
+      <div class="choice"><span class="number">۲</span><span>👉&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📗</span><span class="opt">این</span><span>یا</span><span class="opt">آن</span></div>
+      <div class="choice"><span class="number"></span><span>👉🍎</span><span class="opt">این</span><span>یا</span><span class="opt">آن</span></div>
+      <div class="choice"><span class="number">۴</span><span>👉&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🍎</span><span class="opt">این</span><span>یا</span><span class="opt">آن</span></div>
+      <div class="choice"><span class="number">۵</span><span>🌸</span><span class="opt">این</span><span>یا</span><span class="opt">آن</span></div>
+      <div class="choice"><span class="number">۶</span><span>👉&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="opt">این</span><span>یا</span><span class="opt">آن</span></div>
+    </div>
+
+    <div class="section-title blue">
+      <span>✏️</span> تمرین ۲: جاهای خالی را با «این» یا «آن» کامل کن.
+    </div>
+
+    <div class="sentence-grid one">
+      <div class="sentence"><span class="number">۱</span><span><input type="text" class="ws-input fill-blank-input" placeholder="این / آن" data-ans="این"><span class="ans-badge">✓ این</span> کتابی که در دست من است، مال من است.</span></div>
+      <div class="sentence"><span class="number">۲</span><span><input type="text" class="ws-input fill-blank-input" placeholder="این / آن" data-ans="آن"><span class="ans-badge">✓ آن</span> پرنده‌ای که روی درخت دور نشسته، زیباست.</span></div>
+      <div class="sentence"><span class="number">۳</span><span><input type="text" class="ws-input fill-blank-input" placeholder="این / آن" data-ans="این"><span class="ans-badge">✓ این</span> مدادی که روی میز من است، آبی رنگ است.</span></div>
+      <div class="sentence"><span class="number">۴</span><span><input type="text" class="ws-input fill-blank-input" placeholder="این / آن" data-ans="آن"><span class="ans-badge">✓ آن</span> کوهی که در دوردست است، بسیار بلند است.</span></div>
+    </div>
+
+    <div class="section-title purple">
+      <span>🎯</span> تمرین : «همین» یا «همان»؟ دور کلمه‌ی درست خط بکش.
+      <small>تأکید کن!</small>
+    </div>
+
+    <div class="choice-grid">
+      <div class="choice"><span class="number">۱</span><span>👉📗✨</span><span class="opt">همین</span><span>یا</span><span class="opt">همان</span></div>
+      <div class="choice"><span class="number">۲</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📗✨</span><span class="opt">همین</span><span>یا</span><span class="opt">همان</span></div>
+      <div class="choice"><span class="number">۳</span><span>👉🍎✨</span><span class="opt">همین</span><span>یا</span><span class="opt">همان</span></div>
+      <div class="choice"><span class="number">۴</span><span>👉&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🍎✨</span><span class="opt">همین</span><span>یا</span><span class="opt">همان</span></div>
+      <div class="choice"><span class="number"></span><span>👉🌸✨</span><span class="opt">همین</span><span>یا</span><span class="opt">همان</span></div>
+      <div class="choice"><span class="number">۶</span><span>👉&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;🌸✨</span><span class="opt">همین</span><span>یا</span><span class="opt">همان</span></div>
+    </div>
+
+    <div class="section-title orange">
+      <span>✍️</span> تمرین ۴: جاهای خالی را با «همین» یا «همان» کامل کن.
+    </div>
+
+    <div class="sentence-grid one">
+      <div class="sentence"><span class="number">۱</span><span><input type="text" class="ws-input fill-blank-input" placeholder="این / آن" data-ans="این"><span class="ans-badge">✓ این</span> کتابی که در دست من است، کتاب مورد علاقه‌ی من است.</span></div>
+      <div class="sentence"><span class="number">۲</span><span><input type="text" class="ws-input fill-blank-input" placeholder="همین / همان" data-ans="همین"><span class="ans-badge">✓ همین</span> پرنده‌ای که دیروز دیدم، امروز هم آمد.</span></div>
+      <div class="sentence"><span class="number">۳</span><span><input type="text" class="ws-input fill-blank-input" placeholder="همین / همان" data-ans="همان"><span class="ans-badge">✓ همان</span> مدادی که الان دارم، بهترین مداد من است.</span></div>
+      <div class="sentence"><span class="number">۴</span><span><input type="text" class="ws-input fill-blank-input" placeholder="همین / همان" data-ans="همین"><span class="ans-badge">✓ همین</span> کوهی که در داستان خواندم، بسیار بلند بود.</span></div>
+    </div>
+
+    <div class="section-title pink">
+      <span>🔗</span> تمرین : هر جمله را به ضمیر اشاره‌ی درست وصل کن.
+    </div>
+
+    <div class="match-box">
+      <div class="match-column right-col">
+        <div class="match-item">کتابی که نزدیک من است</div>
+        <div class="match-item">پرنده‌ای که دور از من است</div>
+        <div class="match-item">تأکید: دقیقاً این کتاب</div>
+        <div class="match-item">تأکید: دقیقاً آن پرنده</div>
+      </div>
+      <div class="match-middle">〰️</div>
+      <div class="match-column left-col">
+        <div class="match-item">همان</div>
+        <div class="match-item">این</div>
+        <div class="match-item">همین</div>
+        <div class="match-item">آن</div>
+      </div>
+    </div>
+
+    <div class="section-title teal">
+      <span>⭐</span> تمرین ۶: خودت بنویس!
+    </div>
+
+    <div class="creative-grid">
+      <div class="creative-card">با «این» یک جمله بنویس:<input type="text" class="ws-input line-input" placeholder="یک جمله با «این» بنویسید..."><div class="ans-badge">✓ مثال: این گل بسیار خوش‌بو است.</div></div>
+      <div class="creative-card">با «آن» یک جمله بنویس:<input type="text" class="ws-input line-input" placeholder="یک جمله با «آن» بنویسید..."><div class="ans-badge">✓ مثال: آن ستاره در آسمان می‌درخشد.</div></div>
+      <div class="creative-card">با «همین» یا «همان» یک جمله بنویس:<input type="text" class="ws-input line-input" placeholder="یک جمله با «همین» یا «همان» بنویسید..."><div class="ans-badge">✓ مثال: همان کتابی را خواندم که به من هدیه داده بودی.</div></div>
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">امروز چقدر خوب یاد گرفتم؟ <span class="self-stars" style="cursor:pointer;"><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 0 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 1 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 2 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 3 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 4 ? '★' : '☆')">☆</span></span></div>
+      <div class="creator"> طرّاح و سازنده‌ی کاربرگ: نیما آزمکان</div>
+      <div class="message">آفرین به تو دانش‌آموز دانا و پرتلاش! </div>
+    </footer>
+  </div>
+</section>
+
+</body>
+</html>

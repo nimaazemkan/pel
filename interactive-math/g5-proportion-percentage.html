@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>کارگاه گام‌به‌گام جدول تناسب، درصد و تخفیف — سازنده: نیما آزمکان</title>
+  <style>
+    :root{
+      --bg1: #064e3b;
+      --bg2: #022c22;
+      --card: rgba(255, 255, 255, 0.08);
+      --stroke: rgba(255, 255, 255, 0.15);
+      --text: #f8fafc;
+      --muted: rgba(248, 250, 252, 0.75);
+      --accent: #34d399;
+      --accent2: #fbbf24;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: radial-gradient(1000px 600px at 15% 15%, rgba(52, 211, 153, 0.25), transparent 60%),
+                  radial-gradient(900px 600px at 85% 25%, rgba(251, 191, 36, 0.2), transparent 60%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+      padding-bottom: 30px;
+    }
+    .topbar{
+      max-width: 1150px; margin: 0 auto; padding: 20px 18px 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
+    }
+    .brand h1{
+      margin: 0; font-size: 20px; font-weight: 900;
+      background: linear-gradient(90deg, #34d399, #fbbf24);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .badge{
+      display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke); padding: 8px 14px; border-radius: 999px; font-size: 13px;
+    }
+    main{
+      max-width: 1150px; margin: 0 auto; padding: 10px 18px 30px;
+      display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 20px;
+    }
+    @media (max-width: 900px){ main{ grid-template-columns: 1fr; } }
+    .card{
+      background: var(--card); border: 1px solid var(--stroke); border-radius: 20px;
+      box-shadow: var(--shadow); backdrop-filter: blur(12px); overflow: hidden;
+    }
+    .cardHeader{
+      padding: 14px 18px; border-bottom: 1px solid var(--stroke);
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(0,0,0,0.15); flex-wrap: wrap;
+    }
+    .cardHeader .title{ font-weight: 800; font-size: 15px; color: var(--accent); }
+    .controls{ display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    select, button{
+      font-family: inherit; border-radius: 12px; border: 1px solid var(--stroke); background: rgba(0,0,0,0.3);
+      color: var(--text); padding: 8px 12px; font-size: 13px; cursor: pointer;
+    }
+    .btn-primary{ background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; font-weight: 800; }
+    .content{ padding: 20px; }
+    .instruction{
+      background: rgba(52, 211, 153, 0.1); border-right: 4px solid var(--accent);
+      padding: 12px 16px; border-radius: 10px; font-size: 13px; line-height: 1.8; margin-bottom: 20px; color: var(--muted);
+    }
+    .op-nav-pills{
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;
+      background: rgba(0,0,0,0.25); padding: 6px; border-radius: 14px; border: 1px solid var(--stroke);
+    }
+    .op-pill-btn{
+      background: transparent; border: 1px solid transparent; color: var(--muted);
+      padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .op-pill-btn:hover{ color: #fff; background: rgba(255,255,255,0.05); }
+    .op-pill-btn.active{ background: var(--accent); color: #064e3b; font-weight: 800; }
+
+    .math-canvas{
+      background: rgba(0,0,0,0.25); border: 1px solid var(--stroke); border-radius: 16px;
+      padding: 24px; display: flex; flex-direction: column; gap: 20px; align-items: center;
+    }
+    .problem-story{
+      font-size: 15px; font-weight: bold; line-height: 1.8; text-align: center; color: #fff;
+      background: rgba(255,255,255,0.04); padding: 14px 20px; border-radius: 12px; border: 1px solid var(--stroke); width: 100%;
+    }
+
+    /* Proportion Table Style */
+    .prop-table{
+      border-collapse: separate; border-spacing: 0; width: 100%; max-width: 500px;
+      background: rgba(0,0,0,0.35); border: 2px solid var(--accent); border-radius: 12px; overflow: hidden;
+      margin: 10px 0;
+    }
+    .prop-table th, .prop-table td{
+      border: 1px solid rgba(255,255,255,0.15); padding: 12px; text-align: center; font-size: 16px;
+    }
+    .prop-table th{ background: rgba(52, 211, 153, 0.2); color: var(--accent); font-weight: 800; width: 35%; }
+    .prop-table td.cell-known{ font-size: 20px; font-weight: 900; color: #fff; }
+    .prop-table td.cell-unknown{ background: rgba(251, 191, 36, 0.15); color: var(--accent2); font-size: 22px; font-weight: 900; }
+
+    /* Step Card */
+    .step-card{
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--stroke);
+      border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s;
+    }
+    .step-card.active{ background: rgba(52, 211, 153, 0.08); border-color: var(--accent); }
+    .step-header{ display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; color: var(--accent); }
+    .step-flow{ display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; flex-wrap: wrap; direction: ltr; }
+
+    .box-sq{
+      width: 90px; height: 46px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4); color: #fff; font-size: 20px; font-weight: 900; text-align: center; outline: none;
+    }
+    .box-sq:focus{ border-color: var(--accent); box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.25); }
+    .box-sq.ok{ border-color: var(--good) !important; background: rgba(34, 197, 94, 0.2) !important; color: #4ade80 !important; }
+    .box-sq.bad{ border-color: var(--bad) !important; background: rgba(239, 68, 68, 0.25) !important; color: #f87171 !important; }
+
+    .side-panel{ padding: 20px; }
+    .info-box{ background: rgba(255,255,255,0.05); border: 1px solid var(--stroke); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .info-box h3{ margin: 0 0 10px; font-size: 14px; color: var(--accent); }
+    .chart-container{ display: flex; align-items: flex-end; justify-content: space-around; height: 120px; border-bottom: 1px solid var(--stroke); margin-bottom: 10px; }
+    .bar-wrapper{ display: flex; flex-direction: column; align-items: center; gap: 6px; width: 45%; height: 100%; justify-content: flex-end; }
+    .bar{ width: 100%; max-width: 40px; border-radius: 8px 8px 0 0; min-height: 4px; }
+    .bar-good{ background: linear-gradient(180deg, #4ade80, #16a34a); }
+    .bar-bad{ background: linear-gradient(180deg, #f87171, #dc2626); }
+    .bar-label{ font-size: 11px; color: var(--muted); }
+    .bar-val{ font-size: 12px; font-weight: bold; }
+    .gauge-box{ text-align: center; }
+    .gauge-val{ font-size: 26px; font-weight: 900; color: var(--accent); }
+
+    .confetti-container{ position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti-piece{ position: absolute; width: 10px; height: 14px; border-radius: 2px; animation: fall 2s ease-out forwards; }
+    @keyframes fall{ 0%{ transform: translateY(-20px); opacity:1; } 100%{ transform: translateY(105vh) rotate(720deg); opacity:0; } }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><h1>کارگاه گام‌به‌گام جدول تناسب، درصد و تخفیف</h1></div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <div class="badge">دانش‌آموز: <strong id="studentName">دانش‌آموز کوشا</strong></div>
+    <div class="badge">طراح: <strong>نیما آزمکان</strong></div>
+  </div>
+</div>
+
+<main>
+  <section class="card">
+    <div class="cardHeader">
+      <div class="title">مسئله جدول تناسب و درصد</div>
+      <div class="controls">
+        <select id="diffSelect">
+          <option value="easy">آسان (ضرایب ساده ۲ تا ۵)</option>
+          <option value="medium" selected>متوسط (ضرایب ۶ تا ۱۲ و درصدهای رند)</option>
+          <option value="hard">سخت (تخفیف، سود و طرفین وسطین)</option>
+        </select>
+        <button class="btn-primary" id="newBtn">مسئله جدید 🎲</button>
+        <button id="resetBtn">پاک کردن 🔄</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="op-nav-pills" id="opNavPills">
+        <button type="button" class="op-pill-btn active" data-mode="table">📊 جدول تناسب مستقیم و ضریب</button>
+        <button type="button" class="op-pill-btn" data-mode="cross">✖️ روش طرفین وسطین</button>
+        <button type="button" class="op-pill-btn" data-mode="discount">🏷️ درصد تخفیف و قیمت نهایی</button>
+        <button type="button" class="op-pill-btn" data-mode="profit">💰 درصد سود و مالیات</button>
+      </div>
+
+      <div class="instruction" id="instructionText">
+        ابتدا جدول تناسب را بررسی کنید، ضریب تناسب را بیابید و سپس خانه مجهول (؟) را محاسبه کنید.
+      </div>
+
+      <div class="math-canvas">
+        <div class="problem-story" id="problemStory"></div>
+
+        <div id="tableContainer"></div>
+
+        <!-- Step 1 -->
+        <div class="step-card active" id="stepCard1">
+          <div class="step-header">
+            <span id="step1Title">مرحله ۱: یافتن ضریب تناسب یا رابطه بین ستون‌ها</span>
+            <span id="step1Status">در حال تکمیل...</span>
+          </div>
+          <div class="step-flow" id="step1Inputs"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card" id="stepCard2">
+          <div class="step-header">
+            <span id="step2Title">مرحله ۲: محاسبه مقدار مجهول (؟)</span>
+            <span id="step2Status">قفل</span>
+          </div>
+          <div class="step-flow" id="step2Inputs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cardHeader">
+      <div class="title">کارنامه و عملکرد</div>
+      <button id="exportBtn" style="color:#34d399;">🖨️ چاپ / PDF</button>
+    </div>
+    <div class="side-panel">
+      <div class="info-box">
+        <h3>نمودار پاسخ‌ها</h3>
+        <div class="chart-container">
+          <div class="bar-wrapper">
+            <span class="bar-val" id="goodCount">0</span>
+            <div class="bar bar-good" id="barGood" style="height:0%;"></div>
+            <span class="bar-label">درست</span>
+          </div>
+          <div class="bar-wrapper">
+            <span class="bar-val" id="badCount">0</span>
+            <div class="bar bar-bad" id="barBad" style="height:0%;"></div>
+            <span class="bar-label">نادرست</span>
+          </div>
+        </div>
+        <div class="gauge-box">
+          <div style="font-size:12px; color:var(--muted);">درصد تسلط</div>
+          <div class="gauge-val" id="accuracyVal">0%</div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>راهنمای گام‌به‌گام</h3>
+        <p id="stepHelpText" style="font-size:13px; color:var(--muted); line-height:1.8; margin:0;"></p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="confetti-container" id="confettiBox"></div>
+
+<script>
+(() => {
+  let mode = 'table';
+  let diff = 'medium';
+  let correctCount = 0, wrongCount = 0;
+  let activeStep = 1;
+
+  let r1_c1 = 3, r1_c2 = 12, r2_c1 = 5, r2_c2 = 20, factor = 4;
+  let row1Name = 'تعداد دفتر', row2Name = 'قیمت (تومان)';
+  let storyText = '';
+
+  const problemStory = document.getElementById('problemStory');
+  const tableContainer = document.getElementById('tableContainer');
+  const stepCard1 = document.getElementById('stepCard1');
+  const stepCard2 = document.getElementById('stepCard2');
+  const step1Title = document.getElementById('step1Title');
+  const step2Title = document.getElementById('step2Title');
+  const step1Status = document.getElementById('step1Status');
+  const step2Status = document.getElementById('step2Status');
+  const step1Inputs = document.getElementById('step1Inputs');
+  const step2Inputs = document.getElementById('step2Inputs');
+  const stepHelpText = document.getElementById('stepHelpText');
+  const goodCount = document.getElementById('goodCount');
+  const badCount = document.getElementById('badCount');
+  const accuracyVal = document.getElementById('accuracyVal');
+  const barGood = document.getElementById('barGood');
+  const barBad = document.getElementById('barBad');
+  const diffSelect = document.getElementById('diffSelect');
+  const newBtn = document.getElementById('newBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const studentName = document.getElementById('studentName');
+  const confettiBox = document.getElementById('confettiBox');
+
+  let audioCtx = null;
+  function playTone(freq, dur=0.2){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch(e){}
+  }
+
+  function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function generateProblem(){
+    diff = diffSelect.value;
+
+    if(mode === 'table'){
+      const factors = diff === 'easy' ? [2, 3, 4, 5] : (diff === 'medium' ? [6, 7, 8, 9, 10] : [12, 15, 20, 25]);
+      factor = factors[randInt(0, factors.length - 1)];
+      r1_c1 = randInt(2, 6);
+      r1_c2 = r1_c1 * factor;
+      r2_c1 = randInt(7, 12);
+      r2_c2 = r2_c1 * factor;
+
+      const items = [
+        { r1: 'تعداد مداد', r2: 'قیمت (تومان)' },
+        { r1: 'تعداد بسته', r2: 'تعداد شکلات' },
+        { r1: 'مدت زمان (ساعت)', r2: 'مسافت طی‌شده (کیلومتر)' },
+        { r1: 'مقدار آرد (کیلوگرم)', r2: 'تعداد نان' }
+      ];
+      const it = items[randInt(0, items.length - 1)];
+      row1Name = it.r1; row2Name = it.r2;
+      storyText = `اگر ${r1_c1} ${row1Name} دارای ${r1_c2} ${row2Name} باشد، برای ${r2_c1} ${row1Name} چند ${row2Name} خواهیم داشت؟`;
+    }
+    else if(mode === 'cross'){
+      r1_c1 = randInt(3, 8);
+      factor = randInt(3, 9);
+      r2_c1 = randInt(4, 9);
+      r1_c2 = r1_c1 * factor;
+      r2_c2 = r2_c1 * factor;
+      row1Name = 'صورت کسر'; row2Name = 'مخرج کسر';
+      storyText = `در تساوی کسری زیر، با استفاده از روش طرفین وسطین مقدار مجهول را بیابید: (${r1_c1} / ${r2_c1}) = (${r1_c2} / ؟)`;
+    }
+    else if(mode === 'discount'){
+      const pctList = diff === 'easy' ? [10, 20, 50] : [15, 25, 30, 40];
+      const pct = pctList[randInt(0, pctList.length - 1)];
+      const basePrice = randInt(2, 10) * 10000;
+      const discountAmount = (basePrice * pct) / 100;
+      const finalPrice = basePrice - discountAmount;
+
+      r1_c1 = 100; r1_c2 = basePrice;
+      r2_c1 = pct; r2_c2 = discountAmount;
+      factor = basePrice / 100;
+
+      row1Name = 'قیمت اولیه (۱۰۰٪)'; row2Name = `تخفیف (${pct}٪)`;
+      storyText = `کالایی به قیمت ${basePrice.toLocaleString('fa-IR')} تومان دارای ${pct} درصد تخفیف است. مقدار تخفیف و قیمت پس از تخفیف را حساب کنید.`;
+    }
+    else if(mode === 'profit'){
+      const pctList = [10, 15, 20, 25, 30];
+      const pct = pctList[randInt(0, pctList.length - 1)];
+      const costPrice = randInt(4, 12) * 5000;
+      const profitAmount = (costPrice * pct) / 100;
+
+      r1_c1 = 100; r1_c2 = costPrice;
+      r2_c1 = pct; r2_c2 = profitAmount;
+      factor = costPrice / 100;
+
+      row1Name = 'قیمت خرید (۱۰۰٪)'; row2Name = `سود (${pct}٪)`;
+      storyText = `فروشنده‌ای جنسی را به قیمت ${costPrice.toLocaleString('fa-IR')} تومان خرید و با ${pct} درصد سود فروخت. مقدار سود چقدر است؟`;
+    }
+
+    renderUI();
+  }
+
+  function renderUI(){
+    activeStep = 1;
+    problemStory.textContent = storyText;
+
+    // Render HTML Table
+    tableContainer.innerHTML = `
+      <table class="prop-table">
+        <tr>
+          <th>${row1Name}</th>
+          <td class="cell-known">${r1_c1}</td>
+          <td class="cell-known">${r2_c1}</td>
+        </tr>
+        <tr>
+          <th>${row2Name}</th>
+          <td class="cell-known">${r1_c2}</td>
+          <td class="cell-unknown">؟</td>
+        </tr>
+      </table>
+    `;
+
+    if(mode === 'table'){
+      step1Title.textContent = `مرحله ۱: ضریب تناسب بین ستون اول و دوم (${r1_c2} ÷ ${r1_c1})`;
+      step1Inputs.innerHTML = `
+        <span>ضریب تناسب = </span>
+        <input class="box-sq" id="s1_factor" placeholder="ضریب" inputmode="numeric" autofocus>
+      `;
+      step2Title.textContent = `مرحله ۲: محاسبه مقدار مجهول (${r2_c1} × ضریب)`;
+      step2Inputs.innerHTML = `
+        <span>مقدار مجهول (؟) = </span>
+        <input class="box-sq" id="s2_ans" placeholder="پاسخ" inputmode="numeric" disabled>
+      `;
+    }
+    else if(mode === 'cross'){
+      step1Title.textContent = `مرحله ۱: ضرب متقاطع (طرفین) یعنی (${r2_c1} × ${r1_c2})`;
+      step1Inputs.innerHTML = `
+        <span>${r2_c1} × ${r1_c2} = </span>
+        <input class="box-sq" id="s1_factor" placeholder="حاصل‌ضرب" style="width:130px;" inputmode="numeric" autofocus>
+      `;
+      step2Title.textContent = `مرحله ۲: تقسیم بر عدد باقیمانده (${r1_c1})`;
+      step2Inputs.innerHTML = `
+        <span>پاسخ نهایی (؟) = </span>
+        <input class="box-sq" id="s2_ans" placeholder="پاسخ" style="width:120px;" inputmode="numeric" disabled>
+      `;
+    }
+    else if(mode === 'discount' || mode === 'profit'){
+      step1Title.textContent = `مرحله ۱: تعیین مقدار هر ۱ درصد (${r1_c2} ÷ ۱۰۰)`;
+      step1Inputs.innerHTML = `
+        <span>هر ۱ درصد = </span>
+        <input class="box-sq" id="s1_factor" placeholder="تومان" style="width:120px;" inputmode="numeric" autofocus>
+      `;
+      step2Title.textContent = `مرحله ۲: محاسبه مقدار ${row2Name}`;
+      step2Inputs.innerHTML = `
+        <span>مقدار = </span>
+        <input class="box-sq" id="s2_ans" placeholder="تومان" style="width:130px;" inputmode="numeric" disabled>
+      `;
+    }
+
+    stepCard1.classList.add('active');
+    stepCard2.classList.remove('active');
+    step1Status.textContent = 'در حال تکمیل...';
+    step2Status.textContent = 'قفل';
+
+    updateHelp();
+    setupListeners();
+  }
+
+  function updateHelp(){
+    if(activeStep === 1){
+      if(mode === 'table'){
+        stepHelpText.innerHTML = `💡 برای پیدا کردن رابطه ستون‌ها، عدد ${r1_c2} را بر ${r1_c1} تقسیم کن تا ضریب تناسب به دست آید (${factor}).`;
+      } else if(mode === 'cross'){
+        const prod = r2_c1 * r1_c2;
+        stepHelpText.innerHTML = `💡 در روش طرفین وسطین، ابتدا دو عددی که روبروی هم هستند را ضرب کن: ${r2_c1} × ${r1_c2} = ${prod}.`;
+      } else {
+        stepHelpText.innerHTML = `💡 برای محاسبه درصد، ابتدا عدد کل (${r1_c2}) را تقسیم بر ۱۰۰ کن تا ارزش ۱٪ مشخص شود (${factor}).`;
+      }
+    } else {
+      if(mode === 'table'){
+        stepHelpText.innerHTML = `💡 اکنون عدد ${r2_c1} را در ضریب به دست آمده (${factor}) ضرب کن تا جواب به دست آید.`;
+      } else if(mode === 'cross'){
+        stepHelpText.innerHTML = `💡 حاصل‌ضرب مرحله قبل را بر ${r1_c1} تقسیم کن تا مجهول محاسبه شود (${r2_c2}).`;
+      } else {
+        stepHelpText.innerHTML = `💡 ارزش هر ۱٪ را در درصد خواسته شده (${r2_c1}) ضرب کن.`;
+      }
+    }
+  }
+
+  function setupListeners(){
+    const in1 = document.getElementById('s1_factor');
+    const in2 = document.getElementById('s2_ans');
+
+    const expected1 = mode === 'cross' ? (r2_c1 * r1_c2) : factor;
+    const expected2 = r2_c2;
+
+    in1.oninput = () => {
+      const val = parseInt(in1.value.trim(), 10);
+      if(val === expected1){
+        in1.classList.add('ok');
+        in1.disabled = true;
+        playTone(550, 0.2);
+        activeStep = 2;
+        step1Status.textContent = '✓ درست';
+        step2Status.textContent = 'در حال تکمیل...';
+        stepCard1.classList.remove('active');
+        stepCard2.classList.add('active');
+        in2.disabled = false;
+        in2.focus();
+        updateHelp();
+      }
+    };
+
+    in2.oninput = () => {
+      const val = parseInt(in2.value.trim(), 10);
+      if(val === expected2){
+        in2.classList.add('ok');
+        in2.disabled = true;
+        complete();
+      }
+    };
+
+    setTimeout(() => { in1?.focus(); }, 100);
+  }
+
+  function complete(){
+    correctCount++;
+    updateChart();
+    playTone(660, 0.3);
+    triggerConfetti();
+
+    try {
+      window.parent?.postMessage({
+        type: 'MATH_APP_COMPLETED',
+        appId: 'g5-proportion-percentage',
+        gradeId: 'g5',
+        mode,
+        correctCount
+      }, '*');
+    } catch(e){}
+
+    setTimeout(generateProblem, 1600);
+  }
+
+  function updateChart(){
+    goodCount.textContent = correctCount;
+    badCount.textContent = wrongCount;
+    const total = correctCount + wrongCount;
+    let pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+    accuracyVal.textContent = pct + '%';
+    const maxVal = Math.max(correctCount, wrongCount, 5);
+    barGood.style.height = (correctCount / maxVal) * 100 + '%';
+    barBad.style.height = (wrongCount / maxVal) * 100 + '%';
+  }
+
+  function triggerConfetti(){
+    confettiBox.innerHTML = '';
+    const colors = ['#34d399', '#fbbf24', '#38bdf8', '#a855f7'];
+    for(let i=0; i<60; i++){
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+      confettiBox.appendChild(p);
+    }
+    setTimeout(() => { confettiBox.innerHTML = ''; }, 2000);
+  }
+
+  document.querySelectorAll('#opNavPills .op-pill-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#opNavPills .op-pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.getAttribute('data-mode');
+      generateProblem();
+    };
+  });
+
+  newBtn.onclick = generateProblem;
+  resetBtn.onclick = renderUI;
+  diffSelect.onchange = generateProblem;
+  exportBtn.onclick = () => window.print();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('studentName')){
+    studentName.textContent = decodeURIComponent(urlParams.get('studentName') || '');
+  }
+
+  generateProblem();
+})();
+</script>
+</body>
+</html>

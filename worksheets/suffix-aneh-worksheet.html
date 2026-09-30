@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>کاربرگ پسوند «انه»، جمع‌آوری اطلاعات و یادداشت‌برداری — فارسی سوم دبستان (درس هفدهم: چشم‌های آسمان)</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --primary-color: #6366f1;       /* نیلی شب آسمان و ستارگان */
+  --secondary-color: #0d9488;     /* فیروزه‌ای کهکشان */
+  --accent-color: #f59e0b;        /* طلایی ستارگان و خورشید */
+  --purple-color: #7c3aed;        /* بنفش عمیق کیهان */
+  --rose-color: #e11d48;          /* سرخ */
+  --text-dark: #1f2937;
+  --bg-card: #f5f3ff;
+}
+
+@page{
+  size: A4 portrait;
+  margin: 7mm;
+}
+
+body{
+  direction: rtl;
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #eef2ff, #f5f3ff, #fefce8);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  line-height: 1.55;
+}
+
+.floating-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  border: 2px solid #c7d2fe;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-print { background: linear-gradient(135deg, #4f46e5, #0d9488); }
+.btn-draw { background: linear-gradient(135deg, #7c3aed, #6366f1); }
+.btn-draw.active { background: linear-gradient(135deg, #dc2626, #ea580c); box-shadow: 0 0 10px #ea580c; }
+.btn-check { background: linear-gradient(135deg, #047857, #10b981); }
+.btn-answer { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.btn-reset { background: linear-gradient(135deg, #475569, #64748b); }
+
+.draw-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #e0e7ff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #c7d2fe;
+}
+
+.draw-controls.show { display: inline-flex; }
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+
+.color-dot:hover, .color-dot.active {
+  transform: scale(1.25);
+  border-color: #1f2937;
+}
+
+.pen-size-btn, .eraser-btn, .clear-canvas-btn {
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #4338ca;
+}
+
+.eraser-btn.active {
+  background: #c7d2fe;
+  border-color: #4f46e5;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 18px auto 28px;
+  padding: 7.5mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+  page-break-after: always;
+}
+
+.page:last-of-type { page-break-after: auto; }
+.content { position: relative; z-index: 2; }
+
+.draw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.draw-canvas.active-mode {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.blob.one {
+  width: 240px;
+  height: 240px;
+  top: -100px;
+  right: -90px;
+  background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+}
+.blob.two {
+  width: 280px;
+  height: 280px;
+  bottom: -110px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%);
+}
+.blob.three {
+  width: 200px;
+  height: 200px;
+  top: 42%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%);
+}
+
+.corner {
+  position: absolute;
+  z-index: 1;
+  font-size: 28px;
+  opacity: 0.22;
+  user-select: none;
+}
+.top-right { top: 8px; right: 10px; }
+.top-left { top: 8px; left: 10px; }
+.bottom-right { bottom: 8px; right: 10px; }
+.bottom-left { bottom: 8px; left: 10px; }
+
+.header-box {
+  border: 2px solid #4f46e5;
+  background: linear-gradient(135deg, #f5f3ff, #eef2ff);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 9px;
+  position: relative;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px dashed #c7d2fe;
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+}
+
+.header-emblem {
+  font-size: 11px;
+  font-weight: 800;
+  color: #3730a3;
+  text-align: right;
+  line-height: 1.35;
+}
+
+.header-title-box {
+  text-align: center;
+  flex: 1;
+  padding: 0 10px;
+}
+
+.header-title-box h1 {
+  font-size: 15px;
+  font-weight: 900;
+  color: #3730a3;
+  margin-bottom: 2px;
+}
+
+.header-title-box .badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 1.5px 10px;
+  border-radius: 10px;
+}
+
+.header-left-info {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0d9488;
+  line-height: 1.4;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  border: 1px solid #c7d2fe;
+}
+
+.meta-input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4338ca;
+  outline: none;
+  width: 100%;
+}
+
+.rule-card {
+  border-radius: 10px;
+  padding: 8px 11px;
+  margin-bottom: 9px;
+  border-right: 5px solid;
+  position: relative;
+}
+
+.rule-indigo {
+  background: #f5f3ff;
+  border-right-color: #4f46e5;
+  border: 1px solid #c7d2fe;
+  border-right-width: 5px;
+}
+
+.rule-teal {
+  background: #f0fdfa;
+  border-right-color: #0d9488;
+  border: 1px solid #99f6e4;
+  border-right-width: 5px;
+}
+
+.rule-amber {
+  background: #fffbeb;
+  border-right-color: #d97706;
+  border: 1px solid #fed7aa;
+  border-right-width: 5px;
+}
+
+.rule-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.rule-indigo .rule-header { color: #3730a3; }
+.rule-teal .rule-header { color: #115e59; }
+.rule-amber .rule-header { color: #92400e; }
+
+.rule-body {
+  font-size: 11.5px;
+  color: #374151;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+.highlight-box {
+  display: inline-block;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.exercise-box {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.exercise-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1f2937;
+  border-bottom: 1.5px solid #f3f4f6;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.exercise-title .badge-num {
+  background: #4f46e5;
+  color: #fff;
+  font-size: 10.5px;
+  padding: 1.5px 7px;
+  border-radius: 12px;
+  margin-left: 5px;
+}
+
+.exercise-title .badge-teal { background: #0d9488; }
+.exercise-title .badge-amber { background: #d97706; }
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.custom-table th {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 800;
+  border: 1px solid #c7d2fe;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.custom-table td {
+  border: 1px solid #c7d2fe;
+  padding: 4px 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.custom-table.teal-table th {
+  background: #ccfbf1;
+  color: #115e59;
+  border-color: #99f6e4;
+}
+.custom-table.teal-table td { border-color: #99f6e4; }
+
+.text-input {
+  width: 100%;
+  border: 1.5px solid #c7d2fe;
+  background: #f5f3ff;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.text-input:focus {
+  border-color: #4f46e5;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(79,70,229,0.35);
+}
+
+.text-input.correct {
+  border-color: #10b981 !important;
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.text-input.incorrect {
+  border-color: #ef4444 !important;
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.match-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.match-column { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.match-item:hover { border-color: #4f46e5; background: #eef2ff; }
+.match-item.selected { border-color: #4f46e5; background: #e0e7ff; box-shadow: 0 0 0 2px #4f46e5; }
+
+.match-item.matched-0 { border-color: #4f46e5; background: #eef2ff; color: #3730a3; font-weight: 800; }
+.match-item.matched-1 { border-color: #0d9488; background: #f0fdfa; color: #115e59; font-weight: 800; }
+.match-item.matched-2 { border-color: #d97706; background: #fef3c7; color: #92400e; font-weight: 800; }
+.match-item.matched-3 { border-color: #7c3aed; background: #f5f3ff; color: #5b21b6; font-weight: 800; }
+
+.match-item .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  background: #fff;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 5px 0;
+}
+
+.choice-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.opt-group { display: flex; gap: 4px; }
+
+.opt-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.opt-btn:hover { background: #e0e7ff; border-color: #4f46e5; }
+.opt-btn.selected { background: #4f46e5; color: #fff; border-color: #3730a3; }
+.opt-btn.is-correct { background: #0d9488 !important; color: #fff !important; border-color: #115e59 !important; }
+.opt-btn.is-wrong { background: #dc2626 !important; color: #fff !important; border-color: #991b1b !important; }
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.info-card {
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px;
+  text-align: center;
+}
+
+.info-card.active-card {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+
+.paragraph-writing-box {
+  background: #f5f3ff;
+  border: 2px dashed #c7d2fe;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.lined-textarea {
+  width: 100%;
+  min-height: 110px;
+  border: none;
+  background: repeating-linear-gradient(transparent, transparent 23px, #c7d2fe 24px);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 24px;
+  outline: none;
+  resize: vertical;
+  text-indent: 25px;
+  padding: 2px 4px;
+}
+
+.answer-key-box {
+  display: none;
+  background: #f5f3ff;
+  border: 1.5px solid #4f46e5;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #3730a3;
+}
+
+.answer-key-box.show { display: block; }
+
+.star-rating { display: inline-flex; gap: 3px; direction: ltr; }
+.star-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #d1d5db; transition: transform 0.15s, color 0.15s; }
+.star-btn:hover, .star-btn.active { color: #f59e0b; transform: scale(1.15); }
+
+.footer-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1.5px dashed #c7d2fe;
+  padding-top: 5px;
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.designer-badge {
+  background: #f5f3ff;
+  border: 1px solid #c7d2fe;
+  color: #4f46e5;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+@media print {
+  body { background: #fff !important; }
+  .floating-toolbar { display: none !important; }
+  .page {
+    width: 100% !important; min-height: auto !important; margin: 0 !important;
+    padding: 5mm !important; border-radius: 0 !important; box-shadow: none !important;
+    page-break-after: always !important;
+  }
+  .page:last-of-type { page-break-after: auto !important; }
+  .answer-key-box { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="floating-toolbar">
+  <button class="tool-btn btn-print" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+  <button class="tool-btn btn-draw" id="btn-draw" onclick="toggleDrawMode()">✏️ قلم نوری (فعال/غیرفعال)</button>
+  
+  <div class="draw-controls" id="draw-controls">
+    <div class="color-dot active" style="background:#4f46e5;" onclick="setPenColor('#4f46e5', this)" title="نیلی"></div>
+    <div class="color-dot" style="background:#0d9488;" onclick="setPenColor('#0d9488', this)" title="فیروزه‌ای"></div>
+    <div class="color-dot" style="background:#d97706;" onclick="setPenColor('#d97706', this)" title="طلایی"></div>
+    <div class="color-dot" style="background:#7c3aed;" onclick="setPenColor('#7c3aed', this)" title="بنفش"></div>
+    <div class="color-dot" style="background:#dc2626;" onclick="setPenColor('#dc2626', this)" title="سرخ"></div>
+    <button class="pen-size-btn" onclick="cyclePenSize()">ضخامت: <span id="pen-size-label">۲</span></button>
+    <button class="eraser-btn" id="eraser-btn" onclick="toggleEraser()">پاک‌کن</button>
+    <button class="clear-canvas-btn" onclick="clearAllCanvases()">پاکسازی قلم</button>
+  </div>
+
+  <button class="tool-btn btn-check" onclick="checkAllAnswers()">✅ بررسی خودکار</button>
+  <button class="tool-btn btn-answer" onclick="toggleAnswerKey()">💡 کلید پاسخنامه</button>
+  <button class="tool-btn btn-reset" onclick="resetWorksheet()">🔄 بازنشانی</button>
+</div>
+
+<!-- =====================================================
+     صفحه ۱: واژه‌سازی با پسوند «انه»
+===================================================== -->
+<div class="page" id="page-1">
+  <canvas class="draw-canvas" id="canvas-1"></canvas>
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="corner top-right">⭐</div>
+  <div class="corner bottom-left">🌙</div>
+
+  <div class="content">
+    <div class="header-box">
+      <div class="header-top">
+        <div class="header-emblem">
+          جمهوری اسلامی ایران<br>
+          وزارت آموزش و پرورش
+        </div>
+        <div class="header-title-box">
+          <h1>کاربرگ جامع فارسی و نگارش پایه سوم ابتدایی</h1>
+          <span class="badge">درس هفدهم: چشم‌های آسمان (پسوند «انه» و مهارت جمع‌آوری اطلاعات و یادداشت‌برداری)</span>
+        </div>
+        <div class="header-left-info">
+          ارزشیابی درس ۱۷<br>
+          صفحه ۱ از ۳ (پسوند انه)
+        </div>
+      </div>
+      <div class="meta-grid">
+        <div class="meta-item"><span>نام و نام خانوادگی:</span><input class="meta-input" type="text" placeholder="................"></div>
+        <div class="meta-item"><span>نام آموزگار:</span><input class="meta-input" type="text" placeholder="................"></div>
+        <div class="meta-item"><span>کلاس / دبستان:</span><input class="meta-input" type="text" placeholder="کلاس سوم"></div>
+        <div class="meta-item"><span>تاریخ ارزیابی:</span><input class="meta-input" type="text" placeholder="۱۴۰۳/.. /.."></div>
+      </div>
+    </div>
+
+    <!-- درس‌نامه صفحه ۱ -->
+    <div class="rule-card rule-indigo">
+      <div class="rule-header">
+        <span>⭐ درس‌نامه آموزشی شماره ۱: واژه‌سازی با پسوند «انه» در زبان فارسی</span>
+      </div>
+      <div class="rule-body">
+        پسوند <span class="highlight-box">«انه»</span> با اتصال به کلمات کاربردهای گوناگونی می‌سازد:
+        <br>
+        ۱. <b>صفت یا قید حالت و شیوه (مانند / به روش):</b>
+        <br>
+        • <span class="highlight-box">دوست + انه = دوستانه</span> (مانند دوستان، با صمیمیت) — <span class="highlight-box">شجاع + انه = شجاعانه</span> (با شجاعت و دلاوری)
+        <br>
+        • <span class="highlight-box">مؤدب + انه = مؤدبانه</span> (با ادب و احترام) — <span class="highlight-box">عاقل + انه = عاقلانه</span> (بر پایه عقل و تدبیر).
+        <br>
+        ۲. <b>زمان و وعده غذایی:</b> <span class="highlight-box">صبح + انه = صبحانه</span> | <span class="highlight-box">عصر + انه = عصرانه</span> | <span class="highlight-box">سال + انه = سالانه</span>.
+        <br>
+        ۳. <b>ویژگی و اختصاص:</b> <span class="highlight-box">کودک + انه = کودکانه</span> | <span class="highlight-box">دختر + انه = دخترانه</span> | <span class="highlight-box">پسر + انه = پسرانه</span>.
+      </div>
+    </div>
+
+    <!-- تمرین ۱: جدول ساخت واژه با «انه» -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۱</span> واژه‌ها را با پسوند «انه» ترکیب کرده و دسته‌بندی معنایی آن را بنویسید:</div>
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th style="width:25%;">کلمه پایه + انه</th>
+            <th style="width:25%;">واژه جدید با «انه»</th>
+            <th style="width:50%;">معنا و نوع کاربرد</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>دوست + انه</td>
+            <td><input type="text" class="text-input" data-ans="دوستانه" placeholder="دوستانه"></td>
+            <td><input type="text" class="text-input" data-ans="با صمیمیت|مانند دوستان|حالت صمیمانه" placeholder="با صمیمیت و مانند دوستان (قید حالت)"></td>
+          </tr>
+          <tr>
+            <td>شجاع + انه</td>
+            <td><input type="text" class="text-input" data-ans="شجاعانه" placeholder="شجاعانه"></td>
+            <td><input type="text" class="text-input" data-ans="با دلاوری|با شجاعت|دلاورانه" placeholder="با دلاوری و دلیری در برابر خطر"></td>
+          </tr>
+          <tr>
+            <td>صبح + انه</td>
+            <td><input type="text" class="text-input" data-ans="صبحانه" placeholder="صبحانه"></td>
+            <td><input type="text" class="text-input" data-ans="وعده غذای صبح|خوراک صبح" placeholder="وعده و خوراک آغاز روز"></td>
+          </tr>
+          <tr>
+            <td>کودک + انه</td>
+            <td><input type="text" class="text-input" data-ans="کودکانه" placeholder="کودکانه"></td>
+            <td><input type="text" class="text-input" data-ans="مخصوص کودکان|به شیوه کودک" placeholder="مخصوص و مناسب دنیای کودکان"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- تمرین ۲: دسته‌بندی در ۳ گروه -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۲</span> کلمات زیر را در جدول دسته‌بندی معنایی مناسب قرار دهید:</div>
+      </div>
+      <div style="font-size:11px; font-weight:800; color:#4338ca; text-align:center; background:#eef2ff; padding:3px; border-radius:6px; margin-bottom:4px;">
+        ( مؤدبانه — سالانه — دخترانه — دلیرانه — عصرانه — پسرانه )
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th style="width:33%;">۱) شیوه و رفتار</th>
+            <th style="width:33%;">۲) زمان و وعده</th>
+            <th style="width:34%;">۳) اختصاص و ویژگی</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" class="text-input" data-ans="مؤدبانه|دلیرانه" placeholder="مؤدبانه / دلیرانه"></td>
+            <td><input type="text" class="text-input" data-ans="سالانه|عصرانه" placeholder="سالانه / عصرانه"></td>
+            <td><input type="text" class="text-input" data-ans="دخترانه|پسرانه" placeholder="دخترانه / پسرانه"></td>
+          </tr>
+          <tr>
+            <td><input type="text" class="text-input" data-ans="دلیرانه|مؤدبانه" placeholder="دلیرانه / مؤدبانه"></td>
+            <td><input type="text" class="text-input" data-ans="عصرانه|سالانه" placeholder="عصرانه / سالانه"></td>
+            <td><input type="text" class="text-input" data-ans="پسرانه|دخترانه" placeholder="پسرانه / دخترانه"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- تمرین ۳: تکمیل جملات -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۳</span> جاهای خالی را با واژگان دارای پسوند «انه» کامل کنید:</div>
+      </div>
+      <div style="font-size:11px; line-height:2.1; background:#f5f3ff; padding:6px 10px; border-radius:8px;">
+        ۱) ملخ و عنکبوت پس از پی بردن به اشتباه خود، به شکلی بسیار 
+        <input type="text" class="text-input" style="width:85px; display:inline-block;" data-ans="مؤدبانه|دوستانه" placeholder=".........."> 
+        از حلزون عذرخواهی کردند.<br>
+        ۲) گردش 
+        <input type="text" class="text-input" style="width:85px; display:inline-block;" data-ans="سالانه" placeholder=".........."> 
+        زمین به دور خورشید، چهار فصل زیبا را پدید می‌آورد.<br>
+        ۳) خلبانان دلاور در هشت سال دفاع مقدس، 
+        <input type="text" class="text-input" style="width:85px; display:inline-block;" data-ans="شجاعانه|دلیرانه" placeholder=".........."> 
+        از مرزهای کشور پاسداری کردند.
+      </div>
+    </div>
+
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس هفدهم: چشم‌های آسمان</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۱</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     صفحه ۲: مهارت جمع‌آوری اطلاعات و یادداشت‌برداری
+===================================================== -->
+<div class="page" id="page-2">
+  <canvas class="draw-canvas" id="canvas-2"></canvas>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+  <div class="corner top-left">🔬</div>
+  <div class="corner bottom-right">📝</div>
+
+  <div class="content">
+    <div class="header-box" style="border-color:#0d9488; background:linear-gradient(135deg, #f0fdfa, #ccfbf1);">
+      <div class="header-top" style="border-bottom-color:#99f6e4;">
+        <div class="header-emblem" style="color:#115e59;">
+          جمهوری اسلامی ایران<br>
+          فارسی سوم دبستان
+        </div>
+        <div class="header-title-box">
+          <h1 style="color:#115e59;">مهارت پژوهشگری: روش‌های جمع‌آوری اطلاعات و فیش‌نویسی</h1>
+          <span class="badge" style="background:linear-gradient(135deg, #0d9488, #4f46e5);">درس ۱۷: چشم‌های آسمان — صفحه ۲ از ۳</span>
+        </div>
+        <div class="header-left-info" style="color:#4f46e5;">
+          مهارت‌های یادگیری و پژوهش<br>
+          نگارش علمی سوم
+        </div>
+      </div>
+    </div>
+
+    <!-- درس‌نامه صفحه ۲ -->
+    <div class="rule-card rule-teal">
+      <div class="rule-header">
+        <span>🔬 درس‌نامه آموزشی شماره ۲: سه روش طلایی جمع‌آوری اطلاعات و یادداشت‌برداری</span>
+      </div>
+      <div class="rule-body">
+        برای دستیابی به پاسخ سؤالات علمی و نگارش گزارش، از ۳ روش اصلی استفاده می‌کنیم:
+        <br>
+        ۱. <b>مشاهده‌ی مستقیم و دقیق (دیدن با حواس پنج‌گانه):</b> مانند مشاهده دقیق صدف حلزون، مایع لغزنده و نگاه کردن به ستارگان در شب.
+        <br>
+        ۲. <b>پرسش و مصاحبه از افراد مطلع و دانا:</b> مانند سؤال پرسیدن از معلم، پدر و مادر، پزشک و کارشناسان.
+        <br>
+        ۳. <b>مطالعه کتاب‌ها، دانشنامه‌ها و مجلات رشد:</b> خواندن کتاب‌های علمی درباره منظومه شمسی و جانوران.
+        <br>
+        • <b>اصول یادداشت‌برداری:</b> فقط نکات کلیدی و کلمات مهم را یادداشت می‌کنیم، از رونویسی پرهیز کرده و مطالب را دسته‌بندی می‌نماییم.
+      </div>
+    </div>
+
+    <!-- تمرین ۴: جدول تطبیق روش‌ها -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۴</span> برای به دست آوردن هر یک از اطلاعات زیر، کدام روش مناسب‌تر است؟ (مشاهده / پرسش / مطالعه کتاب):</div>
+      </div>
+      <table class="custom-table teal-table">
+        <thead>
+          <tr>
+            <th style="width:55%;">موضوع پژوهش و اطلاعات مورد نیاز</th>
+            <th style="width:45%;">بهترین روش جمع‌آوری اطلاعات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:right;">الف) بررسی نحوه حرکت حلزون روی شیشه و ترشح مایع لغزنده</td>
+            <td><input type="text" class="text-input" data-ans="مشاهده مستقیم|مشاهده دقیق|مشاهده" placeholder="مشاهده مستقیم و دقیق"></td>
+          </tr>
+          <tr>
+            <td style="text-align:right;">ب) دانستن فاصله دقیق خورشید تا کره زمین و نام سیارات</td>
+            <td><input type="text" class="text-input" data-ans="مطالعه کتاب|کتاب و مجلات|مطالعه کتاب علمی|مطالعه" placeholder="مطالعه کتاب و دانشنامه علمی"></td>
+          </tr>
+          <tr>
+            <td style="text-align:right;">ج) علت اهمیت بهداشت فردی و تغذیه سالم از نظر پزشک</td>
+            <td><input type="text" class="text-input" data-ans="پرسش از افراد دانا|پرسش از پزشک|پرسش و مصاحبه|پرسش" placeholder="پرسش و گفت‌وگو با افراد مطلع"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- تمرین ۵: کارت فیش‌نویسی علمی شگفتی‌های حلزون -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۵</span> کارت فیش‌نویسی علمی: بر اساس داستان «آفرینش حلزون»، ۳ نکته کلیدی را به صورت خلاصه یادداشت کنید:</div>
+      </div>
+      <div class="cards-container">
+        <div class="info-card active-card">
+          <div style="font-size:11px; font-weight:800; color:#4338ca; margin-bottom:2px;">🐌 ۱. شیوه حرکت</div>
+          <input type="text" class="text-input" data-ans="ترشح مایع لغزنده برای خزیدن|مایع لغزنده|خزیدن با مایع لغزنده" placeholder="ترشح مایع لغزنده برای خزیدن">
+        </div>
+        <div class="info-card active-card">
+          <div style="font-size:11px; font-weight:800; color:#4338ca; margin-bottom:2px;">🛡️ ۲. وسیله دفاعی</div>
+          <input type="text" class="text-input" data-ans="صدف محکم و پر پیچ و خم|صدف محافظ|صدف پیچ در پیچ" placeholder="صدف محکم و پر پیچ‌و‌خم">
+        </div>
+        <div class="info-card active-card">
+          <div style="font-size:11px; font-weight:800; color:#4338ca; margin-bottom:2px;">🦷 ۳. غذا خوردن</div>
+          <input type="text" class="text-input" data-ans="بیش از هزار دندان مخفی پشت زبان|هزار دندان پشت زبان|هزار دندان" placeholder="بیش از ۱۰۰۰ دندان مخفی پشت زبان">
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۶: تست گزینه‌ای مهارت یادداشت‌برداری -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۶</span> گزینه‌درست: کدام رفتار در یادداشت‌برداری صحیح است؟</div>
+      </div>
+      <div class="choice-grid">
+        <div class="choice-item">
+          <span>۱) رونویسی تمام کلمات کتاب کلمه به کلمه:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">درست</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">نادرست</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۲) ثبت نکات کلیدی و کلمات مهم به صورت خلاصه:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">درست</button>
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">نادرست</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۳) دسته‌بندی موضوعی یادداشت‌ها در کارت‌ها:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">درست</button>
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">نادرست</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۴) ننوشتن منبع و نام کتابی که خوانده‌ایم:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">درست</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">نادرست</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-key-box" id="answer-p2">
+      <b>🔑 کلید راهنمای صفحه ۲:</b><br>
+      • تمرین ۴: الف) مشاهده مستقیم — ب) مطالعه کتاب و مجلات — ج) پرسش از افراد مطلع<br>
+      • تمرین ۵: ۱. ترشح مایع لغزنده برای خزیدن | ۲. صدف محافظ در برابر خطرات | ۳. بیش از ۱۰۰۰ دندان مخفی پشت زبان<br>
+      • تمرین ۶: ۱) نادرست — ۲) درست — ۳) درست — ۴) نادرست
+    </div>
+
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس هفدهم: چشم‌های آسمان</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۲</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     صفحه ۳: نگارش خلاصه از یادداشت‌ها، نیایش و ارزشیابی
+===================================================== -->
+<div class="page" id="page-3">
+  <canvas class="draw-canvas" id="canvas-3"></canvas>
+  <div class="blob three"></div>
+  <div class="blob one"></div>
+  <div class="corner top-right">✍️</div>
+  <div class="corner bottom-left">🏆</div>
+
+  <div class="content">
+    <div class="header-box" style="border-color:#4f46e5; background:linear-gradient(135deg, #f5f3ff, #eef2ff);">
+      <div class="header-top" style="border-bottom-color:#c7d2fe;">
+        <div class="header-emblem" style="color:#3730a3;">
+          جمهوری اسلامی ایران<br>
+          نگارش سوم ابتدایی
+        </div>
+        <div class="header-title-box">
+          <h1 style="color:#3730a3;">کارگاه بندنویسی علمی از روی یادداشت‌ها و نیایش سپاس</h1>
+          <span class="badge" style="background:linear-gradient(135deg, #4f46e5, #0d9488);">درس ۱۷: چشم‌های آسمان — صفحه ۳ از ۳</span>
+        </div>
+        <div class="header-left-info" style="color:#3730a3;">
+          کارگاه نگارش بند<br>
+          ارزشیابی پایان سال
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-card rule-indigo">
+      <div class="rule-header">
+        <span>✍️ درس‌نامه آموزشی شماره ۳: تبدیل فیش‌های یادداشت به یک بند علمی منسجم</span>
+      </div>
+      <div class="rule-body">
+        پس از جمع‌آوری اطلاعات و فیش‌نویسی، مراحل تبدیل آن به یک بند گزارش علمی عبارتند از:
+        <br>
+        ۱. <b>جمله موضوع:</b> در سطر اول با تورفتگی، موضوع اصلی (شگفتی آفرینش آسمان یا حلزون) را معرفی می‌کنیم.
+        <br>
+        ۲. <b>جملات پشتیبان:</b> نکات مهم فیش‌ها را با کلمات پیوند‌دهنده (مانند: همچنین، علاوه بر این، به همین دلیل) به هم وصل می‌کنیم.
+        <br>
+        ۳. <b>جمله نتیجه‌گیری و شکرگزاری:</b> در پایان، عظمت خالق یکتا را سپاس می‌گوییم.
+      </div>
+    </div>
+
+    <!-- تمرین ۷: مرتب‌سازی فیش‌ها به بند منسجم -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۷</span> جملات حاصل از یادداشت‌برداری را با شماره‌گذاری (۱ تا ۳) مرتب کنید:</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px; font-size:11px;">
+        <div style="display:flex; align-items:center; gap:6px; background:#f5f3ff; padding:4px 8px; border-radius:6px;">
+          <span>( <input type="text" class="text-input" style="width:30px; display:inline-block;" data-ans="۲" placeholder=".."> )</span>
+          <span>در این چرخش باشکوه، رو به خورشید بودن روز را می‌سازد و پشت به آن، شبِ آرام و پر ستاره را پدید می‌آورد.</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; background:#f5f3ff; padding:4px 8px; border-radius:6px;">
+          <span>( <input type="text" class="text-input" style="width:30px; display:inline-block;" data-ans="۱" placeholder=".."> )</span>
+          <span>کره زمین در هر شبانه‌روز یک‌بار به دور خود می‌چرخد.</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; background:#f5f3ff; padding:4px 8px; border-radius:6px;">
+          <span>( <input type="text" class="text-input" style="width:30px; display:inline-block;" data-ans="۳" placeholder=".."> )</span>
+          <span>بنابراین، چرخش منظم زمین نعمتی بزرگ برای زندگی و خواب و کار انسان‌هاست.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۸: کارگاه نگارش بند پژوهشی و نیایش -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۸</span> کارگاه نگارش: با استفاده از یادداشت‌های خود، یک بند زیبا درباره <b>«شگفتی‌های آسمان شب یا آفرینش حلزون»</b> بنویسید:</div>
+      </div>
+      <div class="paragraph-writing-box">
+        <div style="font-size:10.5px; color:#4338ca; font-weight:800; margin-bottom:3px;">
+          💡 نکات: تورفتگی سطر اول + کاربرد واژگان پسوند «انه» (مانند شجاعانه، دوستانه، مؤدبانه) + بیان یافته‌های علمی + جمله سپاس از خداوند
+        </div>
+        <textarea class="lined-textarea" placeholder="   تماشای آسمان پرستاره در شب‌های آرام تابستان، انسان را غرق در شگفتی و تحسین آفریدگار یکتا می‌کند..."></textarea>
+      </div>
+    </div>
+
+    <!-- جدول خودسنجی -->
+    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:8px; margin-top:6px;">
+      <div class="exercise-box" style="margin-bottom:0; padding:6px 8px;">
+        <div style="font-size:11px; font-weight:800; color:#374151; margin-bottom:3px;">🌟 جدول خودسنجی دانش‌آموز:</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:10.5px;">
+          <span>شناخت پسوند «انه» و انواع کاربردهای آن:</span>
+          <div class="star-rating">
+            <button class="star-btn" onclick="rateStars(1, this)">★</button>
+            <button class="star-btn" onclick="rateStars(2, this)">★</button>
+            <button class="star-btn" onclick="rateStars(3, this)">★</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:10.5px; margin-top:2px;">
+          <span>مهارت جمع‌آوری اطلاعات و یادداشت‌برداری:</span>
+          <div class="star-rating">
+            <button class="star-btn" onclick="rateStars(1, this)">★</button>
+            <button class="star-btn" onclick="rateStars(2, this)">★</button>
+            <button class="star-btn" onclick="rateStars(3, this)">★</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-box" style="margin-bottom:0; padding:6px 8px; text-align:center;">
+        <div style="font-size:11px; font-weight:800; color:#4f46e5; margin-bottom:2px;">بازخورد و نمره آموزگار</div>
+        <div style="font-size:10.5px; font-weight:700; color:#6b7280;">
+          خیلی خوب 🟩 | خوب 🟨 | قابل قبول 🟧
+        </div>
+        <div style="margin-top:4px; font-size:10.5px; font-weight:800; color:#3730a3;">
+          امضا و نظر آموزگار: ........................
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-key-box" id="answer-p3">
+      <b>🔑 کلید راهنمای صفحه ۳:</b><br>
+      • تمرین ۷: ترتیب صحیح جملات: ۱. کره زمین در هر شبانه‌روز یک‌بار... — ۲. در این چرخش باشکوه... — ۳. بنابراین، چرخش منظم زمین...<br>
+      • تمرین ۸: ارزیابی نگارش بر پایه رعایت تورفتگی اول سطر، پیوستگی موضوعی، استفاده از یافته‌های علمی و کلمات دارای پسوند «انه».
+    </div>
+
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس هفدهم: چشم‌های آسمان</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۳</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let isDrawMode = false;
+let isEraser = false;
+let penColor = '#4f46e5';
+let penSizes = [2, 4, 6];
+let currentSizeIndex = 0;
+
+const canvases = [
+  document.getElementById('canvas-1'),
+  document.getElementById('canvas-2'),
+  document.getElementById('canvas-3')
+];
+
+function initCanvases() {
+  canvases.forEach((canvas) => {
+    if (!canvas) return;
+    const page = canvas.parentElement;
+    function resize() {
+      const rect = page.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+      if (!isDrawMode) return;
+      isDrawing = true;
+      const coords = getCoords(e);
+      lastX = coords.x; lastY = coords.y;
+    }
+
+    function draw(e) {
+      if (!isDrawing || !isDrawMode) return;
+      e.preventDefault();
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(coords.x, coords.y);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = penSizes[currentSizeIndex] * 6;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSizes[currentSizeIndex];
+      }
+      ctx.stroke();
+      lastX = coords.x; lastY = coords.y;
+    }
+
+    function stopDraw() { isDrawing = false; }
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+  });
+}
+
+function toggleDrawMode() {
+  isDrawMode = !isDrawMode;
+  const btn = document.getElementById('btn-draw');
+  const controls = document.getElementById('draw-controls');
+  if (isDrawMode) {
+    btn.classList.add('active');
+    btn.innerHTML = '✏️ حالت قلم: روشن';
+    controls.classList.add('show');
+    canvases.forEach(c => c.classList.add('active-mode'));
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '✏️ قلم نوری (فعال/غیرفعال)';
+    controls.classList.remove('show');
+    canvases.forEach(c => c.classList.remove('active-mode'));
+  }
+}
+
+function setPenColor(color, dotEl) {
+  penColor = color;
+  isEraser = false;
+  document.getElementById('eraser-btn').classList.remove('active');
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  dotEl.classList.add('active');
+}
+
+function cyclePenSize() {
+  currentSizeIndex = (currentSizeIndex + 1) % penSizes.length;
+  document.getElementById('pen-size-label').textContent = penSizes[currentSizeIndex];
+}
+
+function toggleEraser() {
+  isEraser = !isEraser;
+  const eraserBtn = document.getElementById('eraser-btn');
+  if (isEraser) eraserBtn.classList.add('active');
+  else eraserBtn.classList.remove('active');
+}
+
+function clearAllCanvases() {
+  canvases.forEach(c => {
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+  });
+}
+
+function selectChoice(btn) {
+  const parent = btn.closest('.choice');
+  parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected', 'is-correct', 'is-wrong'));
+  btn.classList.add('selected');
+}
+
+function rateStars(num, btn) {
+  const container = btn.closest('.star-rating');
+  const buttons = container.querySelectorAll('.star-btn');
+  buttons.forEach((b, idx) => {
+    if (idx < num) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+
+function checkAllAnswers() {
+  let total = 0, correct = 0;
+  const inputs = document.querySelectorAll('input[data-ans]');
+  inputs.forEach(input => {
+    total++;
+    const userVal = input.value.trim().replace(/\s+/g, ' ');
+    const accepted = input.getAttribute('data-ans').split('|').map(s => s.trim());
+    let isMatch = accepted.some(ans => userVal === ans || userVal.replace(/‌/g, '') === ans.replace(/‌/g, ''));
+    if (userVal && isMatch) {
+      correct++;
+      input.classList.remove('incorrect');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct');
+      if (userVal) input.classList.add('incorrect');
+    }
+  });
+
+  const choices = document.querySelectorAll('.choice');
+  choices.forEach(c => {
+    const selected = c.querySelector('.opt-btn.selected');
+    if (selected) {
+      total++;
+      if (selected.getAttribute('data-correct') === 'true') {
+        correct++;
+        selected.classList.add('is-correct');
+      } else {
+        selected.classList.add('is-wrong');
+      }
+    }
+  });
+  alert(`🎯 نتیجه بررسی کاربرگ:\nتعداد پاسخ‌های صحیح: ${correct} از ${total}\nنمره تقریبی: ${Math.round((correct/total)*100)} از ۱۰۰`);
+}
+
+function toggleAnswerKey() {
+  const p2Ans = document.getElementById('answer-p2');
+  const p3Ans = document.getElementById('answer-p3');
+  const isShown = p2Ans.classList.contains('show');
+  if (isShown) {
+    p2Ans.classList.remove('show');
+    p3Ans.classList.remove('show');
+  } else {
+    p2Ans.classList.add('show');
+    p3Ans.classList.add('show');
+  }
+}
+
+function resetWorksheet() {
+  if (confirm('آیا می‌خواهید تمام پاسخ‌ها و یادداشت‌های این کاربرگ پاک شوند؟')) {
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      el.value = '';
+      el.classList.remove('correct', 'incorrect');
+    });
+    document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected', 'is-correct', 'is-wrong'));
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    clearAllCanvases();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => { initCanvases(); });
+</script>
+
+</body>
+</html>

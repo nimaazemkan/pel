@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>کاربرگ بستگان و کلمه‌های مقصوره</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+@page{
+  size:A4;
+  margin:7mm;
+}
+
+body{
+  direction:rtl;
+  font-family:"Vazirmatn",Tahoma,sans-serif;
+  background:linear-gradient(135deg,#e1f5fe,#f3e5f5,#fff3e0);
+  color:#263238;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+
+.print-btn{
+  position:fixed;
+  z-index:100;
+  top:16px;
+  left:18px;
+  padding:10px 18px;
+  color:#fff;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:900;
+  cursor:pointer;
+  border:0;
+  border-radius:25px;
+  background:linear-gradient(135deg,#7b1fa2,#e91e63);
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+
+.print-btn:hover{
+  transform:scale(1.05);
+}
+
+.page{
+  width:210mm;
+  min-height:297mm;
+  margin:14px auto;
+  padding:7.5mm;
+  position:relative;
+  overflow:hidden;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 10px 35px rgba(0,0,0,.14);
+  page-break-after:always;
+}
+
+.page:last-of-type{
+  page-break-after:auto;
+}
+
+.content{
+  position:relative;
+  z-index:2;
+}
+
+.blob{
+  position:absolute;
+  z-index:0;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.blob.one{
+  width:230px;
+  height:230px;
+  top:-100px;
+  right:-90px;
+  background:radial-gradient(circle,rgba(233,30,99,.22),transparent 70%);
+}
+
+.blob.two{
+  width:270px;
+  height:270px;
+  bottom:-110px;
+  left:-100px;
+  background:radial-gradient(circle,rgba(0,188,212,.23),transparent 70%);
+}
+
+.blob.three{
+  width:190px;
+  height:190px;
+  top:42%;
+  left:-100px;
+  background:radial-gradient(circle,rgba(255,193,7,.20),transparent 70%);
+}
+
+.corner{
+  position:absolute;
+  z-index:1;
+  font-size:35px;
+  opacity:.18;
+}
+
+.top-right{top:8px;right:10px;}
+.top-left{top:8px;left:10px;}
+.bottom-right{bottom:8px;right:10px;}
+.bottom-left{bottom:8px;left:10px;}
+
+/* سربرگ */
+.header{
+  margin-bottom:9px;
+  padding:12px 17px 10px;
+  color:#fff;
+  text-align:center;
+  border:3px solid #fff;
+  border-radius:22px;
+  background:linear-gradient(
+    135deg,
+    #7b1fa2,
+    #3949ab,
+    #0288d1,
+    #00acc1,
+    #43a047
+  );
+  box-shadow:0 6px 17px rgba(0,0,0,.17);
+}
+
+.header h1{
+  font-size:21px;
+  font-weight:900;
+  text-shadow:1px 2px 3px rgba(0,0,0,.28);
+}
+
+.header p{
+  margin-top:3px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.header .emoji{
+  font-size:22px;
+}
+
+.header.small{
+  padding:9px 16px;
+  border-radius:17px;
+}
+
+.header.small h1{
+  font-size:18px;
+}
+
+/* مشخصات */
+.student-info{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:7px;
+  margin-bottom:9px;
+}
+
+.info-box{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  min-height:35px;
+  padding:6px 9px;
+  color:#00695c;
+  font-size:12px;
+  font-weight:700;
+  background:linear-gradient(135deg,#e0f7fa,#b2ebf2);
+  border:2px dashed #26a69a;
+  border-radius:11px;
+}
+
+.line{
+  flex:1;
+  height:18px;
+  border-bottom:2px dotted #00897b;
+}
+
+/* جعبه‌ی آموزش */
+.learn-box{
+  position:relative;
+  padding:13px 14px 10px;
+  margin:11px 0 8px;
+  background:linear-gradient(135deg,#fff8e1,#ffecb3);
+  border:3px solid #ffb300;
+  border-radius:18px;
+}
+
+.learn-badge{
+  position:absolute;
+  top:-13px;
+  right:16px;
+  padding:3px 13px;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  background:#ef6c00;
+  border:2px solid #fff;
+  border-radius:20px;
+  box-shadow:0 3px 7px rgba(0,0,0,.17);
+}
+
+.learn-box p{
+  font-size:12.5px;
+  font-weight:700;
+  line-height:1.9;
+}
+
+.highlight{
+  padding:1px 8px;
+  color:#fff;
+  border-radius:8px;
+}
+
+.h-pink{background:#e91e63;}
+.h-blue{background:#2196f3;}
+.h-green{background:#43a047;}
+.h-purple{background:#8e24aa;}
+.h-orange{background:#ef6c00;}
+
+.big-mark{
+  display:inline-block;
+  padding:0 10px;
+  color:#c2185b;
+  font-size:19px;
+  font-weight:900;
+  background:#fff;
+  border:2px solid #ec407a;
+  border-radius:10px;
+}
+
+.cmp-row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:7px;
+}
+
+.cmp{
+  padding:4px 13px;
+  font-size:13px;
+  font-weight:900;
+  border:2.5px solid;
+  border-radius:20px;
+}
+
+.cmp.c1{
+  color:#e65100;
+  background:#fff3e0;
+  border-color:#ff9800;
+}
+
+.cmp.c2{
+  color:#1565c0;
+  background:#e3f2fd;
+  border-color:#42a5f5;
+}
+
+/* عنوان بخش */
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin:9px 0 6px;
+  padding:7px 13px;
+  color:#fff;
+  font-size:13.5px;
+  font-weight:900;
+  border-radius:13px;
+  box-shadow:0 3px 8px rgba(0,0,0,.12);
+  break-inside:avoid;
+}
+
+.section-title small{
+  margin-right:auto;
+  padding:1px 8px;
+  font-size:10.5px;
+  background:rgba(255,255,255,.25);
+  border-radius:15px;
+  white-space:nowrap;
+}
+
+.purple{background:linear-gradient(135deg,#6a1b9a,#ab47bc);}
+.blue{background:linear-gradient(135deg,#0d47a1,#42a5f5);}
+.orange{background:linear-gradient(135deg,#e65100,#ff9800);}
+.green{background:linear-gradient(135deg,#1b5e20,#66bb6a);}
+.pink{background:linear-gradient(135deg,#ad1457,#ec407a);}
+.teal{background:linear-gradient(135deg,#00695c,#26a69a);}
+
+/* درخت بستگان */
+.tree-wrap{
+  padding:10px 6px 8px;
+  background:linear-gradient(180deg,#f3e5f5,#fff);
+  border:2.5px solid #ab47bc;
+  border-radius:16px;
+}
+
+.tree ul{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  list-style:none;
+  padding:16px 0 0;
+  margin:0;
+}
+
+.tree > ul{
+  padding-top:0;
+}
+
+.tree li{
+  position:relative;
+  flex:1 1 0;
+  padding:16px 3px 0;
+  text-align:center;
+}
+
+.tree > ul > li{
+  flex:0 1 auto;
+  width:100%;
+  padding-top:0;
+}
+
+.tree li::before,
+.tree li::after{
+  content:"";
+  position:absolute;
+  top:0;
+  width:50%;
+  height:16px;
+  border-top:2.5px solid #ab47bc;
+}
+
+.tree li::before{
+  right:50%;
+}
+
+.tree li::after{
+  left:50%;
+  border-left:2.5px solid #ab47bc;
+}
+
+.tree > ul > li::before,
+.tree > ul > li::after{
+  display:none;
+}
+
+.tree li:first-child::after{
+  display:none;
+}
+
+.tree li:first-child::before{
+  border-right:2.5px solid #ab47bc;
+  border-radius:0 10px 0 0;
+}
+
+.tree li:last-child::before{
+  display:none;
+}
+
+.tree li:last-child::after{
+  border-radius:10px 0 0 0;
+}
+
+.tree ul ul::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:50%;
+  height:16px;
+  margin-left:-1.25px;
+  border-left:2.5px solid #ab47bc;
+}
+
+.tree .side-f > ul::before,
+.tree .side-f > ul > li::before,
+.tree .side-f > ul > li::after{
+  border-color:#42a5f5;
+}
+
+.tree .side-m > ul::before,
+.tree .side-m > ul > li::before,
+.tree .side-m > ul > li::after{
+  border-color:#26a69a;
+}
+
+.node{
+  position:relative;
+  z-index:1;
+  display:inline-block;
+  padding:4px 10px;
+  font-weight:900;
+  background:#fff;
+  border:2.5px solid;
+  border-radius:14px;
+  box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+
+.node.root{
+  padding:6px 24px;
+  color:#fff;
+  font-size:17px;
+  background:linear-gradient(135deg,#ad1457,#ec407a);
+  border-color:#fff;
+}
+
+.node.parent{
+  padding:5px 20px;
+  font-size:15px;
+}
+
+.side-f > .node.parent{
+  color:#0d47a1;
+  background:#bbdefb;
+  border-color:#1e88e5;
+}
+
+.side-m > .node.parent{
+  color:#004d40;
+  background:#b2dfdb;
+  border-color:#00897b;
+}
+
+.node.leaf{
+  min-width:72px;
+  padding:4px 5px;
+  font-size:12.5px;
+}
+
+.side-f .node.leaf{
+  color:#0d47a1;
+  background:#e3f2fd;
+  border-color:#42a5f5;
+}
+
+.side-m .node.leaf{
+  color:#00695c;
+  background:#e0f2f1;
+  border-color:#26a69a;
+}
+
+.node.leaf small{
+  display:block;
+  margin-top:1px;
+  color:#546e7a;
+  font-size:9px;
+  font-weight:700;
+}
+
+.tree-legend{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-top:8px;
+}
+
+.tree-legend span{
+  padding:2px 12px;
+  font-size:11px;
+  font-weight:900;
+  border:2px solid;
+  border-radius:14px;
+}
+
+.tree-legend .lf{
+  color:#0d47a1;
+  background:#e3f2fd;
+  border-color:#42a5f5;
+}
+
+.tree-legend .lm{
+  color:#00695c;
+  background:#e0f2f1;
+  border-color:#26a69a;
+}
+
+/* کارت‌های واژه‌سازی */
+.mk-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
+}
+
+.mk-card{
+  padding:6px 4px 7px;
+  text-align:center;
+  background:#fff;
+  border:2.5px solid;
+  border-radius:13px;
+  box-shadow:0 3px 7px rgba(0,0,0,.07);
+  break-inside:avoid;
+}
+
+.mk-card:nth-child(5n+1){border-color:#ab47bc;background:linear-gradient(#f3e5f5,#fff);}
+.mk-card:nth-child(5n+2){border-color:#42a5f5;background:linear-gradient(#e3f2fd,#fff);}
+.mk-card:nth-child(5n+3){border-color:#26a69a;background:linear-gradient(#e0f2f1,#fff);}
+.mk-card:nth-child(5n+4){border-color:#ff9800;background:linear-gradient(#fff3e0,#fff);}
+.mk-card:nth-child(5n+5){border-color:#ec407a;background:linear-gradient(#fce4ec,#fff);}
+
+.mk-top{
+  color:#795548;
+  font-size:11.5px;
+  font-weight:700;
+}
+
+.mk-top b{
+  margin:0 3px;
+  color:#ef6c00;
+}
+
+.mk-res{
+  margin-top:3px;
+  font-size:16px;
+  font-weight:900;
+}
+
+.mk-res .p1{color:#1565c0;}
+.mk-res .p2{color:#d81b60;}
+
+/* کارت‌های مقصوره */
+.mq-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
+}
+
+.mq-card{
+  min-height:70px;
+  padding:6px 3px;
+  text-align:center;
+  background:#fff;
+  border:2.5px solid;
+  border-radius:13px;
+  box-shadow:0 3px 7px rgba(0,0,0,.07);
+  break-inside:avoid;
+}
+
+.mq-card:nth-child(5n+1){border-color:#ec407a;background:linear-gradient(#fce4ec,#fff);}
+.mq-card:nth-child(5n+2){border-color:#42a5f5;background:linear-gradient(#e3f2fd,#fff);}
+.mq-card:nth-child(5n+3){border-color:#66bb6a;background:linear-gradient(#e8f5e9,#fff);}
+.mq-card:nth-child(5n+4){border-color:#ffa726;background:linear-gradient(#fff3e0,#fff);}
+.mq-card:nth-child(5n+5){border-color:#ab47bc;background:linear-gradient(#f3e5f5,#fff);}
+
+.mq-card .icon{
+  font-size:19px;
+  line-height:1.1;
+}
+
+.mq-card .word{
+  margin-top:2px;
+  color:#263238;
+  font-size:19px;
+  font-weight:900;
+}
+
+.ya{
+  color:#d81b60;
+}
+
+.mq-card .read{
+  display:inline-block;
+  margin-top:3px;
+  padding:1px 8px;
+  color:#4a148c;
+  font-size:10px;
+  font-weight:700;
+  background:#f3e5f5;
+  border-radius:12px;
+}
+
+/* تمرین: حالا تو بگو */
+.say-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.say-card{
+  display:grid;
+  grid-template-columns:auto 30px 1fr;
+  grid-template-rows:1fr 1fr;
+  align-items:center;
+  column-gap:6px;
+  row-gap:6px;
+  padding:8px 10px;
+  background:linear-gradient(135deg,#fff8e1,#fff);
+  border:2.5px solid #ffb300;
+  border-radius:14px;
+  break-inside:avoid;
+}
+
+.say-card .sroot{
+  grid-row:1 / span 2;
+  padding:6px 16px;
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+  text-align:center;
+  background:linear-gradient(135deg,#ef6c00,#ffa726);
+  border-radius:16px;
+}
+
+.say-card .sarrow{
+  color:#ff9800;
+  font-size:20px;
+  font-weight:900;
+  text-align:center;
+}
+
+.say-card .sline{
+  height:24px;
+  border-bottom:2.5px dashed #f57c00;
+}
+
+.say-card .sfill{
+  display:flex;
+  align-items:flex-end;
+  height:24px;
+  padding-bottom:2px;
+  color:#bf360c;
+  font-size:14px;
+  font-weight:900;
+  border-bottom:2.5px dashed #f57c00;
+}
+
+/* تمرین: بساز */
+.build-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.build-card{
+  padding:7px 5px 8px;
+  text-align:center;
+  background:linear-gradient(135deg,#e3f2fd,#bbdefb);
+  border:2.5px solid #42a5f5;
+  border-radius:13px;
+  break-inside:avoid;
+}
+
+.build-card .q{
+  color:#0d47a1;
+  font-size:14px;
+  font-weight:900;
+}
+
+.build-card .q b{
+  color:#e91e63;
+}
+
+.build-card .q .bigw{
+  font-size:18px;
+}
+
+.answer-line{
+  width:84%;
+  height:24px;
+  margin:4px auto 0;
+  border-bottom:2.5px dashed #1976d2;
+}
+
+/* بانک و جمله */
+.bank{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:7px;
+  margin-bottom:7px;
+  background:linear-gradient(135deg,#fff8e1,#ffe0b2);
+  border:2px dashed #fb8c00;
+  border-radius:13px;
+}
+
+.bank span{
+  padding:2px 10px;
+  color:#e65100;
+  font-size:13px;
+  font-weight:900;
+  background:#fff;
+  border:1.8px solid #ff9800;
+  border-radius:18px;
+}
+
+.bank .label{
+  border:0;
+  background:transparent;
+}
+
+.sentence-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:7px;
+}
+
+.sentence{
+  display:flex;
+  gap:6px;
+  align-items:flex-start;
+  min-height:44px;
+  padding:7px 9px;
+  color:#33691e;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.9;
+  background:#fff;
+  border:2px solid #8bc34a;
+  border-radius:12px;
+  break-inside:avoid;
+}
+
+.number{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:21px;
+  height:21px;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  background:#ff7043;
+  border-radius:50%;
+}
+
+.sentence .number{
+  min-width:20px;
+  height:20px;
+  margin-top:2px;
+  font-size:10px;
+  background:#7cb342;
+}
+
+.blank{
+  display:inline-block;
+  min-width:72px;
+  height:19px;
+  border-bottom:2px dashed #558b2f;
+  vertical-align:middle;
+}
+
+/* سبدها */
+.basket-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.basket{
+  padding:8px 12px 10px;
+  border:2.5px solid;
+  border-radius:14px;
+  break-inside:avoid;
+}
+
+.basket h4{
+  margin-bottom:3px;
+  font-size:12.5px;
+  font-weight:900;
+  text-align:center;
+}
+
+.basket .writing-line{
+  height:22px;
+  border-bottom:2px dashed #90a4ae;
+}
+
+.basket.f{
+  color:#0d47a1;
+  background:linear-gradient(180deg,#e3f2fd,#fff);
+  border-color:#42a5f5;
+}
+
+.basket.m{
+  color:#00695c;
+  background:linear-gradient(180deg,#e0f2f1,#fff);
+  border-color:#26a69a;
+}
+
+.basket.e{
+  color:#e65100;
+  background:linear-gradient(180deg,#fff3e0,#fff);
+  border-color:#ff9800;
+}
+
+.basket.h{
+  color:#0d47a1;
+  background:linear-gradient(180deg,#e3f2fd,#fff);
+  border-color:#42a5f5;
+}
+
+/* انتخاب */
+.choice-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.choice{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:5px;
+  min-height:46px;
+  padding:6px;
+  background:#fff;
+  border:2.5px solid #ff7043;
+  border-radius:13px;
+  break-inside:avoid;
+}
+
+.opt{
+  padding:2px 10px;
+  color:#6a1b9a;
+  font-size:15px;
+  font-weight:900;
+  background:#f3e5f5;
+  border:1px dashed #ab47bc;
+  border-radius:14px;
+}
+
+/* رنگ‌آمیزی / علامت‌گذاری */
+.color-words{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:9px;
+}
+
+.color-word{
+  padding:5px 14px;
+  color:#263238;
+  font-size:19px;
+  font-weight:900;
+  background:#fff;
+  border:2.5px solid #78909c;
+  border-radius:23px;
+}
+
+.color-word .target{
+  padding:0 4px;
+  color:#d81b60;
+  border:2px dashed #8e24aa;
+  border-radius:6px;
+}
+
+/* خودت بنویس */
+.creative-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.creative-card{
+  padding:9px;
+  color:#4a148c;
+  font-size:11.5px;
+  font-weight:900;
+  line-height:1.7;
+  background:linear-gradient(135deg,#f3e5f5,#e1bee7);
+  border:2px solid #ab47bc;
+  border-radius:13px;
+  break-inside:avoid;
+}
+
+.creative-card .cline{
+  height:24px;
+  margin-top:5px;
+  border-bottom:2px dashed #8e24aa;
+}
+
+/* پانوشت */
+.footer{
+  margin-top:8px;
+  padding:8px;
+  text-align:center;
+  background:linear-gradient(135deg,#e8eaf6,#c5cae9);
+  border:2px solid #7986cb;
+  border-radius:13px;
+}
+
+.footer .creator{
+  color:#283593;
+  font-size:13px;
+  font-weight:900;
+}
+
+.footer .message{
+  margin-top:2px;
+  color:#3949ab;
+  font-size:10.5px;
+  font-weight:700;
+}
+
+.self-check{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:4px;
+  color:#283593;
+  font-size:11.5px;
+  font-weight:700;
+}
+
+.self-stars{
+  color:#ff9800;
+  font-size:23px;
+  letter-spacing:4px;
+}
+
+@media print{
+  body{
+    background:#fff;
+  }
+
+  .no-print{
+    display:none !important;
+  }
+
+  .page{
+    width:auto;
+    min-height:auto;
+    margin:0;
+    padding:0;
+    border-radius:0;
+    box-shadow:none;
+  }
+}
+
+@media(max-width:800px){
+  .page{
+    width:100%;
+    min-height:auto;
+    margin:0;
+    border-radius:0;
+  }
+
+  .student-info,
+  .say-grid,
+  .sentence-grid,
+  .choice-grid,
+  .creative-grid,
+  .basket-grid{
+    grid-template-columns:1fr;
+  }
+
+  .build-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .mk-grid,
+  .mq-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .tree-wrap{
+    overflow-x:auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<style>
+  /* ===== نوار ابزار تعاملی و شناور کاربرگ ===== */
+  .ws-toolbar {
+    position: sticky;
+    top: 10px;
+    z-index: 9999;
+    max-width: 900px;
+    margin: 10px auto 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 2px solid #8b5cf6;
+    border-radius: 16px;
+    padding: 10px 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    direction: rtl;
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+  }
+
+  .ws-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ws-btn {
+    background: #f3f4f6;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    color: #374151;
+  }
+
+  .ws-btn:hover {
+    background: #ede9fe;
+    border-color: #8b5cf6;
+    color: #6d28d9;
+    transform: translateY(-1px);
+  }
+
+  .ws-btn.active {
+    background: #7c3aed;
+    color: #ffffff;
+    border-color: #6d28d9;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  }
+
+  .ws-btn-print {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .ws-btn-print:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+  }
+
+  .ws-btn-ans {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+  }
+
+  .ws-btn-ans:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    color: white;
+  }
+
+  .color-picker-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1.5px #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s;
+  }
+
+  .color-picker-dot:hover {
+    transform: scale(1.2);
+  }
+
+  .color-picker-dot.active {
+    box-shadow: 0 0 0 2.5px #7c3aed;
+    transform: scale(1.2);
+  }
+
+  /* استایل اینپوت‌های کاربرگ */
+  input.ws-input {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    font-weight: 700;
+    color: #4338ca;
+    background: #f8fafc;
+    border: 1.5px solid #a5b4fc;
+    border-radius: 8px;
+    padding: 2px 8px;
+    text-align: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    direction: rtl;
+  }
+
+  input.ws-input:focus {
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    outline: none;
+  }
+
+  input.ws-input.info-input {
+    width: 140px;
+    height: 26px;
+    background: #ffffff;
+  }
+
+  input.ws-input.fill-blank-input {
+    width: 110px;
+    height: 28px;
+    font-size: 14px;
+    color: #6d28d9;
+    border-color: #c4b5fd;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  input.ws-input.build-ans-input {
+    width: 130px;
+    height: 28px;
+    font-size: 15px;
+    font-weight: 900;
+    color: #0284c7;
+    border-color: #7dd3fc;
+    margin-top: 4px;
+  }
+
+  input.ws-input.line-input {
+    width: 90%;
+    margin: 4px auto;
+    display: block;
+    height: 28px;
+    font-size: 13px;
+  }
+
+  /* هایلایت کلمات و گزینه‌ها */
+  .color-word, .opt, .choice .opt {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+
+  .color-word:hover, .opt:hover, .choice .opt:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  }
+
+  .color-word.active-colored {
+    background: #fef08a !important;
+    border-color: #eab308 !important;
+    color: #854d0e !important;
+    box-shadow: 0 0 0 3px #fde047 !important;
+  }
+
+  /* گزینه‌های انتخابی */
+  .opt.selected-right, .choice .opt.selected-right {
+    background: #dcfce7 !important;
+    border: 2px solid #22c55e !important;
+    color: #15803d !important;
+    font-weight: 900 !important;
+    border-radius: 8px;
+    padding: 2px 6px;
+  }
+
+  .opt.selected-wrong, .choice .opt.selected-wrong {
+    background: #fee2e2 !important;
+    border: 2px solid #ef4444 !important;
+    color: #b91c1c !important;
+    text-decoration: line-through !important;
+    border-radius: 8px;
+    padding: 2px 6px;
+  }
+
+  /* پاسخ‌نامه خودکار */
+  .ans-badge {
+    display: none;
+    background: #10b981;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 6px;
+    margin-right: 4px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .show-answers .ans-badge {
+    display: inline-block;
+  }
+
+  /* لایه رسم قلم */
+  .canvas-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .canvas-wrapper.drawing-active {
+    pointer-events: auto;
+    cursor: crosshair;
+  }
+
+  canvas.drawing-layer {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ستاره‌های خودارزیابی */
+  .self-stars span {
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+
+  .self-stars span.filled {
+    color: #f59e0b;
+  }
+
+  /* مخفی کردن دکمه پرینت قدیمی */
+  .print-btn {
+    display: none !important;
+  }
+
+  /* استایل چاپ */
+  @media print {
+    .ws-toolbar {
+      display: none !important;
+    }
+    body {
+      background: white !important;
+      padding: 0 !important;
+    }
+    .page {
+      margin: 0 !important;
+      padding: 6mm !important;
+      box-shadow: none !important;
+      page-break-after: always;
+      width: 100% !important;
+      min-height: auto !important;
+    }
+    input.ws-input {
+      border-bottom: 1.5px solid #000 !important;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+    }
+  }
+</style>
+
+<!-- نوار ابزار تعاملی بالای کاربرگ -->
+<div class="ws-toolbar no-print" id="wsToolbar">
+  <div class="ws-toolbar-group">
+    <button type="button" class="ws-btn ws-btn-print" onclick="window.print()" title="چاپ استاندارد A4 یا ذخیره به صورت PDF">
+      🖨️ چاپ کاربرگ (A4 / PDF)
+    </button>
+    <button type="button" class="ws-btn active" id="btnModeType" onclick="setMode('type')" title="تایپ کردن در جاهای خالی">
+      ⌨️ حالت تایپ
+    </button>
+    <button type="button" class="ws-btn" id="btnModeDraw" onclick="setMode('draw')" title="نوشتن و نقاشی با قلم نوری یا ماوس">
+      ✏️ حالت قلم دستی
+    </button>
+  </div>
+
+  <div class="ws-toolbar-group" id="drawingToolsGroup" style="display: none;">
+    <span style="font-size: 12px; font-weight: bold; color: #4b5563;">رنگ قلم:</span>
+    <button type="button" class="color-picker-dot active" style="background: #7c3aed;" onclick="setPenColor('#7c3aed', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #0284c7;" onclick="setPenColor('#0284c7', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #dc2626;" onclick="setPenColor('#dc2626', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #16a34a;" onclick="setPenColor('#16a34a', this)"></button>
+    <button type="button" class="color-picker-dot" style="background: #111827;" onclick="setPenColor('#111827', this)"></button>
+
+    <button type="button" class="ws-btn" id="btnEraser" onclick="toggleEraser()">
+      🧹 پاک‌کن
+    </button>
+    <button type="button" class="ws-btn" onclick="clearCurrentCanvas()" style="color: #dc2626;">
+      🗑️ پاک کردن کل دست‌خط
+    </button>
+  </div>
+
+  <div class="ws-toolbar-group">
+    <button type="button" class="ws-btn ws-btn-ans" onclick="toggleAnswerKey()" title="مشاهده کلید پاسخ‌ها و راهنمای معلم">
+      💡 پاسخ‌نامه و راهنما
+    </button>
+    <button type="button" class="ws-btn" onclick="resetWorksheet()" title="خالی کردن تمام فیلدها">
+      🔄 بازنشانی
+    </button>
+  </div>
+</div>
+
+<script>
+  let currentMode = 'type';
+  let penColor = '#7c3aed';
+  let penSize = 3;
+  let isEraser = false;
+
+  function initWorksheet() {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach((page, index) => {
+      if (page.querySelector('.canvas-wrapper')) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'canvas-wrapper';
+      wrapper.id = 'canvasWrapper_' + index;
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'drawing-layer';
+      canvas.id = 'drawingCanvas_' + index;
+
+      wrapper.appendChild(canvas);
+      page.appendChild(wrapper);
+
+      setupCanvas(canvas, wrapper);
+    });
+
+    // تمرین ۲ صفحه ۳: افزودن علامت الف مقصوره
+    document.querySelectorAll('.color-words .color-word').forEach(el => {
+      el.addEventListener('click', function() {
+        this.classList.toggle('active-colored');
+        const target = this.querySelector('.target');
+        if (target) {
+          if (this.classList.contains('active-colored')) {
+            target.textContent = 'یٰ';
+          } else {
+            target.textContent = 'ی';
+          }
+        }
+        saveState();
+      });
+    });
+
+    // تمرین‌های تستی ۴ و ۵ صفحه ۳
+    document.querySelectorAll('.choice .opt').forEach(op => {
+      op.addEventListener('click', function() {
+        const parent = this.closest('.choice');
+        parent.querySelectorAll('.opt').forEach(o => o.classList.remove('selected-right', 'selected-wrong'));
+        const text = this.textContent.trim();
+        
+        // Ex 4: موسی, عیسی, مجتبی
+        // Ex 5: موسیٰ, عیسیٰ, مصطفیٰ, کبریٰ, مرتضیٰ, مجتبیٰ
+        if (text === 'موسی' || text === 'عیسی' || text === 'مجتبی' || text === 'موسیٰ' || text === 'عیسیٰ' || text === 'مصطفیٰ' || text === 'کبریٰ' || text === 'مرتضیٰ' || text === 'مجتبیٰ') {
+          this.classList.add('selected-right');
+        } else {
+          this.classList.add('selected-wrong');
+        }
+        saveState();
+      });
+    });
+
+    // ذخیره خودکار اینپوت‌ها
+    document.querySelectorAll('input.ws-input').forEach(input => {
+      input.addEventListener('input', saveState);
+    });
+
+    loadState();
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    const btnType = document.getElementById('btnModeType');
+    const btnDraw = document.getElementById('btnModeDraw');
+    const drawGroup = document.getElementById('drawingToolsGroup');
+
+    if (mode === 'draw') {
+      btnDraw.classList.add('active');
+      btnType.classList.remove('active');
+      drawGroup.style.display = 'flex';
+      document.querySelectorAll('.canvas-wrapper').forEach(w => w.classList.add('drawing-active'));
+    } else {
+      btnType.classList.add('active');
+      btnDraw.classList.remove('active');
+      drawGroup.style.display = 'none';
+      document.querySelectorAll('.canvas-wrapper').forEach(w => w.classList.remove('drawing-active'));
+    }
+  }
+
+  function setPenColor(color, btn) {
+    penColor = color;
+    isEraser = false;
+    document.getElementById('btnEraser').classList.remove('active');
+    document.querySelectorAll('.color-picker-dot').forEach(d => d.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  function toggleEraser() {
+    isEraser = !isEraser;
+    const btn = document.getElementById('btnEraser');
+    if (isEraser) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  }
+
+  function setupCanvas(canvas, wrapper) {
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function resize() {
+      const rect = wrapper.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    setTimeout(resize, 100);
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function startDraw(e) {
+      if (currentMode !== 'draw') return;
+      resize();
+      isDrawing = true;
+      const pos = getCoords(e);
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function draw(e) {
+      if (!isDrawing || currentMode !== 'draw') return;
+      e.preventDefault();
+      const pos = getCoords(e);
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = 18;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSize;
+      }
+
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function stopDraw() {
+      if (isDrawing) {
+        isDrawing = false;
+        saveState();
+      }
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDraw);
+
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('touchend', stopDraw);
+  }
+
+  function clearCurrentCanvas() {
+    if (confirm('آیا مایلید تمام دست‌خط‌ها و نقاشی‌های این صفحه پاک شوند؟')) {
+      document.querySelectorAll('canvas.drawing-layer').forEach(c => {
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, c.width, c.height);
+      });
+      saveState();
+    }
+  }
+
+  function toggleAnswerKey() {
+    document.body.classList.toggle('show-answers');
+  }
+
+  function resetWorksheet() {
+    if (confirm('آیا می‌خواهید تمام پاسخ‌ها و نوشته‌ها بازنشانی شوند؟')) {
+      document.querySelectorAll('input.ws-input').forEach(i => i.value = '');
+      document.querySelectorAll('.selected-right, .selected-wrong, .active-colored').forEach(el => {
+        el.classList.remove('selected-right', 'selected-wrong', 'active-colored');
+      });
+      document.querySelectorAll('.color-words .color-word .target').forEach(t => t.textContent = 'ی');
+      clearCurrentCanvas();
+      localStorage.removeItem('ws_data_' + window.location.pathname);
+    }
+  }
+
+  function saveState() {
+    try {
+      const data = {
+        inputs: {},
+        colored: []
+      };
+      document.querySelectorAll('input.ws-input').forEach((input, i) => {
+        data.inputs[input.id || ('input_' + i)] = input.value;
+      });
+      document.querySelectorAll('.active-colored').forEach((el) => {
+        data.colored.push(el.innerText || el.textContent);
+      });
+      localStorage.setItem('ws_data_' + window.location.pathname, JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem('ws_data_' + window.location.pathname);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.inputs) {
+        Object.keys(data.inputs).forEach((key, i) => {
+          const el = document.getElementById(key) || document.querySelectorAll('input.ws-input')[i];
+          if (el) el.value = data.inputs[key];
+        });
+      }
+    } catch(e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', initWorksheet);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initWorksheet();
+  }
+</script>
+
+
+<button class="print-btn no-print" onclick="window.print()">
+  🖨️ چاپ کاربرگ
+</button>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی اول: آموزش                                    -->
+<!-- ===================================================== -->
+
+<section class="page">
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌈</div>
+  <div class="corner top-left">🦋</div>
+  <div class="corner bottom-right">🌸</div>
+  <div class="corner bottom-left">⭐</div>
+
+  <div class="content">
+
+    <header class="header">
+      <div class="emoji">👨‍👩‍👧‍👦 🌳 بستگان 🌳 &nbsp;|&nbsp; ✏️ موسیٰ ✏️</div>
+      <h1>کاربرگ آموزشی بستگان و کلمه‌های مقصوره</h1>
+      <p>فارسی پایه‌ی دوم دبستان ـ بخوان، پیدا کن و بنویس!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="ws-input info-input" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" class="ws-input info-input" placeholder="دوم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="ws-input info-input" placeholder="۱۴۰۳/...">
+      </div>
+    </div>
+
+    <div class="learn-box">
+      <div class="learn-badge">💡 یاد بگیریم</div>
+
+      <p>
+        بچّه‌های عزیز! به کسانی که با ما نسبتِ خانوادگی دارند،
+        <span class="highlight h-pink">بستگان</span>
+        یا
+        <span class="highlight h-pink">خویشاوندان</span>
+        می‌گوییم. بعضی از بستگان از طرفِ
+        <span class="highlight h-blue">پدر</span>
+        و بعضی از طرفِ
+        <span class="highlight h-green">مادر</span>
+        هستند. مثلاً برادرِ پدر، <b>عمو</b> و برادرِ مادر، <b>دایی</b> است.
+      </p>
+    </div>
+
+    <div class="section-title purple">
+      <span>🌳</span>
+      درختِ بستگان: ببین هر کس از طرفِ چه کسی با ما نسبت دارد.
+      <small>بستگان</small>
+    </div>
+
+    <div class="tree-wrap">
+      <div class="tree">
+        <ul>
+          <li>
+            <div class="node root">بستگان</div>
+            <ul>
+
+              <li class="side-f">
+                <div class="node parent">پدر</div>
+                <ul>
+                  <li><div class="node leaf">پدربزرگ<small>پدرِ پدر</small></div></li>
+                  <li><div class="node leaf">مادربزرگ<small>مادرِ پدر</small></div></li>
+                  <li><div class="node leaf">عمو<small>برادرِ پدر</small></div></li>
+                  <li><div class="node leaf">عمّه<small>خواهرِ پدر</small></div></li>
+                </ul>
+              </li>
+
+              <li class="side-m">
+                <div class="node parent">مادر</div>
+                <ul>
+                  <li><div class="node leaf">پدربزرگ<small>پدرِ مادر</small></div></li>
+                  <li><div class="node leaf">مادربزرگ<small>مادرِ مادر</small></div></li>
+                  <li><div class="node leaf">دایی<small>برادرِ مادر</small></div></li>
+                  <li><div class="node leaf">خاله<small>خواهرِ مادر</small></div></li>
+                </ul>
+              </li>
+
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="tree-legend">
+        <span class="lf">🔵 بستگان از طرفِ پدر</span>
+        <span class="lm">🟢 بستگان از طرفِ مادر</span>
+      </div>
+    </div>
+
+    <div class="section-title blue">
+      <span>🧩</span>
+      واژه‌سازی: با کنار هم گذاشتنِ دو کلمه، نامِ بستگانِ دیگر را می‌سازیم.
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="mk-grid">
+
+      <div class="mk-card">
+        <div class="mk-top">پسر <b>+</b> عمو</div>
+        <div class="mk-res"><span class="p1">پسر</span><span class="p2">عمو</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">دختر <b>+</b> عمو</div>
+        <div class="mk-res"><span class="p1">دختر</span><span class="p2">عمو</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">پسر <b>+</b> عمّه</div>
+        <div class="mk-res"><span class="p1">پسر</span><span class="p2">عمّه</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">دختر <b>+</b> عمّه</div>
+        <div class="mk-res"><span class="p1">دختر</span><span class="p2">عمّه</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">پدر <b>+</b> بزرگ</div>
+        <div class="mk-res"><span class="p1">پدر</span><span class="p2">بزرگ</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">پسر <b>+</b> خاله</div>
+        <div class="mk-res"><span class="p1">پسر</span><span class="p2">خاله</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">دختر <b>+</b> خاله</div>
+        <div class="mk-res"><span class="p1">دختر</span><span class="p2">خاله</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">پسر <b>+</b> دایی</div>
+        <div class="mk-res"><span class="p1">پسر</span><span class="p2">دایی</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">دختر <b>+</b> دایی</div>
+        <div class="mk-res"><span class="p1">دختر</span><span class="p2">دایی</span></div>
+      </div>
+
+      <div class="mk-card">
+        <div class="mk-top">مادر <b>+</b> بزرگ</div>
+        <div class="mk-res"><span class="p1">مادر</span><span class="p2">بزرگ</span></div>
+      </div>
+
+    </div>
+
+    <div class="learn-box">
+      <div class="learn-badge">💡 بیاموز و بگو</div>
+
+      <p>
+        به این کلمه‌ها توجّه کن:
+        <b>کبری، عیسی، مصطفی، یحیی، مجتبی، مرتضی.</b>
+        حرفِ «ی» در پایانِ این کلمه‌ها صدای
+        <span class="highlight h-purple">«آ»</span>
+        می‌دهد. برای اینکه این کلمه‌ها را درست بخوانیم، روی حرفِ «ی»
+        علامتِ
+        <span class="big-mark">ٰ</span>
+        می‌گذاریم؛ مانند:
+        <b>موسیٰ</b>.
+        به این «ی» که صدای «آ» می‌دهد،
+        <span class="highlight h-orange">الف مقصوره</span>
+        می‌گوییم.
+      </p>
+
+      <div class="cmp-row">
+        <span class="cmp c1">علی ← «ی» صدای «ی» می‌دهد</span>
+        <span class="cmp c2">موسیٰ ← «ی» صدای «آ» می‌دهد</span>
+      </div>
+    </div>
+
+    <div class="section-title pink">
+      <span>🔤</span>
+      کلمه‌های مقصوره را بخوان.
+      <small>«ی» = صدای «آ»</small>
+    </div>
+
+    <div class="mq-grid">
+
+      <div class="mq-card">
+        <div class="icon">👧</div>
+        <div class="word">کبر<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: کُبرا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👦</div>
+        <div class="word">عیس<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: عیسا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👦</div>
+        <div class="word">مصطف<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: مصطفا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👦</div>
+        <div class="word">یحی<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: یحیا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👦</div>
+        <div class="word">مجتب<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: مجتبا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👦</div>
+        <div class="word">مرتض<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: مرتضا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👦</div>
+        <div class="word">موس<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: موسا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👧</div>
+        <div class="word">صغر<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: صُغرا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">👧</div>
+        <div class="word">طوب<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: طوبا</div>
+      </div>
+
+      <div class="mq-card">
+        <div class="icon">💬</div>
+        <div class="word">حتّ<span class="ya">یٰ</span></div>
+        <div class="read">می‌خوانیم: حتّا</div>
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      <div class="creator">🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان</div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی دوم: تمرین‌های بستگان                          -->
+<!-- ===================================================== -->
+
+<section class="page">
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌻</div>
+  <div class="corner top-left">🎈</div>
+  <div class="corner bottom-right">🍀</div>
+  <div class="corner bottom-left">🌟</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 تمرین‌های بستگان</h1>
+      <p>بستگانت را بشناس و نامشان را بساز!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="ws-input info-input" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" class="ws-input info-input" placeholder="دوم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="ws-input info-input" placeholder="۱۴۰۳/...">
+      </div>
+    </div>
+
+    <div class="section-title orange">
+      <span>🗣️</span>
+      تمرین ۱: مانندِ نمونه، فرزندانِ هر یک از بستگان را بنویس.
+      <small>حالا تو بگو</small>
+    </div>
+
+    <div class="say-grid">
+
+      <div class="say-card">
+        <div class="sroot">عمو</div>
+        <div class="sarrow">←</div>
+        <div class="sfill">پسرعمو</div>
+        <div class="sarrow">←</div>
+        <input type="text" class="ws-input fill-blank-input" placeholder="دخترعمو" data-ans="دخترعمو">
+        <span class="ans-badge">✓ دخترعمو</span>
+      </div>
+
+      <div class="say-card">
+        <div class="sroot">خاله</div>
+        <div class="sarrow">←</div>
+        <input type="text" class="ws-input fill-blank-input" placeholder="پسرخاله" data-ans="پسرخاله">
+        <div class="sarrow">←</div>
+        <input type="text" class="ws-input fill-blank-input" placeholder="دخترخاله" data-ans="دخترخاله">
+        <span class="ans-badge">✓ پسرخاله / دخترخاله</span>
+      </div>
+
+      <div class="say-card">
+        <div class="sroot">عمّه</div>
+        <div class="sarrow">←</div>
+        <input type="text" class="ws-input fill-blank-input" placeholder="پسرعمّه" data-ans="پسرعمّه">
+        <div class="sarrow">←</div>
+        <input type="text" class="ws-input fill-blank-input" placeholder="دخترعمّه" data-ans="دخترعمّه">
+        <span class="ans-badge">✓ پسرعمّه / دخترعمّه</span>
+      </div>
+
+      <div class="say-card">
+        <div class="sroot">دایی</div>
+        <div class="sarrow">←</div>
+        <div class="sfill">دختردایی</div>
+        <div class="sarrow">←</div>
+        <input type="text" class="ws-input fill-blank-input" placeholder="پسردایی" data-ans="پسردایی">
+        <span class="ans-badge">✓ پسردایی</span>
+      </div>
+
+    </div>
+
+    <div class="section-title blue">
+      <span>🧩</span>
+      تمرین ۲: کلمه‌ها را کنار هم بگذار و نامِ بستگان را بساز.
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="build-grid">
+
+      <div class="build-card">
+        <div class="q">پدر + <b>بزرگ</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="پدربزرگ" data-ans="پدربزرگ">
+        <div class="ans-badge">✓ پدربزرگ</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q">مادر + <b>بزرگ</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="مادربزرگ" data-ans="مادربزرگ">
+        <div class="ans-badge">✓ مادربزرگ</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q">پسر + <b>خاله</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="پسرخاله" data-ans="پسرخاله">
+        <div class="ans-badge">✓ پسرخاله</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q">دختر + <b>عمو</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="دخترعمو" data-ans="دخترعمو">
+        <div class="ans-badge">✓ دخترعمو</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q">پسر + <b>عمّه</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="پسرعمّه" data-ans="پسرعمّه">
+        <div class="ans-badge">✓ پسرعمّه</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q">دختر + <b>دایی</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="دختردایی" data-ans="دختردایی">
+        <div class="ans-badge">✓ دختردایی</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q">پسر + <b>دایی</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="پسردایی" data-ans="پسردایی">
+        <div class="ans-badge">✓ پسردایی</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q">دختر + <b>خاله</b> =</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="دخترخاله" data-ans="دخترخاله">
+        <div class="ans-badge">✓ دخترخاله</div>
+      </div>
+
+    </div>
+
+    <div class="section-title teal">
+      <span>🧺</span>
+      تمرین ۳: هر یک از بستگان را در سبدِ خودش بنویس.
+      <small>از طرفِ پدر یا مادر؟</small>
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی کلمه‌ها:</span>
+      <span>عمو</span>
+      <span>دایی</span>
+      <span>عمّه</span>
+      <span>خاله</span>
+      <span>پسرعمو</span>
+      <span>دخترخاله</span>
+      <span>پسردایی</span>
+      <span>دخترعمّه</span>
+    </div>
+
+    <div class="basket-grid">
+
+      <div class="basket f">
+        <h4>🔵 بستگان از طرفِ پدر</h4>
+        <input type="text" class="ws-input line-input" placeholder="عمو" data-ans="عمو">
+<input type="text" class="ws-input line-input" placeholder="عمّه" data-ans="عمّه">
+<input type="text" class="ws-input line-input" placeholder="پسرعمو" data-ans="پسرعمو">
+<input type="text" class="ws-input line-input" placeholder="دخترعمّه" data-ans="دخترعمّه">
+        <div class="ans-badge">✓ عمو، عمّه، پسرعمو، دخترعمّه</div>
+      </div>
+
+      <div class="basket m">
+        <h4>🟢 بستگان از طرفِ مادر</h4>
+        <input type="text" class="ws-input line-input" placeholder="دایی" data-ans="دایی">
+<input type="text" class="ws-input line-input" placeholder="خاله" data-ans="خاله">
+<input type="text" class="ws-input line-input" placeholder="پسردایی" data-ans="پسردایی">
+<input type="text" class="ws-input line-input" placeholder="دخترخاله" data-ans="دخترخاله">
+        <div class="ans-badge">✓ دایی، خاله، پسردایی، دخترخاله</div>
+      </div>
+
+    </div>
+
+    <div class="section-title green">
+      <span>✏️</span>
+      تمرین ۴: جای خالی را با نامِ درستِ بستگان کامل کن.
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی کلمه‌ها:</span>
+      <span>عمو</span>
+      <span>خاله</span>
+      <span>دایی</span>
+      <span>عمّه</span>
+    </div>
+
+    <div class="sentence-grid">
+
+      <div class="sentence">
+        <span class="number">1</span>
+        <span>برادرِ پدرم، <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="عمو"><span class="ans-badge">✓ عمو</span> من است.</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">2</span>
+        <span>خواهرِ مادرم، <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="خاله"><span class="ans-badge">✓ خاله</span> من است.</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">3</span>
+        <span>برادرِ مادرم، <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="دایی"><span class="ans-badge">✓ دایی</span> من است.</span>
+      </div>
+
+      <div class="sentence">
+        <span class="number">4</span>
+        <span>خواهرِ پدرم، <input type="text" class="ws-input fill-blank-input" placeholder="پاسخ..." data-ans="عمّه"><span class="ans-badge">✓ عمّه</span> من است.</span>
+      </div>
+
+    </div>
+
+    <div class="section-title pink">
+      <span>⭐</span>
+      تمرین ۵: خودت بنویس.
+    </div>
+
+    <div class="creative-grid">
+
+      <div class="creative-card">نامِ پدربزرگ و مادربزرگت را بنویس:<input type="text" class="ws-input line-input" placeholder="پدربزرگ: ..."><input type="text" class="ws-input line-input" placeholder="مادربزرگ: ..."><div class="ans-badge">✓ نام پدربزرگ و مادربزرگ خود را بنویسید.</div></div>
+
+      <div class="creative-card">نامِ یکی از بستگانت را بنویس و نسبتش را بگو:<input type="text" class="ws-input line-input" placeholder="مثال: علی - دایی من"><div class="ans-badge">✓ مثال: رضا - عموی من</div></div>
+
+      <div class="creative-card">با «پسرخاله» یا «دخترعمو» جمله بساز:<input type="text" class="ws-input line-input" placeholder="جمله خود را بنویسید..."><div class="ans-badge">✓ مثال: من و پسرخاله‌ام با هم بازی می‌کنیم.</div></div>
+
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <span class="self-stars" style="cursor:pointer;"><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 0 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 1 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 2 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 3 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 4 ? '★' : '☆')">☆</span></span>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو دانش‌آموز پرتلاش! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی سوم: تمرین‌های کلمه‌های مقصوره                  -->
+<!-- ===================================================== -->
+
+<section class="page">
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌼</div>
+  <div class="corner top-left">🎨</div>
+  <div class="corner bottom-right">🌷</div>
+  <div class="corner bottom-left">✨</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 تمرین‌های کلمه‌های مقصوره</h1>
+      <p>«ی» که صدای «آ» می‌دهد!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="ws-input info-input" placeholder="نام دانش‌آموز...">
+      </div>
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" class="ws-input info-input" placeholder="دوم...">
+      </div>
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="ws-input info-input" placeholder="۱۴۰۳/...">
+      </div>
+    </div>
+
+    <div class="section-title purple">
+      <span>🔊</span>
+      تمرین ۱: کلمه‌ها را بخوان و همان‌طور که می‌شنوی بنویس.
+      <small>مانند: موسیٰ ← موسا</small>
+    </div>
+
+    <div class="build-grid">
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">عیس<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="عیسا" data-ans="عیسا">
+        <div class="ans-badge">✓ عیسا</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">کبر<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="کبرا" data-ans="کبرا">
+        <div class="ans-badge">✓ کبرا</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">مصطف<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="مصطفا" data-ans="مصطفا">
+        <div class="ans-badge">✓ مصطفا</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">یحی<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="یحیا" data-ans="یحیا">
+        <div class="ans-badge">✓ یحیا</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">مجتب<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="مجتبا" data-ans="مجتبا">
+        <div class="ans-badge">✓ مجتبا</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">مرتض<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="مرتضا" data-ans="مرتضا">
+        <div class="ans-badge">✓ مرتضا</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">صغر<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="صغرا" data-ans="صغرا">
+        <div class="ans-badge">✓ صغرا</div>
+      </div>
+
+      <div class="build-card">
+        <div class="q"><span class="bigw">طوب<b>یٰ</b></span> ←</div>
+        <input type="text" class="ws-input build-ans-input" placeholder="طوبا" data-ans="طوبا">
+        <div class="ans-badge">✓ طوبا</div>
+      </div>
+
+    </div>
+
+    <div class="section-title orange">
+      <span>✍️</span>
+      تمرین ۲: روی «ی» آخرِ این کلمه‌ها علامتِ «ٰ» بگذار تا درست خوانده شوند.
+    </div>
+
+    <div class="color-words">
+      <span class="color-word">کبر<span class="target">ی</span></span>
+      <span class="color-word">عیس<span class="target">ی</span></span>
+      <span class="color-word">مصطف<span class="target">ی</span></span>
+      <span class="color-word">یحی<span class="target">ی</span></span>
+      <span class="color-word">مجتب<span class="target">ی</span></span>
+      <span class="color-word">مرتض<span class="target">ی</span></span>
+    </div>
+
+    <div class="section-title teal">
+      <span>🧺</span>
+      تمرین ۳: کلمه‌ها را در سبدِ درست بنویس.
+      <small>صدای «ی» یا صدای «آ»؟</small>
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی کلمه‌ها:</span>
+      <span>علی</span>
+      <span>موسی</span>
+      <span>مهدی</span>
+      <span>عیسی</span>
+      <span>بازی</span>
+      <span>کبری</span>
+      <span>ماهی</span>
+      <span>مصطفی</span>
+    </div>
+
+    <div class="basket-grid">
+
+      <div class="basket e">
+        <h4>🟠 «ی» در آخر این کلمه‌ها صدای «ی» می‌دهد</h4>
+        <input type="text" class="ws-input line-input" placeholder="علی" data-ans="علی">
+<input type="text" class="ws-input line-input" placeholder="مهدی" data-ans="مهدی">
+<input type="text" class="ws-input line-input" placeholder="بازی" data-ans="بازی">
+<input type="text" class="ws-input line-input" placeholder="ماهی" data-ans="ماهی">
+        <div class="ans-badge">✓ علی، مهدی، بازی، ماهی</div>
+      </div>
+
+      <div class="basket h">
+        <h4>🔵 «ی» در آخر این کلمه‌ها صدای «آ» می‌دهد</h4>
+        <input type="text" class="ws-input line-input" placeholder="موسی" data-ans="موسی">
+<input type="text" class="ws-input line-input" placeholder="عیسی" data-ans="عیسی">
+<input type="text" class="ws-input line-input" placeholder="کبری" data-ans="کبری">
+<input type="text" class="ws-input line-input" placeholder="مصطفی" data-ans="مصطفی">
+        <div class="ans-badge">✓ موسی، عیسی، کبری، مصطفی</div>
+      </div>
+
+    </div>
+
+    <div class="section-title green">
+      <span>⭕</span>
+      تمرین ۴: دورِ کلمه‌ای که «ی» آخرش صدای «آ» می‌دهد خط بکش.
+    </div>
+
+    <div class="choice-grid">
+
+      <div class="choice">
+        <span class="number">۱</span>
+        <span class="opt">علی</span>
+        <span>یا</span>
+        <span class="opt">موسی</span>
+      </div>
+
+      <div class="choice">
+        <span class="number">۲</span>
+        <span class="opt">عیسی</span>
+        <span>یا</span>
+        <span class="opt">مهدی</span>
+      </div>
+
+      <div class="choice">
+        <span class="number">۳</span>
+        <span class="opt">کشتی</span>
+        <span>یا</span>
+        <span class="opt">مجتبی</span>
+      </div>
+
+    </div>
+
+    <div class="section-title blue">
+      <span>🔍</span>
+      تمرین ۵: شکلِ درستِ نوشتنِ هر کلمه را پیدا کن و دورِ آن خط بکش.
+      <small>املا</small>
+    </div>
+
+    <div class="choice-grid">
+
+      <div class="choice">
+        <span class="number">۱</span>
+        <span class="opt">موسا</span>
+        <span>یا</span>
+        <span class="opt">موسیٰ</span>
+      </div>
+
+      <div class="choice">
+        <span class="number">۲</span>
+        <span class="opt">عیسیٰ</span>
+        <span>یا</span>
+        <span class="opt">عیسا</span>
+      </div>
+
+      <div class="choice">
+        <span class="number">۳</span>
+        <span class="opt">مصطفا</span>
+        <span>یا</span>
+        <span class="opt">مصطفیٰ</span>
+      </div>
+
+      <div class="choice">
+        <span class="number">۴</span>
+        <span class="opt">کبریٰ</span>
+        <span>یا</span>
+        <span class="opt">کبرا</span>
+      </div>
+
+      <div class="choice">
+        <span class="number">۵</span>
+        <span class="opt">مرتضا</span>
+        <span>یا</span>
+        <span class="opt">مرتضیٰ</span>
+      </div>
+
+      <div class="choice">
+        <span class="number">۶</span>
+        <span class="opt">مجتبیٰ</span>
+        <span>یا</span>
+        <span class="opt">مجتبا</span>
+      </div>
+
+    </div>
+
+    <div class="section-title pink">
+      <span>⭐</span>
+      تمرین ۶: خودت بنویس.
+      <small>حالا بگو</small>
+    </div>
+
+    <div class="creative-grid">
+
+      <div class="creative-card">کلمه‌ای با الف مقصوره از کتاب فارسی بنویس:<input type="text" class="ws-input line-input" placeholder="مثال: مصطفیٰ"><div class="ans-badge">✓ مثال: عیسیٰ / حتیٰ</div></div>
+
+      <div class="creative-card">نام دو نفر با الف مقصوره بنویس:<input type="text" class="ws-input line-input" placeholder="مثال: مرتضیٰ"><input type="text" class="ws-input line-input" placeholder="مثال: مجتبیٰ"><div class="ans-badge">✓ مرتضیٰ ، مجتبیٰ</div></div>
+
+      <div class="creative-card">با یکی از این نام‌ها جمله بساز:<input type="text" class="ws-input line-input" placeholder="جمله خود را بنویسید..."><div class="ans-badge">✓ مثال: مصطفیٰ دانش‌آموزی کوشا و باادب است.</div></div>
+
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <span class="self-stars" style="cursor:pointer;"><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 0 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 1 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 2 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 3 ? '★' : '☆')">☆</span><span onclick="this.parentElement.querySelectorAll('span').forEach((s, idx)=>s.innerHTML = idx <= 4 ? '★' : '☆')">☆</span></span>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو دانش‌آموز دانا و پرتلاش! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>کاربرگ پسوند «ـ کش» و معرفی زمان گذشته — فارسی سوم دبستان (درس ششم: فداکاران)</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --primary-color: #b91c1c;       /* سرخ آتشین و ایثار */
+  --secondary-color: #047857;     /* سبز شادابی و افتخار */
+  --accent-color: #d97706;        /* طلایی کهربایی */
+  --purple-color: #6d28d9;        /* بنفش تیره */
+  --blue-color: #0369a1;          /* آبی اقیانوسی */
+  --text-dark: #1f2937;
+  --bg-card: #fef2f2;
+}
+
+@page{
+  size: A4 portrait;
+  margin: 7mm;
+}
+
+body{
+  direction: rtl;
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #fee2e2, #ecfdf5, #eff6ff);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  line-height: 1.55;
+}
+
+/* =====================================================
+   نوار ابزار تعاملی معلق (Floating Action Bar)
+===================================================== */
+.floating-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  border: 2px solid #fca5a5;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-print { background: linear-gradient(135deg, #b91c1c, #d97706); }
+.btn-draw { background: linear-gradient(135deg, #0369a1, #047857); }
+.btn-draw.active { background: linear-gradient(135deg, #dc2626, #ea580c); box-shadow: 0 0 10px #ea580c; }
+.btn-check { background: linear-gradient(135deg, #047857, #10b981); }
+.btn-answer { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.btn-reset { background: linear-gradient(135deg, #475569, #64748b); }
+
+/* پالت رنگ و کنترل نقاشی */
+.draw-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #fee2e2;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #fca5a5;
+}
+
+.draw-controls.show {
+  display: inline-flex;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+
+.color-dot:hover, .color-dot.active {
+  transform: scale(1.25);
+  border-color: #1f2937;
+}
+
+.pen-size-btn, .eraser-btn, .clear-canvas-btn {
+  background: #fff;
+  border: 1px solid #fca5a5;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #991b1b;
+}
+
+.eraser-btn.active {
+  background: #fecaca;
+  border-color: #dc2626;
+}
+
+/* =====================================================
+   چیدمان صفحه‌ها (A4 Pages Layout)
+===================================================== */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 18px auto 28px;
+  padding: 7.5mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+  page-break-after: always;
+}
+
+.page:last-of-type {
+  page-break-after: auto;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+}
+
+/* بوم نقاشی قلم نوری */
+.draw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.draw-canvas.active-mode {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+/* تزیینات پس‌زمینه */
+.blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.blob.one {
+  width: 230px;
+  height: 230px;
+  top: -100px;
+  right: -90px;
+  background: radial-gradient(circle, rgba(185,28,28,0.14), transparent 70%);
+}
+.blob.two {
+  width: 270px;
+  height: 270px;
+  bottom: -110px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(4,120,87,0.14), transparent 70%);
+}
+.blob.three {
+  width: 190px;
+  height: 190px;
+  top: 42%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(217,119,6,0.14), transparent 70%);
+}
+
+.corner {
+  position: absolute;
+  z-index: 1;
+  font-size: 28px;
+  opacity: 0.22;
+  user-select: none;
+}
+.top-right { top: 8px; right: 10px; }
+.top-left { top: 8px; left: 10px; }
+.bottom-right { bottom: 8px; right: 10px; }
+.bottom-left { bottom: 8px; left: 10px; }
+
+/* =====================================================
+   سربرگ کاربرگ (Header)
+===================================================== */
+.header-box {
+  border: 2px solid #ef4444;
+  background: linear-gradient(135deg, #fff5f5, #fee2e2);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 9px;
+  position: relative;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px dashed #fca5a5;
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+}
+
+.header-emblem {
+  font-size: 11px;
+  font-weight: 800;
+  color: #991b1b;
+  text-align: right;
+  line-height: 1.35;
+}
+
+.header-title-box {
+  text-align: center;
+  flex: 1;
+  padding: 0 10px;
+}
+
+.header-title-box h1 {
+  font-size: 15px;
+  font-weight: 900;
+  color: #991b1b;
+  margin-bottom: 2px;
+}
+
+.header-title-box .badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #b91c1c, #047857);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 1.5px 10px;
+  border-radius: 10px;
+}
+
+.header-left-info {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #047857;
+  line-height: 1.4;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+}
+
+.meta-input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0369a1;
+  outline: none;
+  width: 100%;
+}
+
+/* =====================================================
+   کادرهای آموزشی درس‌نامه (Learning Cards)
+===================================================== */
+.rule-card {
+  border-radius: 10px;
+  padding: 8px 11px;
+  margin-bottom: 9px;
+  border-right: 5px solid;
+  position: relative;
+}
+
+.rule-crimson {
+  background: #fef2f2;
+  border-right-color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-right-width: 5px;
+}
+
+.rule-emerald {
+  background: #ecfdf5;
+  border-right-color: #047857;
+  border: 1px solid #a7f3d0;
+  border-right-width: 5px;
+}
+
+.rule-amber {
+  background: #fffbeb;
+  border-right-color: #d97706;
+  border: 1px solid #fed7aa;
+  border-right-width: 5px;
+}
+
+.rule-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.rule-crimson .rule-header { color: #991b1b; }
+.rule-emerald .rule-header { color: #065f46; }
+.rule-amber .rule-header { color: #92400e; }
+
+.rule-body {
+  font-size: 11.5px;
+  color: #374151;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+.highlight-box {
+  display: inline-block;
+  background: #fef08a;
+  color: #854d0e;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+/* =====================================================
+   بخش‌ها و تمرین‌ها (Exercise Blocks)
+===================================================== */
+.exercise-box {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.exercise-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1f2937;
+  border-bottom: 1.5px solid #f3f4f6;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.exercise-title .badge-num {
+  background: #b91c1c;
+  color: #fff;
+  font-size: 10.5px;
+  padding: 1.5px 7px;
+  border-radius: 12px;
+  margin-left: 5px;
+}
+
+.exercise-title .badge-emerald { background: #047857; }
+.exercise-title .badge-amber { background: #d97706; }
+.exercise-title .badge-blue { background: #0369a1; }
+
+/* =====================================================
+   جداول تعاملی و فیلدهای ورودی (Tables & Inputs)
+===================================================== */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.custom-table th {
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 800;
+  border: 1px solid #fecaca;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.custom-table td {
+  border: 1px solid #fca5a5;
+  padding: 4px 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.custom-table.emerald-table th {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+.custom-table.emerald-table td {
+  border-color: #a7f3d0;
+}
+
+.custom-table.amber-table th {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+.custom-table.amber-table td {
+  border-color: #fde68a;
+}
+
+.text-input {
+  width: 100%;
+  border: 1.5px solid #fca5a5;
+  background: #fffafa;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.text-input:focus {
+  border-color: #b91c1c;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(185,28,28,0.35);
+}
+
+.text-input.correct {
+  border-color: #10b981 !important;
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.text-input.incorrect {
+  border-color: #ef4444 !important;
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+/* =====================================================
+   اتصال ستونی (Match Columns)
+===================================================== */
+.match-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.match-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.match-item:hover {
+  border-color: #b91c1c;
+  background: #fef2f2;
+}
+
+.match-item.selected {
+  border-color: #b91c1c;
+  background: #fee2e2;
+  box-shadow: 0 0 0 2px #b91c1c;
+}
+
+.match-item.matched-0 { border-color: #b91c1c; background: #fee2e2; color: #991b1b; font-weight: 800; }
+.match-item.matched-1 { border-color: #047857; background: #ecfdf5; color: #065f46; font-weight: 800; }
+.match-item.matched-2 { border-color: #d97706; background: #fef3c7; color: #92400e; font-weight: 800; }
+.match-item.matched-3 { border-color: #0369a1; background: #f0f9ff; color: #075985; font-weight: 800; }
+
+.match-item .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  background: #fff;
+}
+
+/* =====================================================
+   انتخاب‌های گزینه‌ای (Pill Choices)
+===================================================== */
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 5px 0;
+}
+
+.choice-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.opt-group {
+  display: flex;
+  gap: 4px;
+}
+
+.opt-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.opt-btn:hover {
+  background: #fee2e2;
+  border-color: #b91c1c;
+}
+
+.opt-btn.selected {
+  background: #b91c1c;
+  color: #fff;
+  border-color: #991b1b;
+}
+
+.opt-btn.is-correct {
+  background: #047857 !important;
+  color: #fff !important;
+  border-color: #065f46 !important;
+}
+
+.opt-btn.is-wrong {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border-color: #991b1b !important;
+}
+
+/* =====================================================
+   کارگاه نگارش و بندنویسی
+===================================================== */
+.paragraph-writing-box {
+  background: #fffafa;
+  border: 2px dashed #f87171;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.lined-textarea {
+  width: 100%;
+  min-height: 110px;
+  border: none;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 23px,
+    #fca5a5 24px
+  );
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 24px;
+  outline: none;
+  resize: vertical;
+  text-indent: 25px;
+  padding: 2px 4px;
+}
+
+/* =====================================================
+   پاسخنامه و بازخورد خودکار
+===================================================== */
+.answer-key-box {
+  display: none;
+  background: #fef2f2;
+  border: 1.5px solid #ef4444;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #991b1b;
+}
+
+.answer-key-box.show {
+  display: block;
+}
+
+/* خودسنجی ستاره‌ای */
+.star-rating {
+  display: inline-flex;
+  gap: 3px;
+  direction: ltr;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #d1d5db;
+  transition: transform 0.15s, color 0.15s;
+}
+
+.star-btn:hover, .star-btn.active {
+  color: #f59e0b;
+  transform: scale(1.15);
+}
+
+.footer-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1.5px dashed #fca5a5;
+  padding-top: 5px;
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.designer-badge {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* =====================================================
+   استایل مخصوص چاپ پرینت (Print Optimization)
+===================================================== */
+@media print {
+  body {
+    background: #fff !important;
+  }
+  .floating-toolbar {
+    display: none !important;
+  }
+  .page {
+    width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 5mm !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-after: always !important;
+  }
+  .page:last-of-type {
+    page-break-after: auto !important;
+  }
+  .answer-key-box {
+    display: none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- نوار ابزار معلق -->
+<div class="floating-toolbar">
+  <button class="tool-btn btn-print" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+  <button class="tool-btn btn-draw" id="btn-draw" onclick="toggleDrawMode()">✏️ قلم نوری (فعال/غیرفعال)</button>
+  
+  <div class="draw-controls" id="draw-controls">
+    <div class="color-dot active" style="background:#b91c1c;" onclick="setPenColor('#b91c1c', this)" title="سرخ"></div>
+    <div class="color-dot" style="background:#047857;" onclick="setPenColor('#047857', this)" title="سبز"></div>
+    <div class="color-dot" style="background:#d97706;" onclick="setPenColor('#d97706', this)" title="کهربایی"></div>
+    <div class="color-dot" style="background:#0369a1;" onclick="setPenColor('#0369a1', this)" title="آبی"></div>
+    <div class="color-dot" style="background:#6d28d9;" onclick="setPenColor('#6d28d9', this)" title="بنفش"></div>
+    <button class="pen-size-btn" onclick="cyclePenSize()">ضخامت: <span id="pen-size-label">۲</span></button>
+    <button class="eraser-btn" id="eraser-btn" onclick="toggleEraser()">پاک‌کن</button>
+    <button class="clear-canvas-btn" onclick="clearAllCanvases()">پاکسازی قلم</button>
+  </div>
+
+  <button class="tool-btn btn-check" onclick="checkAllAnswers()">✅ بررسی خودکار</button>
+  <button class="tool-btn btn-answer" onclick="toggleAnswerKey()">💡 کلید پاسخنامه</button>
+  <button class="tool-btn btn-reset" onclick="resetWorksheet()">🔄 بازنشانی</button>
+</div>
+
+<!-- =====================================================
+     صفحه ۱: واژه‌سازی با پسوند «ـ کش»
+===================================================== -->
+<div class="page" id="page-1">
+  <canvas class="draw-canvas" id="canvas-1"></canvas>
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="corner top-right">🔥</div>
+  <div class="corner bottom-left">🕊️</div>
+
+  <div class="content">
+    <!-- سربرگ صفحه ۱ -->
+    <div class="header-box">
+      <div class="header-top">
+        <div class="header-emblem">
+          جمهوری اسلامی ایران<br>
+          وزارت آموزش و پرورش
+        </div>
+        <div class="header-title-box">
+          <h1>کاربرگ جامع فارسی و نگارش پایه سوم ابتدایی</h1>
+          <span class="badge">درس ششم: فداکاران (واژه‌سازی با پسوند «ـ کش» و معرفی زمان گذشته)</span>
+        </div>
+        <div class="header-left-info">
+          ارزشیابی درس ۶<br>
+          صفحه ۱ از ۳ (پسوند کش)
+        </div>
+      </div>
+      <div class="meta-grid">
+        <div class="meta-item"><span>نام و نام خانوادگی:</span><input class="meta-input" type="text" placeholder="................"></div>
+        <div class="meta-item"><span>نام آموزگار:</span><input class="meta-input" type="text" placeholder="................"></div>
+        <div class="meta-item"><span>کلاس / دبستان:</span><input class="meta-input" type="text" placeholder="کلاس سوم"></div>
+        <div class="meta-item"><span>تاریخ ارزیابی:</span><input class="meta-input" type="text" placeholder="۱۴۰۳/.. /.."></div>
+      </div>
+    </div>
+
+    <!-- درس‌نامه صفحه ۱: پسوند «ـ کش» -->
+    <div class="rule-card rule-crimson">
+      <div class="rule-header">
+        <span>📖 درس‌نامه آموزشی شماره ۱: جادوی واژه‌سازی با پسوند «ـ کش»</span>
+      </div>
+      <div class="rule-body">
+        وقتی پسوند <span class="highlight-box">«ـ کش»</span> به پایان یک کلمه اضافه می‌شود، دو دسته واژه مهم می‌سازد:
+        <br>
+        ۱. <b>ویژگی و صفت انسان (صفت فاعلی):</b> نشان‌دهنده کسی است که رنج یا زحمتی را تحمل می‌کند یا باری را می‌کشد؛
+        مانند: <span class="highlight-box">زحمت‌کش</span> (کسی که بسیار زحمت می‌کشد) و <span class="highlight-box">رنج‌کش</span> (کسی که سختی‌ها را تحمل می‌کند).
+        <br>
+        ۲. <b>نام ابزار و وسیله (اسم ابزار):</b> وسیله‌ای که چیزی را می‌کشد، هدایت می‌کند یا رسم می‌کند؛
+        مانند: <span class="highlight-box">دودکش</span> (لوله‌ای که دود بخاری را به بیرون هدایت می‌کند)، 
+        <span class="highlight-box">دست‌کش</span> (پوششی که بر دست می‌کشند)، 
+        <span class="highlight-box">خط‌کش</span> (ابزار کشیدن خط راست) و 
+        <span class="highlight-box">هواکش</span> (دستگاهی که هوای آلوده را به بیرون می‌کشد).
+      </div>
+    </div>
+
+    <!-- تمرین ۱: جدول واژه‌سازی و معناشناسی پسوند «کش» -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۱</span> واژه‌ها را با پسوند «ـ کش» ترکیب کنید و معنای هر کدام را کامل بنویسید:</div>
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th style="width:25%;">کلمه پایه + پسوند</th>
+            <th style="width:25%;">واژه جدید</th>
+            <th style="width:50%;">معنا و مفهوم واژه</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>زحمت + کش</td>
+            <td><input type="text" class="text-input" data-ans="زحمت‌کش|زحمتکش" placeholder="زحمت‌کش"></td>
+            <td><input type="text" class="text-input" data-ans="کسی که زحمت می‌کشد|فرد پرتلاش و کوشا|کسی که کار سخت می‌کند" placeholder="کسی که با تلاش فراوان زحمت می‌کشد"></td>
+          </tr>
+          <tr>
+            <td>دود + کش</td>
+            <td><input type="text" class="text-input" data-ans="دودکش" placeholder="دودکش"></td>
+            <td><input type="text" class="text-input" data-ans="لوله‌ای که دود را به بیرون می‌برد|هدایت‌کننده دود بخاری|وسیله خروج دود" placeholder="لوله‌ای که دود بخاری را به بیرون هدایت می‌کند"></td>
+          </tr>
+          <tr>
+            <td>دست + کش</td>
+            <td><input type="text" class="text-input" data-ans="دست‌کش|دستکش" placeholder="دست‌کش"></td>
+            <td><input type="text" class="text-input" data-ans="پوششی که بر دست می‌کشند|محافظ دست در برابر سرما|پوشش دست" placeholder="پوششی که برای محافظت روی دست کشیده می‌شود"></td>
+          </tr>
+          <tr>
+            <td>خط + کش</td>
+            <td><input type="text" class="text-input" data-ans="خط‌کش|خطکش" placeholder="خط‌کش"></td>
+            <td><input type="text" class="text-input" data-ans="ابزار کشیدن خط راست|وسیله رسم خط و اندازه‌گیری" placeholder="ابزاری برای کشیدن خط مستقیم و اندازه‌گیری"></td>
+          </tr>
+          <tr>
+            <td>هوا + کش</td>
+            <td><input type="text" class="text-input" data-ans="هواکش" placeholder="هواکش"></td>
+            <td><input type="text" class="text-input" data-ans="دستگاهی که هوا را تهویه می‌کند|وسیله بیرون کشیدن هوای آلوده|فن تهویه" placeholder="دستگاهی که هوای بسته یا آلوده را بیرون می‌کشد"></td>
+          </tr>
+          <tr>
+            <td>بار + کش</td>
+            <td><input type="text" class="text-input" data-ans="بارکش" placeholder="بارکش"></td>
+            <td><input type="text" class="text-input" data-ans="وسیله یا حیوانی که بار حمل می‌کند|حمل‌کننده بار سنگین" placeholder="وسیله یا حیوانی که بارهای سنگین را حمل می‌کند"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- تمرین ۲: وصل‌کردنی تعاملی واژه‌های پسوند کش -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۲</span> بازی وصل‌کردنی: هر واژه را به کاربرد مناسب آن در زندگی وصل کنید:</div>
+      </div>
+      <div class="match-container" id="match-wrapper-p1">
+        <div class="match-column right-col">
+          <div class="match-item" data-id="0" onclick="handleMatchClick(this, 'p1')">
+            <span>۱) دهقانِ زحمت‌کش</span>
+            <span class="dot"></span>
+          </div>
+          <div class="match-item" data-id="1" onclick="handleMatchClick(this, 'p1')">
+            <span>۲) دودکشِ بخاری</span>
+            <span class="dot"></span>
+          </div>
+          <div class="match-item" data-id="2" onclick="handleMatchClick(this, 'p1')">
+            <span>۳) خط‌کشِ دانش‌آموز</span>
+            <span class="dot"></span>
+          </div>
+          <div class="match-item" data-id="3" onclick="handleMatchClick(this, 'p1')">
+            <span>۴) دست‌کشِ گرم</span>
+            <span class="dot"></span>
+          </div>
+        </div>
+
+        <div class="match-column left-col">
+          <div class="match-item" data-match="1" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>خارج کردن گازهای خطرناک و دود ناشی از آتش‌سوزی کلاس</span>
+          </div>
+          <div class="match-item" data-match="3" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>محافظت از دست‌ها در برابر سرمای سوزان زمستان</span>
+          </div>
+          <div class="match-item" data-match="0" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>کشاورز دلسوزی که با تلاش فراوان نان حلال به دست می‌آورد</span>
+          </div>
+          <div class="match-item" data-match="2" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>رسم جدول‌ها و خطوط صاف در دفتر نگارش و ریاضی</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۳: تکمیل جملات با واژگان پسوند «ـ کش» -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۳</span> جملات زیر را با واژه مناسب دارای پسوند «ـ کش» کامل کنید:</div>
+      </div>
+      <div style="font-size:11px; line-height:2.1; background:#fef2f2; padding:6px 10px; border-radius:8px;">
+        ۱) وقتی بخاری کلاس آتش گرفت و 
+        <input type="text" class="text-input" style="width:85px; display:inline-block;" data-ans="دودکش" placeholder=".........."> 
+        آن افتاد، آقای حسن امیدزاده با شجاعت جان دانش‌آموزان را نجات داد.<br>
+        ۲) ریزعلی خواجوی، دهقانِ 
+        <input type="text" class="text-input" style="width:95px; display:inline-block;" data-ans="زحمت‌کش|زحمتکش" placeholder=".........."> 
+        و فداکار، با دیدن ریزش کوه مسافران قطار را نجات داد.<br>
+        ۳) مادرم در آشپزخانه برای تهویه و خروج بوی غذا، کلید 
+        <input type="text" class="text-input" style="width:85px; display:inline-block;" data-ans="هواکش" placeholder=".........."> 
+        را روشن کرد.<br>
+        ۴) من برای رسم خطوط جدول در درس فارسی از 
+        <input type="text" class="text-input" style="width:85px; display:inline-block;" data-ans="خط‌کش|خطکش" placeholder=".........."> 
+        استفاده می‌کنم.
+      </div>
+    </div>
+
+    <!-- پاورقی صفحه ۱ -->
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس ششم: فداکاران</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۱</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     صفحه ۲: معرفی زمان گذشته (فعل‌های ماضی)
+===================================================== -->
+<div class="page" id="page-2">
+  <canvas class="draw-canvas" id="canvas-2"></canvas>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+  <div class="corner top-left">⏳</div>
+  <div class="corner bottom-right">🎖️</div>
+
+  <div class="content">
+    <!-- سربرگ صفحه ۲ -->
+    <div class="header-box" style="border-color:#047857; background:linear-gradient(135deg, #ecfdf5, #f0fdf4);">
+      <div class="header-top" style="border-bottom-color:#a7f3d0;">
+        <div class="header-emblem" style="color:#065f46;">
+          جمهوری اسلامی ایران<br>
+          فارسی سوم دبستان
+        </div>
+        <div class="header-title-box">
+          <h1 style="color:#065f46;">شناخت و کاربرد فعل‌های «زمان گذشته» (ماضی)</h1>
+          <span class="badge" style="background:linear-gradient(135deg, #047857, #b91c1c);">درس ۶: فداکاران — صفحه ۲ از ۳</span>
+        </div>
+        <div class="header-left-info" style="color:#047857;">
+          دستور زبان فارسی<br>
+          شناسه‌ها و صرف افعال
+        </div>
+      </div>
+    </div>
+
+    <!-- درس‌نامه صفحه ۲: زمان گذشته -->
+    <div class="rule-card rule-emerald">
+      <div class="rule-header">
+        <span>⏳ درس‌نامه آموزشی شماره ۲: زمان گذشته (کاری که قبلاً انجام شده است)</span>
+      </div>
+      <div class="rule-body">
+        فعل <b>زمان گذشته (ماضی)</b> نشان می‌دهد کاری در <b>گذشته (دیروز، سال‌های پیش، قبلاً)</b> اتفاق افتاده و به پایان رسیده است.
+        <br>
+        ساختار زمان گذشته: <b>ریشه گذشته (بن ماضی) + شناسه‌های شش‌گانه</b>:
+        <br>
+        • من رفتـ<span class="highlight-box">ـَم</span> | تو رفتـ<span class="highlight-box">ـی</span> | او رفت (بدون شناسه) | 
+        ما رفتـ<span class="highlight-box">ـیم</span> | شما رفتـ<span class="highlight-box">ـید</span> | آن‌ها رفتـ<span class="highlight-box">ـند</span>
+        <br>
+        💡 <b>نکته مهم:</b> برای ضمیر «او» (سوم شخص مفرد)، در زمان گذشته ساده هیچ شناسه‌ای اضافه نمی‌شود (ریزعلی دوید / شهید فهمیده جانش را فدا کرد).
+      </div>
+    </div>
+
+    <!-- تمرین ۴: جدول صرف فعل‌های گذشته -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-emerald">۴</span> جدول صرف فعل در زمان گذشته: جای خالی را با فعل مناسب کامل کنید:</div>
+      </div>
+      <table class="custom-table emerald-table">
+        <thead>
+          <tr>
+            <th style="width:18%;">ضمیر / فاعل</th>
+            <th style="width:27%;">فعل «دویدن» (زمان گذشته)</th>
+            <th style="width:27%;">فعل «نجات دادن» (زمان گذشته)</th>
+            <th style="width:28%;">جمله کوتاه نمونه</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>من</b></td>
+            <td><input type="text" class="text-input" data-ans="دویدم" placeholder="دویدم"></td>
+            <td><input type="text" class="text-input" data-ans="نجات دادم" placeholder="نجات دادم"></td>
+            <td>من به سمت قطار دویدم.</td>
+          </tr>
+          <tr>
+            <td><b>تو</b></td>
+            <td><input type="text" class="text-input" data-ans="دویدی" placeholder="دویدی"></td>
+            <td><input type="text" class="text-input" data-ans="نجات دادی" placeholder="نجات دادی"></td>
+            <td>تو دوستت را نجات دادی.</td>
+          </tr>
+          <tr>
+            <td><b>او (ریزعلی)</b></td>
+            <td><input type="text" class="text-input" data-ans="دوید" placeholder="دوید"></td>
+            <td><input type="text" class="text-input" data-ans="نجات داد" placeholder="نجات داد"></td>
+            <td>ریزعلی مسافران را نجات داد.</td>
+          </tr>
+          <tr>
+            <td><b>ما</b></td>
+            <td><input type="text" class="text-input" data-ans="دویدیم" placeholder="دویدیم"></td>
+            <td><input type="text" class="text-input" data-ans="نجات دادیم" placeholder="نجات دادیم"></td>
+            <td>ما جان پرنده را نجات دادیم.</td>
+          </tr>
+          <tr>
+            <td><b>شما</b></td>
+            <td><input type="text" class="text-input" data-ans="دویدید" placeholder="دویدید"></td>
+            <td><input type="text" class="text-input" data-ans="نجات دادید" placeholder="نجات دادید"></td>
+            <td>شما به یاری مردم دویدید.</td>
+          </tr>
+          <tr>
+            <td><b>آن‌ها (فداکاران)</b></td>
+            <td><input type="text" class="text-input" data-ans="دویدند" placeholder="دویدند"></td>
+            <td><input type="text" class="text-input" data-ans="نجات دادند" placeholder="نجات دادند"></td>
+            <td>آن‌ها میهن را نجات دادند.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- تمرین ۵: تبدیل زمان حال به گذشته -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-emerald">۵</span> فعل‌های زمان حال (اکنون) را به فعل زمان گذشته (دیروز) تبدیل کنید:</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+        <div style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700;">
+          <span>۱) اکنون می‌آید $\leftarrow$ دیروز:</span>
+          <input type="text" class="text-input" data-ans="آمد" placeholder="آمد">
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700;">
+          <span>۲) اکنون می‌خوانیم $\leftarrow$ دیروز:</span>
+          <input type="text" class="text-input" data-ans="خواندیم" placeholder="خواندیم">
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700;">
+          <span>۳) اکنون فداکاری می‌کنند $\leftarrow$ در گذشته:</span>
+          <input type="text" class="text-input" data-ans="فداکاری کردند" placeholder="فداکاری کردند">
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700;">
+          <span>۴) اکنون آتش می‌زنی $\leftarrow$ دیروز:</span>
+          <input type="text" class="text-input" data-ans="آتش زدی" placeholder="آتش زدی">
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۶: تشخیص زمان فعل در جملات داستان فداکاران -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-emerald">۶</span> گزینه‌درست: زمان فعل‌های مشخص‌شده در جملات زیر را تعیین کنید:</div>
+      </div>
+      <div class="choice-grid">
+        <div class="choice-item">
+          <span>۱) سَهام خیّام در هویزه <b>زندگی می‌کرد</b>.</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">گذشته</button>
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">زمان حال</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۲) ما به این شهیدان والامقام <b>افتخار می‌کنیم</b>.</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">گذشته</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">زمان حال</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۳) راننده قطار آتش را <b>دید</b> و ایستاد.</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">گذشته</button>
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">زمان حال</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۴) نام فداکاران همیشه در یادها <b>می‌ماند</b>.</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">گذشته</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">زمان حال</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- کلید پاسخنامه صفحه ۲ -->
+    <div class="answer-key-box" id="answer-p2">
+      <b>🔑 کلید راهنمای صفحه ۲:</b><br>
+      • تمرین ۴: دویدم، نجات دادم | دویدی، نجات دادی | دوید، نجات داد | دویدیم، نجات دادیم | دویدید، نجات دادید | دویدند، نجات دادند<br>
+      • تمرین ۵: ۱) آمد — ۲) خواندیم — ۳) فداکاری کردند — ۴) آتش زدی<br>
+      • تمرین ۶: ۱) گذشته — ۲) زمان حال — ۳) گذشته — ۴) زمان حال
+    </div>
+
+    <!-- پاورقی صفحه ۲ -->
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس ششم: فداکاران</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۲</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     صفحه ۳: تلفیق، کارگاه نگارش فداکاری و ارزشیابی
+===================================================== -->
+<div class="page" id="page-3">
+  <canvas class="draw-canvas" id="canvas-3"></canvas>
+  <div class="blob three"></div>
+  <div class="blob one"></div>
+  <div class="corner top-right">✍️</div>
+  <div class="corner bottom-left">🏆</div>
+
+  <div class="content">
+    <!-- سربرگ صفحه ۳ -->
+    <div class="header-box" style="border-color:#d97706; background:linear-gradient(135deg, #fffbeb, #fef3c7);">
+      <div class="header-top" style="border-bottom-color:#fde68a;">
+        <div class="header-emblem" style="color:#b45309;">
+          جمهوری اسلامی ایران<br>
+          نگارش سوم ابتدایی
+        </div>
+        <div class="header-title-box">
+          <h1 style="color:#92400e;">کارگاه نگارش بند و داستان فداکاری</h1>
+          <span class="badge" style="background:linear-gradient(135deg, #d97706, #b91c1c);">درس ۶: فداکاران — صفحه ۳ از ۳</span>
+        </div>
+        <div class="header-left-info" style="color:#92400e;">
+          کارگاه بندنویسی<br>
+          ارزشیابی نهایی
+        </div>
+      </div>
+    </div>
+
+    <!-- درس‌نامه صفحه ۳: روایت‌گری با افعال گذشته -->
+    <div class="rule-card rule-amber">
+      <div class="rule-header">
+        <span>✍️ درس‌نامه آموزشی شماره ۳: چگونه داستان فداکاران را به زیبایی روایت کنیم؟</span>
+      </div>
+      <div class="rule-body">
+        برای نوشتن داستان یا خاطره‌ای از قهرمانان و فداکاران:
+        <br>
+        ۱. از <b>فعل‌های زمان گذشته</b> استفاده می‌کنیم؛ زیرا ماجرا قبلاً رخ داده است (مثال: *نجات داد، آتش گرفت، فداکاری کرد*).
+        <br>
+        ۲. از کلمات زیبا و ترکیبی مانند <span class="highlight-box">«دهقان زحمت‌کش»</span>، <span class="highlight-box">«دودکش کلاس»</span> و <span class="highlight-box">«معلم فداکار»</span> بهره می‌بریم.
+        <br>
+        ۳. در بندنویسی، <b>تورفتگی سطر اول</b>، <b>جمله موضوع</b>، <b>توضیح ماجرا</b> و <b>جمله نتیجه‌گیری</b> را رعایت می‌کنیم.
+      </div>
+    </div>
+
+    <!-- تمرین ۷: بازنویسی جملات با افعال گذشته و واژگان جدید -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-amber">۷</span> جمله‌های زیر را با افعال گذشته مناسب و کلمات پسوند «ـ کش» بازنویسی کنید:</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; margin-top:3px;">
+        <div style="font-size:11px; font-weight:700;">
+          <span>الف) معلم فداکار وقتی دید از ........................ کلاس دود بالا می‌زند، وارد آتش شد و کودکان را ........................</span>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:2px;">
+            <input type="text" class="text-input" data-ans="دودکش|دودکش بخاری" placeholder="واژه پسوند کش (دودکش)">
+            <input type="text" class="text-input" data-ans="نجات داد|خارج کرد|بیرون آورد" placeholder="فعل زمان گذشته (نجات داد)">
+          </div>
+        </div>
+
+        <div style="font-size:11px; font-weight:700;">
+          <span>ب) ریزعلی، دهقانِ ........................, پیراهن خود را آتش ........................ و قطار را متوقف ساخت.</span>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:2px;">
+            <input type="text" class="text-input" data-ans="زحمت‌کش|زحمتکش" placeholder="واژه پسوند کش (زحمت‌کش)">
+            <input type="text" class="text-input" data-ans="زد|زدند" placeholder="فعل زمان گذشته (زد)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۸: مرتب‌سازی بند داستانی فداکاران -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-amber">۸</span> جملات زیر را به ترتیب ۱ تا ۴ شماره‌گذاری کنید تا یک بند منظم ساخته شود:</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px; margin-top:3px;">
+        <div style="display:flex; align-items:center; gap:6px; background:#fffdf5; padding:3px 7px; border-radius:6px;">
+          <input type="text" class="text-input" style="width:36px;" data-ans="۲" placeholder="؟">
+          <span style="font-size:11px;">او در غروب سرد پاییزی متوجه ریزش سنگ‌های کوه بر روی ریل قطار شد.</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; background:#fffdf5; padding:3px 7px; border-radius:6px;">
+          <input type="text" class="text-input" style="width:36px;" data-ans="۱" placeholder="؟">
+          <span style="font-size:11px;"><b>(جمله موضوع)</b> ریزعلی خواجوی یکی از شجاع‌ترین دهقانان فداکار ایران است.</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; background:#fffdf5; padding:3px 7px; border-radius:6px;">
+          <input type="text" class="text-input" style="width:36px;" data-ans="۴" placeholder="؟">
+          <span style="font-size:11px;"><b>(جمله نتیجه‌گیری)</b> نام و یاد این دهقان زحمت‌کش همیشه در قلب مردم ایران زنده خواهد ماند.</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; background:#fffdf5; padding:3px 7px; border-radius:6px;">
+          <input type="text" class="text-input" style="width:36px;" data-ans="۳" placeholder="؟">
+          <span style="font-size:11px;">ریزعلی بلافاصله پیراهنش را آتش زد و به طرف قطار دوید تا جان صدها مسافر را نجات دهد.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۹: کارگاه نگارش بند فداکاری -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-amber">۹</span> کارگاه نگارش خلاق: درباره یکی از فداکاران (حسن امیدزاده، سهام خیام یا شهید فهمیده) یک بند زیبا بنویسید:</div>
+      </div>
+      <div class="paragraph-writing-box">
+        <div style="font-size:10.5px; color:#b91c1c; font-weight:800; margin-bottom:3px;">
+          💡 نکات مهم: تورفتگی سطر اول + افعال زمان گذشته (*فدا کرد، شتافت، نجات داد*) + علائم نگارشی (. ،)
+        </div>
+        <textarea class="lined-textarea" placeholder="   شهید محمدحسین فهمیده نوجوانی شجاع و دلاور بود که در راه دفاع از میهن..."></textarea>
+      </div>
+    </div>
+
+    <!-- جدول خودسنجی، نمره و امضای طراح -->
+    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:8px; margin-top:6px;">
+      <div class="exercise-box" style="margin-bottom:0; padding:6px 8px;">
+        <div style="font-size:11px; font-weight:800; color:#374151; margin-bottom:3px;">🌟 جدول خودسنجی دانش‌آموز:</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:10.5px;">
+          <span>تسلط بر پسوند «ـ کش» و معنی واژه‌ها:</span>
+          <div class="star-rating">
+            <button class="star-btn" onclick="rateStars(1, this)">★</button>
+            <button class="star-btn" onclick="rateStars(2, this)">★</button>
+            <button class="star-btn" onclick="rateStars(3, this)">★</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:10.5px; margin-top:2px;">
+          <span>تشخیص و صرف افعال زمان گذشته:</span>
+          <div class="star-rating">
+            <button class="star-btn" onclick="rateStars(1, this)">★</button>
+            <button class="star-btn" onclick="rateStars(2, this)">★</button>
+            <button class="star-btn" onclick="rateStars(3, this)">★</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-box" style="margin-bottom:0; padding:6px 8px; text-align:center;">
+        <div style="font-size:11px; font-weight:800; color:#b91c1c; margin-bottom:2px;">بازخورد و نمره آموزگار</div>
+        <div style="font-size:10.5px; font-weight:700; color:#6b7280;">
+          خیلی خوب 🟩 | خوب 🟨 | قابل قبول 🟧
+        </div>
+        <div style="margin-top:4px; font-size:10.5px; font-weight:800; color:#991b1b;">
+          امضا و نظر آموزگار: ........................
+        </div>
+      </div>
+    </div>
+
+    <!-- کلید پاسخنامه صفحه ۳ -->
+    <div class="answer-key-box" id="answer-p3">
+      <b>🔑 کلید راهنمای صفحه ۳:</b><br>
+      • تمرین ۷: الف) دودکش / نجات داد — ب) زحمت‌کش / زد<br>
+      • تمرین ۸ (ترتیب جملات بند): [۲] - [۱ (جمله موضوع)] - [۴ (جمله نتیجه)] - [۳]<br>
+      • تمرین ۹: نگارش بند بر مبنای تورفتگی سطر اول، افعال گذشته منسجم و پایان‌بندی مناسب ارزیابی می‌شود.
+    </div>
+
+    <!-- پاورقی صفحه ۳ -->
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس ششم: فداکاران</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۳</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     جاوااسکریپت تعاملی (Interactive Features)
+===================================================== -->
+<script>
+// وضعیت قلم نوری و بوم نقاشی
+let isDrawMode = false;
+let isEraser = false;
+let penColor = '#b91c1c';
+let penSizes = [2, 4, 6];
+let currentSizeIndex = 0;
+
+const canvases = [
+  document.getElementById('canvas-1'),
+  document.getElementById('canvas-2'),
+  document.getElementById('canvas-3')
+];
+
+function initCanvases() {
+  canvases.forEach((canvas) => {
+    if (!canvas) return;
+    const page = canvas.parentElement;
+    
+    function resize() {
+      const rect = page.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    
+    resize();
+    window.addEventListener('resize', resize);
+
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function startDraw(e) {
+      if (!isDrawMode) return;
+      isDrawing = true;
+      const coords = getCoords(e);
+      lastX = coords.x;
+      lastY = coords.y;
+    }
+
+    function draw(e) {
+      if (!isDrawing || !isDrawMode) return;
+      e.preventDefault();
+      const coords = getCoords(e);
+      
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(coords.x, coords.y);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = penSizes[currentSizeIndex] * 6;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSizes[currentSizeIndex];
+      }
+
+      ctx.stroke();
+      lastX = coords.x;
+      lastY = coords.y;
+    }
+
+    function stopDraw() {
+      isDrawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+  });
+}
+
+function toggleDrawMode() {
+  isDrawMode = !isDrawMode;
+  const btn = document.getElementById('btn-draw');
+  const controls = document.getElementById('draw-controls');
+  
+  if (isDrawMode) {
+    btn.classList.add('active');
+    btn.innerHTML = '✏️ حالت قلم: روشن';
+    controls.classList.add('show');
+    canvases.forEach(c => c.classList.add('active-mode'));
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '✏️ قلم نوری (فعال/غیرفعال)';
+    controls.classList.remove('show');
+    canvases.forEach(c => c.classList.remove('active-mode'));
+  }
+}
+
+function setPenColor(color, dotEl) {
+  penColor = color;
+  isEraser = false;
+  document.getElementById('eraser-btn').classList.remove('active');
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  dotEl.classList.add('active');
+}
+
+function cyclePenSize() {
+  currentSizeIndex = (currentSizeIndex + 1) % penSizes.length;
+  document.getElementById('pen-size-label').textContent = penSizes[currentSizeIndex];
+}
+
+function toggleEraser() {
+  isEraser = !isEraser;
+  const eraserBtn = document.getElementById('eraser-btn');
+  if (isEraser) {
+    eraserBtn.classList.add('active');
+  } else {
+    eraserBtn.classList.remove('active');
+  }
+}
+
+function clearAllCanvases() {
+  canvases.forEach(c => {
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+  });
+}
+
+// اتصال ستونی در صفحه ۱
+let selectedRightMatch = null;
+function handleMatchClick(el, pagePrefix) {
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  wrapper.querySelectorAll('.match-column.right-col .match-item').forEach(item => {
+    item.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  selectedRightMatch = el.getAttribute('data-id');
+}
+
+function handleMatchTarget(item, pagePrefix) {
+  if (selectedRightMatch === null) return;
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  const targetMatch = item.getAttribute('data-match');
+  
+  if (targetMatch === selectedRightMatch) {
+    const rightEl = wrapper.querySelector(`.match-column.right-col .match-item[data-id="${selectedRightMatch}"]`);
+    
+    for (let i = 0; i < 4; i++) {
+      rightEl.classList.remove(`matched-${i}`);
+      item.classList.remove(`matched-${i}`);
+    }
+
+    rightEl.classList.add(`matched-${selectedRightMatch}`);
+    item.classList.add(`matched-${selectedRightMatch}`);
+
+    rightEl.classList.remove('selected');
+    selectedRightMatch = null;
+  }
+}
+
+// انتخاب گزینه‌ها
+function selectChoice(btn) {
+  const parent = btn.closest('.choice');
+  parent.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected', 'is-correct', 'is-wrong');
+  });
+  btn.classList.add('selected');
+}
+
+// امتیاز ستاره‌ها
+function rateStars(num, btn) {
+  const container = btn.closest('.star-rating');
+  const buttons = container.querySelectorAll('.star-btn');
+  buttons.forEach((b, idx) => {
+    if (idx < num) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+}
+
+// بررسی خودکار پاسخ‌ها و محاسبه نمره
+function checkAllAnswers() {
+  let total = 0;
+  let correct = 0;
+
+  const inputs = document.querySelectorAll('input[data-ans]');
+  inputs.forEach(input => {
+    total++;
+    const userVal = input.value.trim().replace(/\s+/g, ' ');
+    const accepted = input.getAttribute('data-ans').split('|').map(s => s.trim());
+    
+    let isMatch = accepted.some(ans => {
+      return userVal === ans || userVal.replace(/‌/g, '') === ans.replace(/‌/g, '');
+    });
+
+    if (userVal && isMatch) {
+      correct++;
+      input.classList.remove('incorrect');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct');
+      if (userVal) input.classList.add('incorrect');
+    }
+  });
+
+  const choices = document.querySelectorAll('.choice');
+  choices.forEach(c => {
+    const selected = c.querySelector('.opt-btn.selected');
+    if (selected) {
+      total++;
+      if (selected.getAttribute('data-correct') === 'true') {
+        correct++;
+        selected.classList.add('is-correct');
+      } else {
+        selected.classList.add('is-wrong');
+      }
+    }
+  });
+
+  alert(`🎯 نتیجه بررسی کاربرگ:\nتعداد پاسخ‌های صحیح: ${correct} از ${total}\nنمره تقریبی: ${Math.round((correct/total)*100)} از ۱۰۰`);
+}
+
+// نمایش/مخفی پاسخنامه
+function toggleAnswerKey() {
+  const p2Ans = document.getElementById('answer-p2');
+  const p3Ans = document.getElementById('answer-p3');
+  const isShown = p2Ans.classList.contains('show');
+  
+  if (isShown) {
+    p2Ans.classList.remove('show');
+    p3Ans.classList.remove('show');
+  } else {
+    p2Ans.classList.add('show');
+    p3Ans.classList.add('show');
+  }
+}
+
+// بازنشانی کاربرگ
+function resetWorksheet() {
+  if (confirm('آیا می‌خواهید تمام پاسخ‌ها و یادداشت‌های این کاربرگ پاک شوند؟')) {
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      el.value = '';
+      el.classList.remove('correct', 'incorrect');
+    });
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      b.classList.remove('selected', 'is-correct', 'is-wrong');
+    });
+    document.querySelectorAll('.match-item').forEach(el => {
+      el.classList.remove('selected', 'matched-0', 'matched-1', 'matched-2', 'matched-3');
+    });
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    clearAllCanvases();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initCanvases();
+});
+</script>
+
+</body>
+</html>

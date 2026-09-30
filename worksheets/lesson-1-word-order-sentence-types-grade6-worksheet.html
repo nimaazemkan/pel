@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کاربرگ آموزشی جابه‌جایی کلمات در شعر (تبدیل نظم به نثر) و انواع جمله</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --primary-color: #0d9488;
+  --secondary-color: #14b8a6;
+  --accent-color: #f59e0b;
+  --text-dark: #1f2937;
+  --bg-card: #f0fdf4;
+}
+
+@page{
+  size: A4 portrait;
+  margin: 7mm;
+}
+
+body{
+  direction: rtl;
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #f0fdf4, #ffffff, #f8fafc);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  line-height: 1.55;
+}
+
+.floating-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  border: 2px solid #14b8a6;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-print { background: linear-gradient(135deg, #0d9488, #14b8a6); }
+.btn-type { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+.btn-type.active { background: linear-gradient(135deg, #0369a1, #0284c7); box-shadow: 0 0 10px #0284c7; }
+.btn-draw { background: linear-gradient(135deg, #7c3aed, #0d9488); }
+.btn-draw.active { background: linear-gradient(135deg, #dc2626, #ea580c); box-shadow: 0 0 10px #ea580c; }
+.btn-check { background: linear-gradient(135deg, #047857, #10b981); }
+.btn-answer { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.btn-reset { background: linear-gradient(135deg, #475569, #64748b); }
+
+.draw-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #14b8a6;
+}
+
+.draw-controls.show { display: inline-flex; }
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+
+.color-dot:hover, .color-dot.active {
+  transform: scale(1.25);
+  border-color: #1f2937;
+}
+
+.pen-size-btn, .eraser-btn, .clear-canvas-btn {
+  background: #fff;
+  border: 1px solid #14b8a6;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #0d9488;
+}
+
+.eraser-btn.active {
+  background: #14b8a6;
+  color: #fff;
+  border-color: #0d9488;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 18px auto 28px;
+  padding: 7.5mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+  page-break-after: always;
+}
+
+.page:last-of-type { page-break-after: auto; }
+.content { position: relative; z-index: 2; }
+
+.draw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.draw-canvas.active-mode {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.blob.one {
+  width: 240px;
+  height: 240px;
+  top: -100px;
+  right: -90px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 70%);
+}
+.blob.two {
+  width: 280px;
+  height: 280px;
+  bottom: -110px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(13,148,136,0.12), transparent 70%);
+}
+.blob.three {
+  width: 200px;
+  height: 200px;
+  top: 42%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(217,119,6,0.12), transparent 70%);
+}
+
+.corner {
+  position: absolute;
+  z-index: 1;
+  font-size: 28px;
+  opacity: 0.22;
+  user-select: none;
+}
+.top-right { top: 8px; right: 10px; }
+.top-left { top: 8px; left: 10px; }
+.bottom-right { bottom: 8px; right: 10px; }
+.bottom-left { bottom: 8px; left: 10px; }
+
+.header-box {
+  border: 2px solid #0d9488;
+  background: linear-gradient(135deg, #ccfbf1, #f0fdf4);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 9px;
+  position: relative;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px dashed #14b8a6;
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+}
+
+.header-emblem {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0d9488;
+  text-align: right;
+  line-height: 1.35;
+}
+
+.header-title-box {
+  text-align: center;
+  flex: 1;
+  padding: 0 10px;
+}
+
+.header-title-box h1 {
+  font-size: 15px;
+  font-weight: 900;
+  color: #0d9488;
+  margin-bottom: 2px;
+}
+
+.header-title-box .badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 1.5px 10px;
+  border-radius: 10px;
+}
+
+.header-left-info {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #14b8a6;
+  line-height: 1.4;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  border: 1px solid #14b8a6;
+}
+
+.meta-input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0d9488;
+  outline: none;
+  width: 100%;
+}
+
+.rule-card {
+  border-radius: 10px;
+  padding: 8px 11px;
+  margin-bottom: 9px;
+  border-right: 5px solid #0d9488;
+  border: 1px solid #14b8a6;
+  border-right-width: 5px;
+  background: #f0fdf4;
+  position: relative;
+}
+
+.rule-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0d9488;
+  margin-bottom: 4px;
+}
+
+.rule-body {
+  font-size: 11.5px;
+  color: #374151;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+.highlight-box {
+  display: inline-block;
+  background: #fff;
+  border: 1px solid #14b8a6;
+  color: #0d9488;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.exercise-box {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.exercise-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1f2937;
+  border-bottom: 1.5px solid #f3f4f6;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.exercise-title .badge-num {
+  background: #0d9488;
+  color: #fff;
+  font-size: 10.5px;
+  padding: 1.5px 7px;
+  border-radius: 12px;
+  margin-left: 5px;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.custom-table th {
+  background: #ccfbf1;
+  color: #0d9488;
+  font-weight: 800;
+  border: 1px solid #14b8a6;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.custom-table td {
+  border: 1px solid #14b8a6;
+  padding: 4px 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.text-input {
+  width: 100%;
+  border: 1.5px solid #14b8a6;
+  background: #f0fdf4;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.text-input:focus {
+  border-color: #0d9488;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.text-input.correct {
+  border-color: #10b981 !important;
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.text-input.incorrect {
+  border-color: #ef4444 !important;
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.match-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.match-column { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.match-item:hover { border-color: #0d9488; background: #f0fdf4; }
+.match-item.selected { border-color: #0d9488; background: #ccfbf1; box-shadow: 0 0 0 2px #0d9488; }
+
+.match-item.matched-0 { border-color: #0d9488; background: #f0fdf4; color: #0d9488; font-weight: 800; }
+.match-item.matched-1 { border-color: #0d9488; background: #f0fdfa; color: #115e59; font-weight: 800; }
+.match-item.matched-2 { border-color: #d97706; background: #fef3c7; color: #92400e; font-weight: 800; }
+.match-item.matched-3 { border-color: #7c3aed; background: #f5f3ff; color: #5b21b6; font-weight: 800; }
+
+.match-item .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  background: #fff;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 5px 0;
+}
+
+.choice-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.opt-group { display: flex; gap: 4px; }
+
+.opt-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.opt-btn:hover { background: #f0fdf4; border-color: #0d9488; }
+.opt-btn.selected { background: #0d9488; color: #fff; border-color: #0d9488; }
+.opt-btn.is-correct { background: #0d9488 !important; color: #fff !important; border-color: #115e59 !important; }
+.opt-btn.is-wrong { background: #dc2626 !important; color: #fff !important; border-color: #991b1b !important; }
+
+.paragraph-writing-box {
+  background: #f0fdf4;
+  border: 2px dashed #14b8a6;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.lined-textarea {
+  width: 100%;
+  min-height: 105px;
+  border: none;
+  background: repeating-linear-gradient(transparent, transparent 23px, #14b8a6 24px);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 24px;
+  outline: none;
+  resize: vertical;
+  text-indent: 25px;
+  padding: 2px 4px;
+}
+
+.answer-key-box {
+  display: none;
+  background: #f0fdf4;
+  border: 1.5px solid #0d9488;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #0d9488;
+}
+
+.answer-key-box.show { display: block; }
+
+.star-rating { display: inline-flex; gap: 3px; direction: ltr; }
+.star-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #d1d5db; transition: transform 0.15s, color 0.15s; }
+.star-btn:hover, .star-btn.active { color: #f59e0b; transform: scale(1.15); }
+
+.footer-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1.5px dashed #14b8a6;
+  padding-top: 5px;
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.designer-badge {
+  background: #f0fdf4;
+  border: 1px solid #14b8a6;
+  color: #0d9488;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+@media print {
+  body { background: #fff !important; }
+  .floating-toolbar { display: none !important; }
+  .page {
+    width: 100% !important; min-height: auto !important; margin: 0 !important;
+    padding: 5mm !important; border-radius: 0 !important; box-shadow: none !important;
+    page-break-after: always !important;
+  }
+  .page:last-of-type { page-break-after: auto !important; }
+  .answer-key-box { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="floating-toolbar">
+  <button class="tool-btn btn-print" onclick="window.print()">🖨️ چاپ کاربرگ (A4)</button>
+  <button class="tool-btn btn-type active" id="btn-type" onclick="setMode('type')">⌨️ تایپ آنلاین</button>
+  <button class="tool-btn btn-draw" id="btn-draw" onclick="setMode('draw')">✏️ قلم نوری (دستی)</button>
+  <div class="draw-controls" id="draw-controls">
+    <div class="color-dot active" style="background:#0d9488;" onclick="setPenColor('#0d9488', this)"></div>
+    <div class="color-dot" style="background:#dc2626;" onclick="setPenColor('#dc2626', this)"></div>
+    <div class="color-dot" style="background:#059669;" onclick="setPenColor('#059669', this)"></div>
+    <div class="color-dot" style="background:#7c3aed;" onclick="setPenColor('#7c3aed', this)"></div>
+    <button class="pen-size-btn" onclick="cyclePenSize()">ضخامت: <span id="pen-size-label">۲</span></button>
+    <button class="eraser-btn" id="eraser-btn" onclick="toggleEraser()">پاک‌کن</button>
+    <button class="clear-canvas-btn" onclick="clearAllCanvases()">پاکسازی نقاشی</button>
+  </div>
+  <button class="tool-btn btn-check" onclick="checkAllAnswers()">✅ تصحیح خودکار</button>
+  <button class="tool-btn btn-answer" onclick="toggleAnswerKey()">🔑 پاسخ‌نامه تشریحی</button>
+  <button class="tool-btn btn-reset" onclick="resetWorksheet()">🔄 شروع مجدد</button>
+</div>
+
+<!-- ========================= PAGE 1 ========================= -->
+<div class="page" id="page-1">
+  <canvas class="draw-canvas" id="canvas-1"></canvas>
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <span class="corner top-right">🌸</span>
+  <span class="corner top-left">🌿</span>
+  <span class="corner bottom-right">🍃</span>
+  <span class="corner bottom-left">🌺</span>
+
+  <div class="content">
+    <div class="header-box">
+      <div class="header-top">
+        <div class="header-emblem">
+          جمهوری اسلامی ایران<br>
+          وزارت آموزش و پرورش<br>
+          پایه‌ی ششم دبستان
+        </div>
+        <div class="header-title-box">
+          <h1>کاربرگ آموزشی جابه‌جایی کلمات در شعر (تبدیل نظم به نثر) و انواع جمله</h1>
+          <span class="badge">فارسی ششم دبستان — درس اول (ستایش، معرفت آفریدگار و باد بهاری)</span>
+        </div>
+        <div class="header-left-info">
+          نوبت اول / دوم<br>
+          سطح: جامع و تیزهوشانی<br>
+          طراح: <strong>نیما آزمکان</strong>
+        </div>
+      </div>
+      <div class="meta-grid">
+        <div class="meta-item"><span>نام و نام خانوادگی:</span> <input type="text" class="meta-input" placeholder=".................."></div>
+        <div class="meta-item"><span>نام دبستان:</span> <input type="text" class="meta-input" placeholder=".................."></div>
+        <div class="meta-item"><span>کلاس / شعبه:</span> <input type="text" class="meta-input" placeholder=".................."></div>
+        <div class="meta-item"><span>تاریخ ارزیابی:</span> <input type="text" class="meta-input" placeholder="۱۴۰.../.../..."></div>
+      </div>
+    </div>
+
+    
+    <div class="rule-card">
+      <div class="rule-header"><span>📌 ۱. جابه‌جایی کلمات در شعر و تبدیل نظم به نثر معیار</span></div>
+      <div class="rule-body">
+        شاعران به دلیل رعایت <strong>وزن عروضی، آهنگ و قافیه</strong>، ترتیب طبیعی اجزای جمله را به هم می‌ریزند (مثلاً فعل را اول یا وسط می‌آورند).<br>
+        🔹 برای تبدیل شعر به نثر روان فارسی، اجزا را طبق ساختار معیار مرتب می‌کنیم:<br>
+        <span class="highlight-box">نهاد + قید + مفعول + متمم + فعل</span><br>
+        <em>نمونه شعر: «باد بهاری وزید از طرف بوستان» -> «باد بهاری از طرف بوستان وزید.»</em>
+      </div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-header"><span>📌 ۲. انواع جمله از نظر پیام، لحن و نشانه‌گذاری</span></div>
+      <div class="rule-body">
+        ۱) <strong>جمله خبری:</strong> خبری را درباره چیزی یا کسی بیان می‌کند و با <span class="highlight-box">نقطه (.)</span> پایان می‌یابد.<br>
+        <em>مثال: «جهان آفرینش سرشار از شگفتی‌هاست.»</em><br>
+        ۲) <strong>جمله پرسشی:</strong> سؤالی مطرح می‌کند و با <span class="highlight-box">علامت سؤال (؟)</span> تمام می‌شود.<br>
+        <em>مثال: «این همه نقش عجب بر در و دیوار وجود از کیست؟»</em><br>
+        ۳) <strong>جمله امری:</strong> انجام کاری، خواهش، نصیحت یا نهی را می‌طلبد و با <span class="highlight-box">نقطه (.)</span> پایان می‌پذیرد.<br>
+        <em>مثال: «به زیبایی‌های آفرینش با دقت بنگر.»</em><br>
+        ۴) <strong>جمله عاطفی / تعجبی:</strong> احساس شگفتی، شادی، اندوه، خشم یا تحسین را می‌رساند و با <span class="highlight-box">علامت تعجب (!)</span> تمام می‌شود.<br>
+        <em>مثال: «چه آفریدگار دانا و توانایی!»</em>
+      </div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-header"><span>📌 ۳. نکته مهم: جمله ندایی و منادا</span></div>
+      <div class="rule-body">
+        جمله‌ای که در آن مخاطبی صدا زده می‌شود <strong>جمله ندایی</strong> نام دارد (مانند: <em>ای خدا!</em> / <em>پروردگارا!</em>) که معمولاً بعد از آن علامت تعجب می‌آید و به تنهایی یک شبه‌جمله به شمار می‌رود.
+      </div>
+    </div>
+    
+
+    
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <span><span class="badge-num">فعالیت ۱</span> جدول تفکیک انواع جملات و تبدیل نظم به نثر معیار</span>
+      </div>
+      <table class="custom-table">
+        <tr>
+          <th>ردیف</th>
+          <th>جمله / بیت مطرح‌شده</th>
+          <th>نوع جمله (خبری / پرسشی / امری / عاطفی)</th>
+          <th>علامت پایانی</th>
+          <th>مرتب‌سازی به نثر معیار فارسی</th>
+        </tr>
+        <tr>
+          <td>۱</td>
+          <td>برگ درختان سبز در نظر هوشیار دفتری است</td>
+          <td><input type="text" class="text-input" data-ans="خبری|جمله خبری" placeholder="نوع جمله"></td>
+          <td>.</td>
+          <td>برگ درختان سبز در نظر انسان هوشیار مانند دفتری است.</td>
+        </tr>
+        <tr>
+          <td>۲</td>
+          <td>کیست آن کو شکر یکی از هزار کرد</td>
+          <td><input type="text" class="text-input" data-ans="پرسشی|جمله پرسشی" placeholder="نوع جمله"></td>
+          <td>؟</td>
+          <td><input type="text" class="text-input" data-ans="آن کسی که شکر یکی از هزار نعمت را به جا آورد کیست؟|کیست که شکر یکی از هزار نعمت خدا را کرده باشد؟" placeholder="نثر معیار..."></td>
+        </tr>
+        <tr>
+          <td>۳</td>
+          <td>بر در و دیوار وجود با چشم دل بنگر</td>
+          <td><input type="text" class="text-input" data-ans="امری|جمله امری" placeholder="نوع جمله"></td>
+          <td>.</td>
+          <td><input type="text" class="text-input" data-ans="با چشم دل به در و دیوار جهان هستی نگاه کن.|با بینش قلبی به آفرینش بنگر." placeholder="نثر معیار..."></td>
+        </tr>
+        <tr>
+          <td>۴</td>
+          <td>چه شگفت‌انگیز است تماشای شگفتی‌های طبیعت</td>
+          <td><input type="text" class="text-input" data-ans="عاطفی|تعجبی|جمله عاطفی" placeholder="نوع جمله"></td>
+          <td>!</td>
+          <td>تماشای شگفتی‌های طبیعت بسیار شگفت‌انگیز است!</td>
+        </tr>
+      </table>
+    </div>
+    
+
+    <div class="footer-box">
+      <span>صفحه ۱ از ۳ — درسنامه و خودآزمایی اولیه</span>
+      <span class="designer-badge">آموزگار خلاق: نیما آزمکان</span>
+      <span>ارزشیابی توصیفی: خیلی خوب / خوب / قابل قبول</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= PAGE 2 ========================= -->
+<div class="page" id="page-2">
+  <canvas class="draw-canvas" id="canvas-2"></canvas>
+  <div class="blob one"></div>
+  <div class="blob three"></div>
+  <span class="corner top-right">⭐</span>
+  <span class="corner top-left">✨</span>
+  <span class="corner bottom-right">🎯</span>
+  <span class="corner bottom-left">🎨</span>
+
+  <div class="content">
+    <div class="header-box" style="padding:5px 12px; margin-bottom:7px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; font-weight:800; color:#0d9488;">🎯 صفحه دوم: تمرین‌های تثبیتی، بازی وصل‌کردنی و تست‌های تشخیصی</span>
+        <span class="badge">درس اول (ستایش، معرفت آفریدگار و باد بهاری)</span>
+      </div>
+    </div>
+
+    
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <span><span class="badge-num">فعالیت ۲</span> کارگاه تبدیل ابیات معرفت آفریدگار به نثر روان و تعیین ارکان</span>
+      </div>
+      <table class="custom-table">
+        <tr>
+          <th>بیت در قالب نظم</th>
+          <th>نهاد</th>
+          <th>فعل</th>
+          <th>نثر روان و استاندارد فارسی</th>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">این همه نقش عجب بر در و دیوار وجود<br>هر که فکرت نکند نقش بُوَد بر دیوار</td>
+          <td>هر کس (هر که)</td>
+          <td>فکرت نکند / بُوَد</td>
+          <td><input type="text" class="text-input" data-ans="هر کس به این همه نقش شگفت‌انگیز جهان هستی فکر نکند، مانند تصویری بی‌روح و بی‌جان بر روی دیوار است.|هر کس در زیبایی‌های آفرینش نیندیشد مثل نقاشی بی‌جان روی دیوار است." placeholder="نثر روان بنویسید..."></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">باد بهاری وزید از طرف بوستان<br>خنده زد از لطف حق، غنچه به گلستان</td>
+          <td>باد بهاری / غنچه</td>
+          <td>وزید / خنده زد</td>
+          <td><input type="text" class="text-input" data-ans="باد بهاری از سوی بوستان وزید و غنچه با لطف و عنایت خداوند در گلستان شکوفا شد و لبخند زد.|باد بهاری از سمت باغ وزید و غنچه‌ها در گلزار شکفته شدند." placeholder="نثر روان بنویسید..."></td>
+        </tr>
+      </table>
+    </div>
+    
+
+    
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <span><span class="badge-num">فعالیت ۳</span> بازی تعاملی وصل‌کردنی: تطبیق جملات با نوع و لحن بیانی آن‌ها</span>
+      </div>
+      <p style="font-size:11px; margin-bottom:4px; color:#4b5563;">روی جمله در ستون راست کلیک کرده و نوع پیام آن را در ستون چپ برگزینید:</p>
+      <div class="match-container" id="match-wrapper-p2">
+        <div class="match-column right-col">
+          <div class="match-item" data-id="0" onclick="handleMatchClick(this, 'p2')"><span>۱. مورچگان چگونه مسیر لانه را می‌یابند؟</span><span class="dot"></span></div>
+          <div class="match-item" data-id="1" onclick="handleMatchClick(this, 'p2')"><span>۲. خداوندا، دل‌های ما را به نور معرفت روشن ساز!</span><span class="dot"></span></div>
+          <div class="match-item" data-id="2" onclick="handleMatchClick(this, 'p2')"><span>۳. انسان هوشیار در شگفتی‌های خلقت تفکر می‌کند.</span><span class="dot"></span></div>
+          <div class="match-item" data-id="3" onclick="handleMatchClick(this, 'p2')"><span>۴. همیشه با تفکر و تأمل در جهان گام بردار.</span><span class="dot"></span></div>
+        </div>
+        <div class="match-column left-col">
+          <div class="match-item" data-match="1" onclick="handleMatchTarget(this, 'p2')"><span class="dot"></span><span>جمله عاطفی و نیایشی (دارای منادا)</span></div>
+          <div class="match-item" data-match="0" onclick="handleMatchTarget(this, 'p2')"><span class="dot"></span><span>جمله پرسشی (جست‌وجوی پاسخ علمی)</span></div>
+          <div class="match-item" data-match="3" onclick="handleMatchTarget(this, 'p2')"><span class="dot"></span><span>جمله امری و پندآموز (دعوت به عمل)</span></div>
+          <div class="match-item" data-match="2" onclick="handleMatchTarget(this, 'p2')"><span class="dot"></span><span>جمله خبری (بیان حقیقت و گزارش)</span></div>
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <span><span class="badge-num">فعالیت ۴</span> تست‌های چهارگزینه‌ای سنجش درک زبانی و انواع جمله</span>
+      </div>
+      <div class="choice-grid">
+        <div class="choice-item">
+          <span>۱. دلیل اصلی جابه‌جایی کلمات در شعر چیست؟</span>
+          <div class="choice opt-group">
+            <button class="opt-btn" onclick="selectChoice(this)">اشتباه شاعر</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">رعایت وزن، آهنگ و قافیه</button>
+            <button class="opt-btn" onclick="selectChoice(this)">کوتاه کردن متن</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۲. جمله «آفرین بر همت و غیرت جوانان ایرانی!» چه نوع جمله‌ای است؟</span>
+          <div class="choice opt-group">
+            <button class="opt-btn" onclick="selectChoice(this)">خبری</button>
+            <button class="opt-btn" onclick="selectChoice(this)">پرسشی</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">عاطفی / تحسینی</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۳. در جمله «ای دوست، قدر وقت را بدان»، کلمه «ای دوست» چه نقشی دارد؟</span>
+          <div class="choice opt-group">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">منادا و شبه‌جمله ندایی</button>
+            <button class="opt-btn" onclick="selectChoice(this)">مفعول</button>
+            <button class="opt-btn" onclick="selectChoice(this)">فعل</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۴. ساختار استاندارد جمله در زبان فارسی کدام است؟</span>
+          <div class="choice opt-group">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">نهاد + مفعول/متمم + فعل</button>
+            <button class="opt-btn" onclick="selectChoice(this)">فعل + نهاد + مفعول</button>
+            <button class="opt-btn" onclick="selectChoice(this)">مفعول + فعل + نهاد</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="exercise-box" style="margin-top:6px; padding:6px 10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:11.5px; font-weight:800; color:#0d9488;">⭐ خودسنجی دانش‌آموز از یادگیری این بخش:</span>
+        <div class="star-rating">
+          <button class="star-btn" onclick="rateStars(1, this)">★</button>
+          <button class="star-btn" onclick="rateStars(2, this)">★</button>
+          <button class="star-btn" onclick="rateStars(3, this)">★</button>
+          <button class="star-btn" onclick="rateStars(4, this)">★</button>
+          <button class="star-btn" onclick="rateStars(5, this)">★</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-key-box" id="answer-p2">
+      
+    <strong>🔑 کلید پاسخ‌های صفحه دوم:</strong><br>
+    • فعالیت ۲ (نثر ابیات): نثر روان سعدی با آوردن نهاد در ابتدا و فعل در پایان جمله.<br>
+    • فعالیت ۳ (وصل‌کردنی): ۱->پرسشی | ۲->عاطفی و نیایشی | ۳->امری و پندآموز | ۴->خبری.<br>
+    • فعالیت ۴ (تست‌ها): ۱->رعایت وزن، آهنگ و قافیه | ۲->عاطفی/تحسینی | ۳->منادا و شبه‌جمله ندایی | ۴->نهاد + مفعول/متمم + فعل.
+    
+    </div>
+
+    <div class="footer-box">
+      <span>صفحه ۲ از ۳ — سنجش درک زبانی و مهارتی</span>
+      <span class="designer-badge">طراح آموزشی: نیما آزمکان</span>
+      <span>امتیاز عملکرد: ........ از ۱۰۰</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= PAGE 3 ========================= -->
+<div class="page" id="page-3">
+  <canvas class="draw-canvas" id="canvas-3"></canvas>
+  <div class="blob two"></div>
+  <div class="blob one"></div>
+  <span class="corner top-right">📝</span>
+  <span class="corner top-left">🖋️</span>
+  <span class="corner bottom-right">🌟</span>
+  <span class="corner bottom-left">🏆</span>
+
+  <div class="content">
+    <div class="header-box" style="padding:5px 12px; margin-bottom:7px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; font-weight:800; color:#0d9488;">🖋️ صفحه سوم: کارگاه نگارش خلاق، تولید متن و پاسخ‌نامه تحلیلی</span>
+        <span class="badge">درس اول (ستایش، معرفت آفریدگار و باد بهاری)</span>
+      </div>
+    </div>
+
+    
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <span><span class="badge-num">کارگاه نگارش ۱</span> توصیف شگفتی‌های آفرینش با به کارگیری انواع چهارگانه جمله</span>
+      </div>
+      <p style="font-size:11.5px; line-height:1.6; color:#374151;">
+        یک بند منسجم و ادبی (۵ تا ۶ خط) در ستایش زیبایی‌های طبیعت و معرفت پروردگار بنویسید.<br>
+        <strong>شرایط نگارش:</strong> در متن خود حتماً از هر چهار نوع جمله (<span class="highlight-box">خبری</span>، <span class="highlight-box">پرسشی</span>، <span class="highlight-box">امری</span> و <span class="highlight-box">عاطفی/تعجبی</span>) با نشانه‌گذاری دقیق (نقطه، علامت سوال، تعجب) استفاده نمایید.
+      </p>
+      <div class="paragraph-writing-box">
+        <textarea class="lined-textarea" placeholder="جهان هستی چون کتابی گشوده پیش روی ماست (خبری). آیا تا کنون به رقص برگ‌ها در باد اندیشیده‌ای؟ (پرسشی)..."></textarea>
+      </div>
+    </div>
+
+    <div class="exercise-box" style="margin-top:7px;">
+      <div class="exercise-title">
+        <span><span class="badge-num">کارگاه نگارش ۲</span> جدول بازنویسی و تبدیل نظم به نثر معیار</span>
+      </div>
+      <table class="custom-table">
+        <tr>
+          <th>بیت شعر</th>
+          <th>برگردان دقیق به نثر ساده امروزی</th>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">«آفرینش همه تنبیه خداوند دل است / دل ندارد که ندارد به خداوند اقرار»</td>
+          <td><input type="text" class="text-input" data-ans="تمام جهان آفرینش مایه آگاهی و بیداری انسان صاحب‌دل و هوشیار است و کسی که به وجود خدا اعتراف نکند، اصلاً دل و احساسی ندارد.|همه آفرینش انسان دانا را بیدار می‌کند و کسی که خدا را نشناسد دل ندارد." placeholder="نثر روان بنویسید..."></td>
+        </tr>
+      </table>
+    </div>
+    
+
+    <div class="exercise-box" style="margin-top:8px;">
+      <div class="exercise-title">
+        <span><span class="badge-num">📊</span> جدول بازخورد آموزگار و ارزیابی نهایی</span>
+      </div>
+      <table class="custom-table">
+        <tr>
+          <th>معیار ارزیابی</th>
+          <th>خیلی خوب (⭐⭐⭐)</th>
+          <th>خوب (⭐⭐)</th>
+          <th>نیازمند تلاش (⭐)</th>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">تسلط بر قواعد زبانی و نگارشی درس</td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">دقت املایی و نشانه‌گذاری صحیح</td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">خلاقیت در بندنویسی و کاربرد واژگان</td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+          <td><input type="checkbox" style="transform:scale(1.2);"></td>
+        </tr>
+      </table>
+      <div style="margin-top:5px; font-size:11px; font-weight:700; color:#0d9488; display:flex; gap:10px;">
+        <span>نظر آموزگار: ..........................................................................................</span>
+        <span>امضا: ....................</span>
+      </div>
+    </div>
+
+    <div class="answer-key-box" id="answer-p3">
+      
+    <strong>🔑 پاسخ‌نامه تحلیلی صفحه سوم:</strong><br>
+    • کارگاه نگارش ۱: بررسی وجود هر چهار نوع جمله (خبری، پرسشی، امری، عاطفی) همراه با صحت علائم نگارشی و شیوایی متن توسط آموزگار.<br>
+    • کارگاه نگارش ۲: «پیام بیت سعدی این است که تمام پدیده‌های جهان هستی نشانه‌ای برای هوشیاری انسان باایمان است و انکار پروردگار نشانه بی‌دلی و غفلت است.»
+    
+    </div>
+
+    <div class="footer-box">
+      <span>صفحه ۳ از ۳ — کارگاه انشا، بازخورد کیفی و کلید آزمون</span>
+      <span class="designer-badge">طراح اختصاصی: نیما آزمکان</span>
+      <span>سامانه جامع آموزشی مدارس هوشمند</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let isDrawMode = false;
+let isEraser = false;
+let penColor = '#0d9488';
+let penSizes = [2, 4, 6];
+let currentSizeIndex = 0;
+
+const canvases = [
+  document.getElementById('canvas-1'),
+  document.getElementById('canvas-2'),
+  document.getElementById('canvas-3')
+];
+
+function initCanvases() {
+  canvases.forEach(canvas => {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const resize = () => {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    let drawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const startDraw = (e) => {
+      if (!isDrawMode) return;
+      drawing = true;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      lastX = clientX - rect.left;
+      lastY = clientY - rect.top;
+      e.preventDefault();
+    };
+
+    const draw = (e) => {
+      if (!drawing || !isDrawMode) return;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const currentX = clientX - rect.left;
+      const currentY = clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = penSizes[currentSizeIndex] * 6;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSizes[currentSizeIndex];
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }
+      ctx.stroke();
+      lastX = currentX;
+      lastY = currentY;
+      e.preventDefault();
+    };
+
+    const stopDraw = () => { drawing = false; };
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+  });
+}
+
+function setMode(mode) {
+  const btnType = document.getElementById('btn-type');
+  const btnDraw = document.getElementById('btn-draw');
+  const controls = document.getElementById('draw-controls');
+
+  if (mode === 'draw') {
+    isDrawMode = true;
+    if (btnDraw) btnDraw.classList.add('active');
+    if (btnType) btnType.classList.remove('active');
+    if (controls) controls.classList.add('show');
+    canvases.forEach(c => c && c.classList.add('active-mode'));
+  } else {
+    isDrawMode = false;
+    if (btnDraw) btnDraw.classList.remove('active');
+    if (btnType) btnType.classList.add('active');
+    if (controls) controls.classList.remove('show');
+    canvases.forEach(c => c && c.classList.remove('active-mode'));
+  }
+}
+window.setMode = setMode;
+
+function toggleDrawMode() {
+  setMode(isDrawMode ? 'type' : 'draw');
+}
+window.toggleDrawMode = toggleDrawMode;
+
+function setPenColor(color, dotEl) {
+  penColor = color;
+  isEraser = false;
+  document.getElementById('eraser-btn').classList.remove('active');
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  dotEl.classList.add('active');
+}
+
+function cyclePenSize() {
+  currentSizeIndex = (currentSizeIndex + 1) % penSizes.length;
+  document.getElementById('pen-size-label').textContent = penSizes[currentSizeIndex];
+}
+
+function toggleEraser() {
+  isEraser = !isEraser;
+  const eraserBtn = document.getElementById('eraser-btn');
+  if (isEraser) eraserBtn.classList.add('active');
+  else eraserBtn.classList.remove('active');
+}
+
+function clearAllCanvases() {
+  canvases.forEach(c => {
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+  });
+}
+
+let selectedRightMatch = null;
+function handleMatchClick(el, pagePrefix) {
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  if (!wrapper) return;
+  wrapper.querySelectorAll('.match-column.right-col .match-item').forEach(item => item.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRightMatch = el.getAttribute('data-id');
+}
+
+function handleMatchTarget(item, pagePrefix) {
+  if (selectedRightMatch === null) return;
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  if (!wrapper) return;
+  const targetMatch = item.getAttribute('data-match');
+  if (targetMatch === selectedRightMatch) {
+    const rightEl = wrapper.querySelector(`.match-column.right-col .match-item[data-id="${selectedRightMatch}"]`);
+    for (let i = 0; i < 4; i++) {
+      rightEl.classList.remove(`matched-${i}`);
+      item.classList.remove(`matched-${i}`);
+    }
+    rightEl.classList.add(`matched-${selectedRightMatch}`);
+    item.classList.add(`matched-${selectedRightMatch}`);
+    rightEl.classList.remove('selected');
+    selectedRightMatch = null;
+  }
+}
+
+function selectChoice(btn) {
+  const parent = btn.closest('.choice');
+  parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected', 'is-correct', 'is-wrong'));
+  btn.classList.add('selected');
+}
+
+function rateStars(num, btn) {
+  const container = btn.closest('.star-rating');
+  const buttons = container.querySelectorAll('.star-btn');
+  buttons.forEach((b, idx) => {
+    if (idx < num) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+
+function checkAllAnswers() {
+  let total = 0, correct = 0;
+  const inputs = document.querySelectorAll('input[data-ans]');
+  inputs.forEach(input => {
+    total++;
+    const userVal = input.value.trim().replace(/\s+/g, ' ');
+    const accepted = input.getAttribute('data-ans').split('|').map(s => s.trim());
+    let isMatch = accepted.some(ans => userVal === ans || userVal.replace(/‌/g, '') === ans.replace(/‌/g, ''));
+    if (userVal && isMatch) {
+      correct++;
+      input.classList.remove('incorrect');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct');
+      if (userVal) input.classList.add('incorrect');
+    }
+  });
+
+  const choices = document.querySelectorAll('.choice');
+  choices.forEach(c => {
+    const selected = c.querySelector('.opt-btn.selected');
+    if (selected) {
+      total++;
+      if (selected.getAttribute('data-correct') === 'true') {
+        correct++;
+        selected.classList.add('is-correct');
+      } else {
+        selected.classList.add('is-wrong');
+      }
+    }
+  });
+  alert(`🎯 نتیجه بررسی کاربرگ:\nتعداد پاسخ‌های صحیح: ${correct} از ${total}\nنمره تقریبی: ${Math.round((correct/total)*100)} از ۱۰۰`);
+}
+window.checkAllAnswers = checkAllAnswers;
+
+function toggleAnswerKey() {
+  const p2Ans = document.getElementById('answer-p2');
+  const p3Ans = document.getElementById('answer-p3');
+  if (p2Ans) p2Ans.classList.toggle('show');
+  if (p3Ans) p3Ans.classList.toggle('show');
+}
+window.toggleAnswerKey = toggleAnswerKey;
+
+function resetWorksheet() {
+  if (confirm('آیا می‌خواهید تمام پاسخ‌ها و یادداشت‌های این کاربرگ پاک شوند؟')) {
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      el.value = '';
+      el.classList.remove('correct', 'incorrect');
+    });
+    document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected', 'is-correct', 'is-wrong'));
+    document.querySelectorAll('.match-item').forEach(el => el.classList.remove('selected', 'matched-0', 'matched-1', 'matched-2', 'matched-3'));
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    clearAllCanvases();
+  }
+}
+window.resetWorksheet = resetWorksheet;
+
+window.addEventListener('DOMContentLoaded', () => { initCanvases(); });
+</script>
+</body>
+</html>

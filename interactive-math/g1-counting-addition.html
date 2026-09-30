@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>کارگاه شمارش چندتا چندتا، جمع و تفریق مرحله‌ای — سازنده: نیما آزمکان</title>
+  <style>
+    :root{
+      --bg1: #0f172a;
+      --bg2: #1e1b4b;
+      --card: rgba(255, 255, 255, 0.08);
+      --stroke: rgba(255, 255, 255, 0.15);
+      --text: #f8fafc;
+      --muted: rgba(248, 250, 252, 0.75);
+      --accent: #f59e0b;
+      --accent2: #ec4899;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 20%, rgba(245, 158, 11, 0.18), transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.2), transparent 50%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+      padding: 15px;
+    }
+    .container{ max-width: 1100px; margin: 0 auto; }
+    .topbar{
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      padding-bottom: 15px; border-bottom: 1px solid var(--stroke); margin-bottom: 20px;
+    }
+    .topbar h1{ margin: 0; font-size: 20px; color: var(--accent); }
+    .badge{
+      background: rgba(255,255,255,0.1); border: 1px solid var(--stroke); padding: 6px 14px;
+      border-radius: 999px; font-size: 13px;
+    }
+    .grid-box{ display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 20px; }
+    @media (max-width: 850px){ .grid-box{ grid-template-columns: 1fr; } }
+    .card{
+      background: var(--card); border: 1px solid var(--stroke); border-radius: 20px;
+      padding: 22px; box-shadow: var(--shadow); backdrop-filter: blur(10px);
+    }
+    .card-title{ font-size: 16px; font-weight: bold; margin-top: 0; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* Navigation Pills for Operations */
+    .op-nav-pills{
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px;
+      background: rgba(0,0,0,0.25); padding: 6px; border-radius: 14px; border: 1px solid var(--stroke);
+    }
+    .op-pill-btn{
+      background: transparent; border: 1px solid transparent; color: var(--muted);
+      padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .op-pill-btn:hover{ color: #fff; background: rgba(255,255,255,0.05); }
+    .op-pill-btn.active{ background: var(--accent); color: #000; font-weight: 800; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3); }
+
+    .problem-visual{
+      background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; text-align: center; margin: 15px 0;
+    }
+    .visual-items{ display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 15px 0; min-height: 50px; }
+    .apple-item{ font-size: 32px; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .group-box{ background: rgba(255,255,255,0.06); border: 1px dashed var(--accent); border-radius: 12px; padding: 6px 10px; display: inline-flex; gap: 4px; }
+    @keyframes popIn{ 0%{ transform: scale(0); } 100%{ transform: scale(1); } }
+    
+    .equation-display{ font-size: 36px; font-weight: 900; letter-spacing: 2px; color: #fff; margin: 10px 0; }
+    .box-sq{
+      width: 54px; height: 50px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4); color: #fff; font-size: 24px; font-weight: 900; text-align: center;
+      outline: none; transition: all 0.2s ease;
+    }
+    .box-sq:focus{ border-color: var(--accent); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25); background: rgba(15, 23, 42, 0.8); }
+    .box-sq.ok{ border-color: var(--good) !important; background: rgba(34, 197, 94, 0.2) !important; color: #4ade80 !important; }
+    .box-sq.bad{ border-color: var(--bad) !important; background: rgba(239, 68, 68, 0.25) !important; color: #f87171 !important; }
+
+    /* Number Axis */
+    .axis-container{ width: 100%; max-width: 500px; margin: 15px auto; padding: 10px 0; }
+    .axis-line{ height: 4px; background: var(--accent); position: relative; border-radius: 2px; }
+    .axis-ticks{ display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--muted); }
+
+    .step-box{
+      background: rgba(255,255,255,0.04); border: 1px solid var(--stroke); border-radius: 12px; padding: 14px; margin-top: 12px;
+      display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 22px;
+    }
+
+    button, select{
+      font-family: inherit; font-size: 13px; padding: 8px 14px; border-radius: 10px;
+      border: 1px solid var(--stroke); background: rgba(0,0,0,0.3); color: #fff; cursor: pointer;
+    }
+    .btn-action{ background: linear-gradient(135deg, var(--accent), var(--accent2)); font-weight: bold; color: #000; border: none; }
+    
+    .stats-card{ text-align: center; }
+    .score-circle{
+      width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--accent);
+      margin: 15px auto; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      background: rgba(0,0,0,0.2);
+    }
+    .score-num{ font-size: 32px; font-weight: 900; color: #fff; }
+    .score-lbl{ font-size: 11px; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header class="topbar">
+    <h1>🍎 کارگاه شمارش چندتا چندتا، جمع و تفریق — پایه اول</h1>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <div class="badge">دانش‌آموز: <strong id="studentName">نوآموز باهوش</strong></div>
+      <div class="badge">طراح: <strong>نیما آزمکان</strong></div>
+    </div>
+  </header>
+
+  <div class="grid-box">
+    <section class="card">
+      <div class="card-title">
+        <span>مسئله و فعالیت ریاضی</span>
+        <select id="diffSelect">
+          <option value="easy">آسان (تا ۱۰)</option>
+          <option value="medium" selected>متوسط (تا ۲۰)</option>
+          <option value="hard">سخت (الگوها و دو رقمی)</option>
+        </select>
+      </div>
+
+      <!-- Navigation Pills for Modes -->
+      <div class="op-nav-pills" id="opNavPills">
+        <button type="button" class="op-pill-btn active" data-mode="skip_count">🔢 شمارش چندتا چندتا (۲، ۵، ۱۰)</button>
+        <button type="button" class="op-pill-btn" data-mode="step_add">➕ جمع مرحله‌به‌مرحله با شکل</button>
+        <button type="button" class="op-pill-btn" data-mode="step_sub">➖ تفریق با خط زدن و مربع</button>
+        <button type="button" class="op-pill-btn" data-mode="compare">⚖️ مقایسه کمتر و بیشتر (&lt; = &gt;)</button>
+        <button type="button" class="op-pill-btn" data-mode="axis">📏 پرش روی محور اعداد</button>
+      </div>
+
+      <div class="problem-visual">
+        <div class="visual-items" id="visualContainer"></div>
+        <div class="equation-display" id="equationBox"></div>
+      </div>
+
+      <div class="step-box" id="stepBox"></div>
+
+      <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+        <button class="btn-action" id="checkBtn">بررسی پاسخ 🚀</button>
+        <button class="btn-action" id="nextBtn" style="background:rgba(255,255,255,0.1); color:#fff;">مسئله بعدی 🎲</button>
+      </div>
+    </section>
+
+    <aside class="card stats-card">
+      <div class="card-title">کارنامه و عملکرد</div>
+      <div class="score-circle">
+        <span class="score-num" id="correctScore">0</span>
+        <span class="score-lbl">پاسخ درست</span>
+      </div>
+      <p id="msgHelp" style="font-size:13px; color:var(--muted); line-height:1.8;">
+        شکل‌ها را با دقت نگاه کن و عدد مناسب را در مربع‌ها وارد کن!
+      </p>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+  let mode = 'skip_count';
+  let diff = 'medium';
+  let correctCount = 0;
+  let expVal = 0, expVal2 = 0;
+  const emojis = ['🍎', '⭐', '🎈', '🚗', '🐱', '🍭', '🍓', '🐸', '⚽', '🧁'];
+
+  const visualContainer = document.getElementById('visualContainer');
+  const equationBox = document.getElementById('equationBox');
+  const stepBox = document.getElementById('stepBox');
+  const checkBtn = document.getElementById('checkBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const diffSelect = document.getElementById('diffSelect');
+  const correctScore = document.getElementById('correctScore');
+  const msgHelp = document.getElementById('msgHelp');
+  const studentName = document.getElementById('studentName');
+
+  let audioCtx = null;
+  function playTone(freq, dur=0.2){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(g).connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + dur);
+    } catch(e){}
+  }
+
+  function newProblem(){
+    diff = diffSelect.value;
+    const em = emojis[Math.floor(Math.random() * emojis.length)];
+
+    if(mode === 'skip_count'){
+      const step = [2, 5, 10][Math.floor(Math.random() * 3)];
+      const count = Math.floor(Math.random() * 4) + 2; // 2 to 5 groups
+      expVal = step * count;
+
+      let groupsHtml = '';
+      for(let g=0; g<count; g++){
+        groupsHtml += `<div class="group-box">${Array(step).fill(`<span class="apple-item">${em}</span>`).join('')}</div>`;
+      }
+      visualContainer.innerHTML = groupsHtml;
+      equationBox.innerHTML = `شمارش ${step} تا ${step} تا: چند تا ${em} در مجموع داریم؟`;
+      stepBox.innerHTML = `
+        <span>تعداد کل شکل‌ها = </span>
+        <input class="box-sq" id="sqAns" maxlength="3" placeholder="؟" inputmode="numeric">
+      `;
+    }
+    else if(mode === 'step_add'){
+      const a = Math.floor(Math.random() * 8) + 2;
+      const b = Math.floor(Math.random() * (18 - a)) + 1;
+      expVal = a + b;
+
+      visualContainer.innerHTML = `
+        <div class="group-box">${Array(a).fill(`<span class="apple-item">${em}</span>`).join('')}</div>
+        <span style="font-size:28px; margin:0 8px;">➕</span>
+        <div class="group-box">${Array(b).fill(`<span class="apple-item">${em}</span>`).join('')}</div>
+      `;
+      equationBox.innerHTML = `${a} + ${b} = ؟`;
+      stepBox.innerHTML = `
+        <span>${a} + ${b} = </span>
+        <input class="box-sq" id="sqAns" maxlength="3" placeholder="؟" inputmode="numeric">
+      `;
+    }
+    else if(mode === 'step_sub'){
+      const a = Math.floor(Math.random() * 10) + 6;
+      const b = Math.floor(Math.random() * (a - 2)) + 1;
+      expVal = a - b;
+
+      let itemsHtml = '';
+      for(let i=0; i<a; i++){
+        if(i < a - b){
+          itemsHtml += `<span class="apple-item">${em}</span>`;
+        } else {
+          itemsHtml += `<span class="apple-item" style="opacity:0.3; filter:grayscale(1);">❌</span>`;
+        }
+      }
+      visualContainer.innerHTML = itemsHtml;
+      equationBox.innerHTML = `${a} منهای ${b} تا باقیمانده:`;
+      stepBox.innerHTML = `
+        <span>${a} − ${b} = </span>
+        <input class="box-sq" id="sqAns" maxlength="3" placeholder="؟" inputmode="numeric">
+      `;
+    }
+    else if(mode === 'compare'){
+      const a = Math.floor(Math.random() * 18) + 1;
+      const b = Math.floor(Math.random() * 18) + 1;
+      expVal = (a > b) ? '>' : (a < b) ? '<' : '=';
+
+      visualContainer.innerHTML = `
+        <div class="group-box" style="font-size:24px; font-weight:bold; padding:10px 20px;">${a}</div>
+        <span style="font-size:28px; margin:0 12px;">⚪</span>
+        <div class="group-box" style="font-size:24px; font-weight:bold; padding:10px 20px;">${b}</div>
+      `;
+      equationBox.innerHTML = `علامت مناسب را انتخاب کن ( &gt;  =  &lt; )`;
+      stepBox.innerHTML = `
+        <input class="box-sq" id="sqAns" maxlength="1" style="font-size:28px;" placeholder="علامت">
+      `;
+    }
+    else if(mode === 'axis'){
+      const start = Math.floor(Math.random() * 6) + 1;
+      const jump = Math.floor(Math.random() * 6) + 2;
+      expVal = start + jump;
+
+      visualContainer.innerHTML = `
+        <div class="axis-container">
+          <div class="axis-line"></div>
+          <div class="axis-ticks">
+            <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span><span>20</span>
+          </div>
+        </div>
+      `;
+      equationBox.innerHTML = `از عدد ${start} به اندازه ${jump} تا جلو می‌رویم:`;
+      stepBox.innerHTML = `
+        <span>مقصد روی محور = </span>
+        <input class="box-sq" id="sqAns" maxlength="3" placeholder="؟" inputmode="numeric">
+      `;
+    }
+
+    msgHelp.textContent = 'پاسخ را در مربع وارد کن و دکمه بررسی را بزن.';
+    setTimeout(() => { document.getElementById('sqAns')?.focus(); }, 50);
+  }
+
+  function check(){
+    const inSq = document.getElementById('sqAns');
+    if(!inSq || !inSq.value.trim()) return;
+
+    let userV = inSq.value.trim();
+    let isCorrect = false;
+
+    if(mode === 'compare'){
+      isCorrect = (userV === expVal);
+    } else {
+      isCorrect = (parseInt(userV, 10) === expVal);
+    }
+
+    if(isCorrect){
+      inSq.classList.add('ok');
+      playTone(550, 0.2);
+      correctCount++;
+      correctScore.textContent = correctCount;
+      msgHelp.innerHTML = '🌟 آفرین نوآموز باهوش! پاسخ کاملاً درست بود.';
+
+      try {
+        window.parent?.postMessage({
+          type: 'MATH_APP_COMPLETED',
+          appId: 'g1-counting-addition',
+          gradeId: 'g1',
+          correctCount
+        }, '*');
+      } catch(e){}
+
+      setTimeout(newProblem, 1200);
+    } else {
+      inSq.classList.add('bad');
+      playTone(180, 0.25);
+      msgHelp.innerHTML = `❌ جواب درست ${expVal} بود. دوباره امتحان کن!`;
+      setTimeout(newProblem, 1800);
+    }
+  }
+
+  checkBtn.onclick = check;
+  nextBtn.onclick = newProblem;
+  diffSelect.onchange = newProblem;
+
+  document.querySelectorAll('#opNavPills .op-pill-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#opNavPills .op-pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.getAttribute('data-mode');
+      newProblem();
+    };
+  });
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('studentName')){
+    studentName.textContent = decodeURIComponent(urlParams.get('studentName') || '');
+  }
+
+  newProblem();
+})();
+</script>
+</body>
+</html>

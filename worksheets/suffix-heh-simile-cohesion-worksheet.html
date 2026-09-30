@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>کاربرگ پسوند «ه»، تشبیه، کلمات مخالف و انسجام بند — فارسی سوم دبستان (درس پانزدهم: دریا)</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --primary-color: #0284c7;       /* آبی دریا و امواج */
+  --secondary-color: #0d9488;     /* فیروزه‌ای آب زلال */
+  --accent-color: #f59e0b;        /* خورشید تابان ساحل */
+  --purple-color: #7c3aed;        /* بنفش غروب دریا */
+  --rose-color: #e11d48;          /* سرخ */
+  --text-dark: #1f2937;
+  --bg-card: #f0f9ff;
+}
+
+@page{
+  size: A4 portrait;
+  margin: 7mm;
+}
+
+body{
+  direction: rtl;
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #e0f2fe, #f0fdfa, #fefce8);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  line-height: 1.55;
+}
+
+.floating-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  border: 2px solid #bae6fd;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-print { background: linear-gradient(135deg, #0284c7, #0d9488); }
+.btn-draw { background: linear-gradient(135deg, #7c3aed, #0284c7); }
+.btn-draw.active { background: linear-gradient(135deg, #dc2626, #ea580c); box-shadow: 0 0 10px #ea580c; }
+.btn-check { background: linear-gradient(135deg, #047857, #10b981); }
+.btn-answer { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.btn-reset { background: linear-gradient(135deg, #475569, #64748b); }
+
+.draw-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #e0f2fe;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #bae6fd;
+}
+
+.draw-controls.show { display: inline-flex; }
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+
+.color-dot:hover, .color-dot.active {
+  transform: scale(1.25);
+  border-color: #1f2937;
+}
+
+.pen-size-btn, .eraser-btn, .clear-canvas-btn {
+  background: #fff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #0369a1;
+}
+
+.eraser-btn.active {
+  background: #bae6fd;
+  border-color: #0284c7;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 18px auto 28px;
+  padding: 7.5mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+  page-break-after: always;
+}
+
+.page:last-of-type { page-break-after: auto; }
+.content { position: relative; z-index: 2; }
+
+.draw-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.draw-canvas.active-mode {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.blob.one {
+  width: 230px;
+  height: 230px;
+  top: -100px;
+  right: -90px;
+  background: radial-gradient(circle, rgba(2,132,199,0.15), transparent 70%);
+}
+.blob.two {
+  width: 270px;
+  height: 270px;
+  bottom: -110px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(13,148,136,0.15), transparent 70%);
+}
+.blob.three {
+  width: 190px;
+  height: 190px;
+  top: 42%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%);
+}
+
+.corner {
+  position: absolute;
+  z-index: 1;
+  font-size: 28px;
+  opacity: 0.22;
+  user-select: none;
+}
+.top-right { top: 8px; right: 10px; }
+.top-left { top: 8px; left: 10px; }
+.bottom-right { bottom: 8px; right: 10px; }
+.bottom-left { bottom: 8px; left: 10px; }
+
+.header-box {
+  border: 2px solid #0284c7;
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 9px;
+  position: relative;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px dashed #bae6fd;
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+}
+
+.header-emblem {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0369a1;
+  text-align: right;
+  line-height: 1.35;
+}
+
+.header-title-box {
+  text-align: center;
+  flex: 1;
+  padding: 0 10px;
+}
+
+.header-title-box h1 {
+  font-size: 15px;
+  font-weight: 900;
+  color: #0369a1;
+  margin-bottom: 2px;
+}
+
+.header-title-box .badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #0284c7, #0d9488);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 1.5px 10px;
+  border-radius: 10px;
+}
+
+.header-left-info {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0d9488;
+  line-height: 1.4;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+}
+
+.meta-input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0284c7;
+  outline: none;
+  width: 100%;
+}
+
+.rule-card {
+  border-radius: 10px;
+  padding: 8px 11px;
+  margin-bottom: 9px;
+  border-right: 5px solid;
+  position: relative;
+}
+
+.rule-blue {
+  background: #f0f9ff;
+  border-right-color: #0284c7;
+  border: 1px solid #bae6fd;
+  border-right-width: 5px;
+}
+
+.rule-teal {
+  background: #f0fdfa;
+  border-right-color: #0d9488;
+  border: 1px solid #99f6e4;
+  border-right-width: 5px;
+}
+
+.rule-amber {
+  background: #fffbeb;
+  border-right-color: #d97706;
+  border: 1px solid #fed7aa;
+  border-right-width: 5px;
+}
+
+.rule-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.rule-blue .rule-header { color: #0369a1; }
+.rule-teal .rule-header { color: #115e59; }
+.rule-amber .rule-header { color: #92400e; }
+
+.rule-body {
+  font-size: 11.5px;
+  color: #374151;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+.highlight-box {
+  display: inline-block;
+  background: #fef08a;
+  color: #854d0e;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.exercise-box {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.exercise-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1f2937;
+  border-bottom: 1.5px solid #f3f4f6;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.exercise-title .badge-num {
+  background: #0284c7;
+  color: #fff;
+  font-size: 10.5px;
+  padding: 1.5px 7px;
+  border-radius: 12px;
+  margin-left: 5px;
+}
+
+.exercise-title .badge-teal { background: #0d9488; }
+.exercise-title .badge-amber { background: #d97706; }
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.custom-table th {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 800;
+  border: 1px solid #bae6fd;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.custom-table td {
+  border: 1px solid #bae6fd;
+  padding: 4px 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.custom-table.teal-table th {
+  background: #ccfbf1;
+  color: #115e59;
+  border-color: #99f6e4;
+}
+.custom-table.teal-table td { border-color: #99f6e4; }
+
+.text-input {
+  width: 100%;
+  border: 1.5px solid #bae6fd;
+  background: #f0f9ff;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.text-input:focus {
+  border-color: #0284c7;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(2,132,199,0.35);
+}
+
+.text-input.correct {
+  border-color: #10b981 !important;
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.text-input.incorrect {
+  border-color: #ef4444 !important;
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.match-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.match-column { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+.match-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.match-item:hover { border-color: #0284c7; background: #f0f9ff; }
+.match-item.selected { border-color: #0284c7; background: #e0f2fe; box-shadow: 0 0 0 2px #0284c7; }
+
+.match-item.matched-0 { border-color: #0284c7; background: #f0f9ff; color: #0369a1; font-weight: 800; }
+.match-item.matched-1 { border-color: #0d9488; background: #f0fdfa; color: #115e59; font-weight: 800; }
+.match-item.matched-2 { border-color: #d97706; background: #fef3c7; color: #92400e; font-weight: 800; }
+.match-item.matched-3 { border-color: #7c3aed; background: #f5f3ff; color: #5b21b6; font-weight: 800; }
+
+.match-item .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  background: #fff;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 5px 0;
+}
+
+.choice-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.opt-group { display: flex; gap: 4px; }
+
+.opt-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.opt-btn:hover { background: #e0f2fe; border-color: #0284c7; }
+.opt-btn.selected { background: #0284c7; color: #fff; border-color: #0369a1; }
+.opt-btn.is-correct { background: #0d9488 !important; color: #fff !important; border-color: #115e59 !important; }
+.opt-btn.is-wrong { background: #dc2626 !important; color: #fff !important; border-color: #991b1b !important; }
+
+.paragraph-writing-box {
+  background: #f0f9ff;
+  border: 2px dashed #38bdf8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.lined-textarea {
+  width: 100%;
+  min-height: 110px;
+  border: none;
+  background: repeating-linear-gradient(transparent, transparent 23px, #bae6fd 24px);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 24px;
+  outline: none;
+  resize: vertical;
+  text-indent: 25px;
+  padding: 2px 4px;
+}
+
+.answer-key-box {
+  display: none;
+  background: #f0f9ff;
+  border: 1.5px solid #0284c7;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #0369a1;
+}
+
+.answer-key-box.show { display: block; }
+
+.star-rating { display: inline-flex; gap: 3px; direction: ltr; }
+.star-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #d1d5db; transition: transform 0.15s, color 0.15s; }
+.star-btn:hover, .star-btn.active { color: #f59e0b; transform: scale(1.15); }
+
+.footer-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1.5px dashed #bae6fd;
+  padding-top: 5px;
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.designer-badge {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+@media print {
+  body { background: #fff !important; }
+  .floating-toolbar { display: none !important; }
+  .page {
+    width: 100% !important; min-height: auto !important; margin: 0 !important;
+    padding: 5mm !important; border-radius: 0 !important; box-shadow: none !important;
+    page-break-after: always !important;
+  }
+  .page:last-of-type { page-break-after: auto !important; }
+  .answer-key-box { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="floating-toolbar">
+  <button class="tool-btn btn-print" onclick="window.print()">🖨️ چاپ / ذخیره PDF</button>
+  <button class="tool-btn btn-draw" id="btn-draw" onclick="toggleDrawMode()">✏️ قلم نوری (فعال/غیرفعال)</button>
+  
+  <div class="draw-controls" id="draw-controls">
+    <div class="color-dot active" style="background:#0284c7;" onclick="setPenColor('#0284c7', this)" title="آبی"></div>
+    <div class="color-dot" style="background:#0d9488;" onclick="setPenColor('#0d9488', this)" title="فیروزه‌ای"></div>
+    <div class="color-dot" style="background:#d97706;" onclick="setPenColor('#d97706', this)" title="طلایی"></div>
+    <div class="color-dot" style="background:#7c3aed;" onclick="setPenColor('#7c3aed', this)" title="بنفش"></div>
+    <div class="color-dot" style="background:#dc2626;" onclick="setPenColor('#dc2626', this)" title="سرخ"></div>
+    <button class="pen-size-btn" onclick="cyclePenSize()">ضخامت: <span id="pen-size-label">۲</span></button>
+    <button class="eraser-btn" id="eraser-btn" onclick="toggleEraser()">پاک‌کن</button>
+    <button class="clear-canvas-btn" onclick="clearAllCanvases()">پاکسازی قلم</button>
+  </div>
+
+  <button class="tool-btn btn-check" onclick="checkAllAnswers()">✅ بررسی خودکار</button>
+  <button class="tool-btn btn-answer" onclick="toggleAnswerKey()">💡 کلید پاسخنامه</button>
+  <button class="tool-btn btn-reset" onclick="resetWorksheet()">🔄 بازنشانی</button>
+</div>
+
+<!-- =====================================================
+     صفحه ۱: واژه‌سازی با پسوند «ه» و کلمات متضاد
+===================================================== -->
+<div class="page" id="page-1">
+  <canvas class="draw-canvas" id="canvas-1"></canvas>
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="corner top-right">🌊</div>
+  <div class="corner bottom-left">🐚</div>
+
+  <div class="content">
+    <div class="header-box">
+      <div class="header-top">
+        <div class="header-emblem">
+          جمهوری اسلامی ایران<br>
+          وزارت آموزش و پرورش
+        </div>
+        <div class="header-title-box">
+          <h1>کاربرگ جامع فارسی و نگارش پایه سوم ابتدایی</h1>
+          <span class="badge">درس پانزدهم: دریا (پسوند «ه»، آرایه تشبیه، کلمات مخالف و انسجام بند)</span>
+        </div>
+        <div class="header-left-info">
+          ارزشیابی درس ۱۵<br>
+          صفحه ۱ از ۳ (پسوند ه و متضادها)
+        </div>
+      </div>
+      <div class="meta-grid">
+        <div class="meta-item"><span>نام و نام خانوادگی:</span><input class="meta-input" type="text" placeholder="................"></div>
+        <div class="meta-item"><span>نام آموزگار:</span><input class="meta-input" type="text" placeholder="................"></div>
+        <div class="meta-item"><span>کلاس / دبستان:</span><input class="meta-input" type="text" placeholder="کلاس سوم"></div>
+        <div class="meta-item"><span>تاریخ ارزیابی:</span><input class="meta-input" type="text" placeholder="۱۴۰۳/.. /.."></div>
+      </div>
+    </div>
+
+    <!-- درس‌نامه صفحه ۱ -->
+    <div class="rule-card rule-blue">
+      <div class="rule-header">
+        <span>📖 درس‌نامه آموزشی شماره ۱: واژه‌سازی با پسوند «ه» و کلمات مخالف</span>
+      </div>
+      <div class="rule-body">
+        ۱. <b>پسوند «ه» (های غیرملفوظ / اسم‌ساز و ابزارساز):</b> به پایان کلمات اضافه شده و اسم ابزار یا بخش‌هایی از اشیاء را می‌سازد:
+        <br>
+        • <span class="highlight-box">لب + ه = لبه</span> (لبه باغچه، لبه میز) — <span class="highlight-box">دست + ه = دسته</span> (دسته گل، دسته صندلی)
+        <br>
+        • <span class="highlight-box">تخت + ه = تخته</span> (تخته کلاس) — <span class="highlight-box">چشم + ه = چشمه</span> (محل جوشش آب) — <span class="highlight-box">پشت + ه = پشته</span>.
+        <br>
+        ۲. <b>کلمات متضاد و مخالف در شعر دریا:</b>
+        <br>
+        • پیدا $\longleftrightarrow$ <b>ناپیدا و پنهان</b> | سرد $\longleftrightarrow$ <b>گرم</b> | شاد $\longleftrightarrow$ <b>غمگین</b> | خواب‌آلود $\longleftrightarrow$ <b>بیدار و هشیار</b>
+      </div>
+    </div>
+
+    <!-- تمرین ۱: جدول واژه‌سازی پسوند «ه» -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۱</span> واژه‌ها را با پسوند «ه» ترکیب کرده و کاربرد هر کدام را بنویسید:</div>
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th style="width:25%;">کلمه پایه + ه</th>
+            <th style="width:25%;">واژه جدید با «ه»</th>
+            <th style="width:50%;">کاربرد و معنای واژه</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>لب + ه</td>
+            <td><input type="text" class="text-input" data-ans="لبه" placeholder="لبه"></td>
+            <td><input type="text" class="text-input" data-ans="کناره و حاشیه چیزی|لبه باغچه|حاشیه" placeholder="کناره و حاشیه نازک اشیاء یا باغچه"></td>
+          </tr>
+          <tr>
+            <td>دست + ه</td>
+            <td><input type="text" class="text-input" data-ans="دسته" placeholder="دسته"></td>
+            <td><input type="text" class="text-input" data-ans="جای گرفتن با دست|دسته گل|گروه" placeholder="قسمتی از وسیله برای گرفتن با دست یا مجموعه‌ای از گل"></td>
+          </tr>
+          <tr>
+            <td>تخت + ه</td>
+            <td><input type="text" class="text-input" data-ans="تخته" placeholder="تخته"></td>
+            <td><input type="text" class="text-input" data-ans="صفحه چوبی یا تخته کلاس|چوب پهن" placeholder="صفحه چوبی صاف برای نوشتن یا کاربری"></td>
+          </tr>
+          <tr>
+            <td>چشم + ه</td>
+            <td><input type="text" class="text-input" data-ans="چشمه" placeholder="چشمه"></td>
+            <td><input type="text" class="text-input" data-ans="محل جوشش آب زلال از زمین|جوشش آب" placeholder="جایی که آب زلال و گوارا از زمین می‌جوشد"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- تمرین ۲: وصل‌کردنی کلمات مخالف و متضاد -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۲</span> بازی وصل‌کردنی: کلمات سمت راست را به متضاد و مخالف آنها در سمت چپ وصل کنید:</div>
+      </div>
+      <div class="match-container" id="match-wrapper-p1">
+        <div class="match-column right-col">
+          <div class="match-item" data-id="0" onclick="handleMatchClick(this, 'p1')">
+            <span>۱) صُورتِ پیدا</span>
+            <span class="dot"></span>
+          </div>
+          <div class="match-item" data-id="1" onclick="handleMatchClick(this, 'p1')">
+            <span>۲) تنِ سردِ آب</span>
+            <span class="dot"></span>
+          </div>
+          <div class="match-item" data-id="2" onclick="handleMatchClick(this, 'p1')">
+            <span>۳) انسانِ شاد و خوشحال</span>
+            <span class="dot"></span>
+          </div>
+          <div class="match-item" data-id="3" onclick="handleMatchClick(this, 'p1')">
+            <span>۴) ساحلِ خواب‌آلود</span>
+            <span class="dot"></span>
+          </div>
+        </div>
+
+        <div class="match-column left-col">
+          <div class="match-item" data-match="1" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>خنده‌ی گرم و روشن خورشید</span>
+          </div>
+          <div class="match-item" data-match="3" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>طبیعتِ بیدار، هشیار و پرجنب‌وجوش</span>
+          </div>
+          <div class="match-item" data-match="0" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>پنهان و ناپیدا در ژرفای دریا</span>
+          </div>
+          <div class="match-item" data-match="2" onclick="handleMatchTarget(this, 'p1')">
+            <span class="dot"></span>
+            <span>غمگین، ناراحت و افسرده</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۳: تکمیل جملات -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num">۳</span> جاهای خالی را با واژگان دارای پسوند «ه» کامل کنید:</div>
+      </div>
+      <div style="font-size:11px; line-height:2.1; background:#f0f9ff; padding:6px 10px; border-radius:8px;">
+        ۱) سیب سرخ غلتید و درست در 
+        <input type="text" class="text-input" style="width:75px; display:inline-block;" data-ans="لبه" placeholder=".........."> 
+        باغچه پر از گل یاس ایستاد.<br>
+        ۲) آموزگار روی 
+        <input type="text" class="text-input" style="width:75px; display:inline-block;" data-ans="تخته" placeholder=".........."> 
+        کلاس شعر زیبای دریا را با خطی خوش نوشت.<br>
+        ۳) آب زلال از دل 
+        <input type="text" class="text-input" style="width:75px; display:inline-block;" data-ans="چشمه" placeholder=".........."> 
+        کوهستان جاری شد و به سوی دریا شتافت.
+      </div>
+    </div>
+
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس پانزدهم: دریا</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۱</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     صفحه ۲: آرایه تشبیه و زیبایی‌های کلامی شعر دریا
+===================================================== -->
+<div class="page" id="page-2">
+  <canvas class="draw-canvas" id="canvas-2"></canvas>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+  <div class="corner top-left">🪞</div>
+  <div class="corner bottom-right">🐬</div>
+
+  <div class="content">
+    <div class="header-box" style="border-color:#0d9488; background:linear-gradient(135deg, #f0fdfa, #ccfbf1);">
+      <div class="header-top" style="border-bottom-color:#99f6e4;">
+        <div class="header-emblem" style="color:#115e59;">
+          جمهوری اسلامی ایران<br>
+          فارسی سوم دبستان
+        </div>
+        <div class="header-title-box">
+          <h1 style="color:#115e59;">آشنایی با آرایه زیبای «تشبیه» در زبان فارسی</h1>
+          <span class="badge" style="background:linear-gradient(135deg, #0d9488, #0284c7);">درس ۱۵: دریا — صفحه ۲ از ۳</span>
+        </div>
+        <div class="header-left-info" style="color:#0284c7;">
+          آرایه‌های ادبی و درک شعر<br>
+          همانندسازی و تصویرسازی
+        </div>
+      </div>
+    </div>
+
+    <!-- درس‌نامه صفحه ۲ -->
+    <div class="rule-card rule-teal">
+      <div class="rule-header">
+        <span>🪞 درس‌نامه آموزشی شماره ۲: «تشبیه» چیست؟</span>
+      </div>
+      <div class="rule-body">
+        <b>تشبیه</b> یعنی مانند کردن یک چیز به چیز دیگر به خاطر داشتن یک ویژگی مشترک و زیبا:
+        <br>
+        • مثال ۱ در شعر دریا: <b>«آب، آیینه‌ای است پهناور»</b> $\rightarrow$ آب زلال دریا به <b>آیینه</b> تشبیه شده چون تصویر آسمان را نشان می‌دهد.
+        <br>
+        • مثال ۲ در شعر دریا: <b>«می‌شوم شاد و می‌زنم غوطه، مثلِ ماهی میان آبِ زلال»</b> $\rightarrow$ شنا کردن انسان به <b>ماهی</b> تشبیه شده است.
+        <br>
+        • کلمات نشان‌دهنده تشبیه: <span class="highlight-box">«مانند»</span>، <span class="highlight-box">«مثل»</span>، <span class="highlight-box">«چون»</span>.
+      </div>
+    </div>
+
+    <!-- تمرین ۴: تحلیل تشبیه‌های شعر دریا -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۴</span> جدول کالبدشکافی تشبیه: اجزای تشبیه را در عبارات زیر پیدا کنید:</div>
+      </div>
+      <table class="custom-table teal-table">
+        <thead>
+          <tr>
+            <th style="width:45%;">بیت یا عبارت تشبیهی</th>
+            <th style="width:25%;">چیزی که تشبیه شده</th>
+            <th style="width:30%;">چیزی که به آن مانند شده</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:right;">الف) آب، آیینه‌ای است پهناور.</td>
+            <td>آب دریا</td>
+            <td><input type="text" class="text-input" data-ans="آیینه|آیینه پهناور" placeholder="آیینه"></td>
+          </tr>
+          <tr>
+            <td style="text-align:right;">ب) می‌زنم غوطه، مثل ماهی میان آب.</td>
+            <td>شناگر / انسان</td>
+            <td><input type="text" class="text-input" data-ans="ماهی" placeholder="ماهی"></td>
+          </tr>
+          <tr>
+            <td style="text-align:right;">ج) کتاب مانند پرنده‌ای به سوی نور می‌پرد.</td>
+            <td>کتاب</td>
+            <td><input type="text" class="text-input" data-ans="پرنده|دو بال پرنده" placeholder="پرنده"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- تمرین ۵: کامل کردن تشبیه با کلمات مناسب -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۵</span> جمله‌های تشبیهی زیر را با کلمات زیبا کامل کنید:</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+        <div style="display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700;">
+          <span>۱) دل کودک مثل (آب زلال / سنگ):</span>
+          <input type="text" class="text-input" data-ans="آب زلال|آب پاک|آیینه" placeholder="آب زلال و پاک">
+        </div>
+        <div style="display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700;">
+          <span>۲) خورشید تابان مانند (چراغ طلایی):</span>
+          <input type="text" class="text-input" data-ans="چراغ طلایی|طلا|آتش" placeholder="چراغ طلایی">
+        </div>
+      </div>
+    </div>
+
+    <!-- تمرین ۶: تست گزینه‌ای تشبیه -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۶</span> گزینه‌درست: کدام مصراع دارای «آرایه تشبیه» است؟</div>
+      </div>
+      <div class="choice-grid">
+        <div class="choice-item">
+          <span>۱) آب، آیینه‌ای است پهناور:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">دارای تشبیه</button>
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">بدون تشبیه</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۲) موج از پشت موج می‌آید:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">دارای تشبیه</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">بدون تشبیه</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۳) مثل ماهی، میان آب زلال:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">دارای تشبیه</button>
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">بدون تشبیه</button>
+          </div>
+        </div>
+        <div class="choice-item">
+          <span>۴) آسمان دل‌گشا و دریا رام:</span>
+          <div class="opt-group choice">
+            <button class="opt-btn" data-correct="false" onclick="selectChoice(this)">دارای تشبیه</button>
+            <button class="opt-btn" data-correct="true" onclick="selectChoice(this)">بدون تشبیه</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-key-box" id="answer-p2">
+      <b>🔑 کلید راهنمای صفحه ۲:</b><br>
+      • تمرین ۴: آیینه — ماهی — پرنده<br>
+      • تمرین ۵: ۱) آب زلال/آیینه — ۲) چراغ طلایی/طلا<br>
+      • تمرین ۶: ۱) دارای تشبیه — ۲) بدون تشبیه — ۳) دارای تشبیه — ۴) بدون تشبیه
+    </div>
+
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس پانزدهم: دریا</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۲</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     صفحه ۳: انسجام جملات یک بند و کارگاه نگارش دریا + ارزشیابی
+===================================================== -->
+<div class="page" id="page-3">
+  <canvas class="draw-canvas" id="canvas-3"></canvas>
+  <div class="blob three"></div>
+  <div class="blob one"></div>
+  <div class="corner top-right">✍️</div>
+  <div class="corner bottom-left">🏆</div>
+
+  <div class="content">
+    <div class="header-box" style="border-color:#0284c7; background:linear-gradient(135deg, #f0f9ff, #e0f2fe);">
+      <div class="header-top" style="border-bottom-color:#bae6fd;">
+        <div class="header-emblem" style="color:#0369a1;">
+          جمهوری اسلامی ایران<br>
+          نگارش سوم ابتدایی
+        </div>
+        <div class="header-title-box">
+          <h1 style="color:#0369a1;">کارگاه «انسجام جملات بند» و توصیف زیبایی دریا</h1>
+          <span class="badge" style="background:linear-gradient(135deg, #0284c7, #0d9488);">درس ۱۵: دریا — صفحه ۳ از ۳</span>
+        </div>
+        <div class="header-left-info" style="color:#0369a1;">
+          کارگاه بندنویسی<br>
+          ارزشیابی نهایی
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-card rule-blue">
+      <div class="rule-header">
+        <span>✍️ درس‌نامه آموزشی شماره ۳: انسجام و پیوستگی جمله‌های یک بند</span>
+      </div>
+      <div class="rule-body">
+        <b>انسجام بند یعنی چه؟</b> یعنی تمام جمله‌های یک بند مانند دانه‌های زنجیر به هم متصل باشند و <b>تنها یک موضوع اصلی</b> را توضیح دهند.
+        <br>
+        ۱. هیچ جمله نامربوطی نباید در میان جمله‌های بند قرار بگیرد.
+        <br>
+        ۲. از کلمات پیوند‌دهنده مانند <span class="highlight-box">«بنابراین»</span>، <span class="highlight-box">«همچنین»</span>، <span class="highlight-box">«زیرا»</span> و تشبیه‌های دلنشین استفاده کنید.
+        <br>
+        ۳. رعایت ۴ اصل طلایی: <b>تورفتگی سطر اول</b>، <b>جمله موضوع</b>، <b>جملات هماهنگ</b> و <b>جمله نتیجه‌گیری</b>.
+      </div>
+    </div>
+
+    <!-- تمرین ۷: حذف جمله نامربوط برای ایجاد انسجام -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۷</span> کدام جمله زیر با بقیه جملات بند «توصیف ساحل دریا» هماهنگ نیست و انسجام را به هم می‌زند؟</div>
+      </div>
+      <div style="font-size:11px; line-height:1.9; background:#f0fdfa; padding:6px 10px; border-radius:8px;">
+        (۱) امواج آرام دریا نرم‌نرمک به سوی ساحل ماسه‌ای پیش می‌آیند. (۲) خورشید درخشان، آب زلال را مانند آیینه‌ای نقره‌ای روشن کرده است. (۳) دیروز اتومبیل همسایه ما در ترافیک خراب شد. (۴) مرغان دریایی با بال‌های سفید بر فراز آب غوطه می‌زنند.
+      </div>
+      <div style="margin-top:4px; display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700;">
+        <span>جمله نامربوط که باید حذف شود:</span>
+        <input type="text" class="text-input" style="width:140px;" data-ans="جمله ۳|جمله سوم|۳" placeholder="شماره جمله (جمله ۳)">
+      </div>
+    </div>
+
+    <!-- تمرین ۸: کارگاه نگارش بند خلاق -->
+    <div class="exercise-box">
+      <div class="exercise-title">
+        <div><span class="badge-num badge-teal">۸</span> کارگاه نگارش: درباره <b>«یک روز آرام و شاد در کنار ساحل دریا»</b> یک بند منسجم و زیبا بنویسید:</div>
+      </div>
+      <div class="paragraph-writing-box">
+        <div style="font-size:10.5px; color:#0369a1; font-weight:800; margin-bottom:3px;">
+          💡 نکات: تورفتگی سطر اول + تشبیه (*دریا مانند آیینه*) + انسجام جملات + واژگان پسوند «ه»
+        </div>
+        <textarea class="lined-textarea" placeholder="   تماشای پهنه آبی دریا آرامش‌بخش‌ترین حس دنیا را به انسان هدیه می‌دهد..."></textarea>
+      </div>
+    </div>
+
+    <!-- جدول خودسنجی -->
+    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:8px; margin-top:6px;">
+      <div class="exercise-box" style="margin-bottom:0; padding:6px 8px;">
+        <div style="font-size:11px; font-weight:800; color:#374151; margin-bottom:3px;">🌟 جدول خودسنجی دانش‌آموز:</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:10.5px;">
+          <span>تسلط بر پسوند «ه»، تشبیه و متضادها:</span>
+          <div class="star-rating">
+            <button class="star-btn" onclick="rateStars(1, this)">★</button>
+            <button class="star-btn" onclick="rateStars(2, this)">★</button>
+            <button class="star-btn" onclick="rateStars(3, this)">★</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:10.5px; margin-top:2px;">
+          <span>رعایت انسجام و پیوستگی جملات بند:</span>
+          <div class="star-rating">
+            <button class="star-btn" onclick="rateStars(1, this)">★</button>
+            <button class="star-btn" onclick="rateStars(2, this)">★</button>
+            <button class="star-btn" onclick="rateStars(3, this)">★</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-box" style="margin-bottom:0; padding:6px 8px; text-align:center;">
+        <div style="font-size:11px; font-weight:800; color:#0284c7; margin-bottom:2px;">بازخورد و نمره آموزگار</div>
+        <div style="font-size:10.5px; font-weight:700; color:#6b7280;">
+          خیلی خوب 🟩 | خوب 🟨 | قابل قبول 🟧
+        </div>
+        <div style="margin-top:4px; font-size:10.5px; font-weight:800; color:#0369a1;">
+          امضا و نظر آموزگار: ........................
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-key-box" id="answer-p3">
+      <b>🔑 کلید راهنمای صفحه ۳:</b><br>
+      • تمرین ۷: جمله ۳ (خراب شدن اتومبیل در ترافیک که ربطی به توصیف ساحل دریا ندارد)<br>
+      • تمرین ۸: ارزیابی نگارش بر اساس تورفتگی اول سطر، پیوستگی موضوعی، کاربرد تشبیه و علائم نگارشی.
+    </div>
+
+    <div class="footer-box">
+      <div>فارسی سوم ابتدایی — درس پانزدهم: دریا</div>
+      <div class="designer-badge">طراح: نیما آزمکان</div>
+      <div>صفحه ۳</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let isDrawMode = false;
+let isEraser = false;
+let penColor = '#0284c7';
+let penSizes = [2, 4, 6];
+let currentSizeIndex = 0;
+
+const canvases = [
+  document.getElementById('canvas-1'),
+  document.getElementById('canvas-2'),
+  document.getElementById('canvas-3')
+];
+
+function initCanvases() {
+  canvases.forEach((canvas) => {
+    if (!canvas) return;
+    const page = canvas.parentElement;
+    function resize() {
+      const rect = page.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+      if (!isDrawMode) return;
+      isDrawing = true;
+      const coords = getCoords(e);
+      lastX = coords.x; lastY = coords.y;
+    }
+
+    function draw(e) {
+      if (!isDrawing || !isDrawMode) return;
+      e.preventDefault();
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(coords.x, coords.y);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      if (isEraser) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = penSizes[currentSizeIndex] * 6;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = penColor;
+        ctx.lineWidth = penSizes[currentSizeIndex];
+      }
+      ctx.stroke();
+      lastX = coords.x; lastY = coords.y;
+    }
+
+    function stopDraw() { isDrawing = false; }
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+  });
+}
+
+function toggleDrawMode() {
+  isDrawMode = !isDrawMode;
+  const btn = document.getElementById('btn-draw');
+  const controls = document.getElementById('draw-controls');
+  if (isDrawMode) {
+    btn.classList.add('active');
+    btn.innerHTML = '✏️ حالت قلم: روشن';
+    controls.classList.add('show');
+    canvases.forEach(c => c.classList.add('active-mode'));
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '✏️ قلم نوری (فعال/غیرفعال)';
+    controls.classList.remove('show');
+    canvases.forEach(c => c.classList.remove('active-mode'));
+  }
+}
+
+function setPenColor(color, dotEl) {
+  penColor = color;
+  isEraser = false;
+  document.getElementById('eraser-btn').classList.remove('active');
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  dotEl.classList.add('active');
+}
+
+function cyclePenSize() {
+  currentSizeIndex = (currentSizeIndex + 1) % penSizes.length;
+  document.getElementById('pen-size-label').textContent = penSizes[currentSizeIndex];
+}
+
+function toggleEraser() {
+  isEraser = !isEraser;
+  const eraserBtn = document.getElementById('eraser-btn');
+  if (isEraser) eraserBtn.classList.add('active');
+  else eraserBtn.classList.remove('active');
+}
+
+function clearAllCanvases() {
+  canvases.forEach(c => {
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+  });
+}
+
+let selectedRightMatch = null;
+function handleMatchClick(el, pagePrefix) {
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  wrapper.querySelectorAll('.match-column.right-col .match-item').forEach(item => item.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRightMatch = el.getAttribute('data-id');
+}
+
+function handleMatchTarget(item, pagePrefix) {
+  if (selectedRightMatch === null) return;
+  const wrapper = document.getElementById(`match-wrapper-${pagePrefix}`);
+  const targetMatch = item.getAttribute('data-match');
+  if (targetMatch === selectedRightMatch) {
+    const rightEl = wrapper.querySelector(`.match-column.right-col .match-item[data-id="${selectedRightMatch}"]`);
+    for (let i = 0; i < 4; i++) {
+      rightEl.classList.remove(`matched-${i}`);
+      item.classList.remove(`matched-${i}`);
+    }
+    rightEl.classList.add(`matched-${selectedRightMatch}`);
+    item.classList.add(`matched-${selectedRightMatch}`);
+    rightEl.classList.remove('selected');
+    selectedRightMatch = null;
+  }
+}
+
+function selectChoice(btn) {
+  const parent = btn.closest('.choice');
+  parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected', 'is-correct', 'is-wrong'));
+  btn.classList.add('selected');
+}
+
+function rateStars(num, btn) {
+  const container = btn.closest('.star-rating');
+  const buttons = container.querySelectorAll('.star-btn');
+  buttons.forEach((b, idx) => {
+    if (idx < num) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+
+function checkAllAnswers() {
+  let total = 0, correct = 0;
+  const inputs = document.querySelectorAll('input[data-ans]');
+  inputs.forEach(input => {
+    total++;
+    const userVal = input.value.trim().replace(/\s+/g, ' ');
+    const accepted = input.getAttribute('data-ans').split('|').map(s => s.trim());
+    let isMatch = accepted.some(ans => userVal === ans || userVal.replace(/‌/g, '') === ans.replace(/‌/g, ''));
+    if (userVal && isMatch) {
+      correct++;
+      input.classList.remove('incorrect');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct');
+      if (userVal) input.classList.add('incorrect');
+    }
+  });
+
+  const choices = document.querySelectorAll('.choice');
+  choices.forEach(c => {
+    const selected = c.querySelector('.opt-btn.selected');
+    if (selected) {
+      total++;
+      if (selected.getAttribute('data-correct') === 'true') {
+        correct++;
+        selected.classList.add('is-correct');
+      } else {
+        selected.classList.add('is-wrong');
+      }
+    }
+  });
+  alert(`🎯 نتیجه بررسی کاربرگ:\nتعداد پاسخ‌های صحیح: ${correct} از ${total}\nنمره تقریبی: ${Math.round((correct/total)*100)} از ۱۰۰`);
+}
+
+function toggleAnswerKey() {
+  const p2Ans = document.getElementById('answer-p2');
+  const p3Ans = document.getElementById('answer-p3');
+  const isShown = p2Ans.classList.contains('show');
+  if (isShown) {
+    p2Ans.classList.remove('show');
+    p3Ans.classList.remove('show');
+  } else {
+    p2Ans.classList.add('show');
+    p3Ans.classList.add('show');
+  }
+}
+
+function resetWorksheet() {
+  if (confirm('آیا می‌خواهید تمام پاسخ‌ها و یادداشت‌های این کاربرگ پاک شوند؟')) {
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      el.value = '';
+      el.classList.remove('correct', 'incorrect');
+    });
+    document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected', 'is-correct', 'is-wrong'));
+    document.querySelectorAll('.match-item').forEach(el => el.classList.remove('selected', 'matched-0', 'matched-1', 'matched-2', 'matched-3'));
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    clearAllCanvases();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => { initCanvases(); });
+</script>
+
+</body>
+</html>

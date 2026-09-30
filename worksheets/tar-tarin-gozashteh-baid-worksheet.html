@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>کاربرگ واژه‌سازی با «تر» و «ترین» و فعل گذشته‌ی بعید — فارسی دوم دبستان (درس ۱۲: فردوسی)</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap');
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+  --primary-color: #6a1b9a;
+  --primary-light: #f3e5f5;
+  --secondary-color: #0288d1;
+  --accent-color: #e91e63;
+  --success-color: #2e7d32;
+  --warning-color: #f57c00;
+  --text-dark: #263238;
+}
+
+@page{
+  size: A4 portrait;
+  margin: 7mm;
+}
+
+body{
+  direction: rtl;
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(135deg, #e1f5fe, #f3e5f5, #fff3e0);
+  color: var(--text-dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   نوار ابزار تعاملی معلق (Floating Action Bar)
+===================================================== */
+.floating-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  border: 2px solid #e0e0e0;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-print { background: linear-gradient(135deg, #7b1fa2, #e91e63); }
+.btn-draw { background: linear-gradient(135deg, #0288d1, #00acc1); }
+.btn-draw.active { background: linear-gradient(135deg, #e65100, #f57c00); box-shadow: 0 0 10px #f57c00; }
+.btn-check { background: linear-gradient(135deg, #2e7d32, #43a047); }
+.btn-answer { background: linear-gradient(135deg, #f57c00, #ff9800); }
+.btn-reset { background: linear-gradient(135deg, #546e7a, #78909c); }
+
+/* پالت رنگ و کنترل نقاشی */
+.draw-controls {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #ede7f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #b39ddb;
+}
+
+.draw-controls.show {
+  display: inline-flex;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+}
+
+.color-dot:hover, .color-dot.active {
+  transform: scale(1.25);
+  border-color: #212121;
+}
+
+.color-black { background: #212121; }
+.color-blue { background: #1976d2; }
+.color-red { background: #d32f2f; }
+.color-green { background: #388e3c; }
+.color-eraser { background: #ffffff; border-color: #9e9e9e; }
+
+.draw-size-btn {
+  background: #fff;
+  border: 1.5px solid #b39ddb;
+  border-radius: 8px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.clear-draw-btn {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* =====================================================
+   ساختار صفحه استاندارد A4
+===================================================== */
+.page{
+  width: 210mm;
+  min-height: 297mm;
+  margin: 55px auto 25px;
+  padding: 7.5mm;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.14);
+  page-break-after: always;
+}
+
+.page:last-of-type{
+  page-break-after: auto;
+}
+
+.content{
+  position: relative;
+  z-index: 2;
+}
+
+/* لایه بوم قلم نوری */
+.drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  cursor: crosshair;
+}
+
+.drawing-canvas.active-mode {
+  pointer-events: auto;
+}
+
+/* دکوراسیون و پترن زمینه */
+.blob{
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.blob.one{
+  width: 230px;
+  height: 230px;
+  top: -100px;
+  right: -90px;
+  background: radial-gradient(circle, rgba(233,30,99,0.18), transparent 70%);
+}
+
+.blob.two{
+  width: 270px;
+  height: 270px;
+  bottom: -110px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(0,188,212,0.18), transparent 70%);
+}
+
+.blob.three{
+  width: 190px;
+  height: 190px;
+  top: 42%;
+  left: -100px;
+  background: radial-gradient(circle, rgba(255,193,7,0.16), transparent 70%);
+}
+
+.corner{
+  position: absolute;
+  z-index: 1;
+  font-size: 30px;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.top-right{top:8px;right:10px;}
+.top-left{top:8px;left:10px;}
+.bottom-right{bottom:8px;right:10px;}
+.bottom-left{bottom:8px;left:10px;}
+
+/* =====================================================
+   سربرگ و اطلاعات دانش‌آموز
+===================================================== */
+.header{
+  margin-bottom: 8px;
+  padding: 10px 16px;
+  color: #fff;
+  text-align: center;
+  border: 3px solid #fff;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    #7b1fa2,
+    #3949ab,
+    #0288d1,
+    #00acc1,
+    #43a047
+  );
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.header h1{
+  font-size: 19px;
+  font-weight: 900;
+  text-shadow: 1px 2px 3px rgba(0,0,0,0.28);
+}
+
+.header p{
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.header .emoji{
+  font-size: 18px;
+}
+
+.header.small{
+  padding: 8px 14px;
+  border-radius: 16px;
+}
+
+.header.small h1{
+  font-size: 17px;
+}
+
+.student-info{
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.info-box{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 10px;
+  color: #00695c;
+  font-size: 12px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+  border: 2px dashed #26a69a;
+  border-radius: 11px;
+}
+
+.info-input {
+  flex: 1;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-bottom: 2px dotted #00897b;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #004d40;
+  outline: none;
+  padding: 0 4px;
+}
+
+.info-input:focus {
+  border-bottom-color: #004d40;
+  background: rgba(255,255,255,0.4);
+}
+
+/* =====================================================
+   جعبه‌های آموزش و یادگیری
+===================================================== */
+.learn-box{
+  position: relative;
+  padding: 12px 14px 10px;
+  margin: 9px 0 7px;
+  background: linear-gradient(135deg, #fff8e1, #ffecb3);
+  border: 3px solid #ffb300;
+  border-radius: 16px;
+}
+
+.learn-badge{
+  position: absolute;
+  top: -12px;
+  right: 16px;
+  padding: 2px 12px;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: #ef6c00;
+  border: 2px solid #fff;
+  border-radius: 18px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.learn-box p{
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.85;
+}
+
+.highlight{
+  padding: 1px 7px;
+  color: #fff;
+  border-radius: 7px;
+  display: inline-block;
+  font-weight: 800;
+}
+
+.h-pink{background:#e91e63;}
+.h-blue{background:#2196f3;}
+.h-green{background:#43a047;}
+.h-purple{background:#8e24aa;}
+.h-orange{background:#ef6c00;}
+
+.mark{
+  padding: 0 3px;
+  color: #d81b60;
+  font-weight: 900;
+  background: #fce4ec;
+  border-radius: 4px;
+}
+
+/* =====================================================
+   عناوین بخش‌ها
+===================================================== */
+.section-title{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 8px 0 5px;
+  padding: 5px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  border-radius: 12px;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.1);
+  break-inside: avoid;
+}
+
+.section-title small{
+  margin-right: auto;
+  padding: 1px 8px;
+  font-size: 10px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.purple{background:linear-gradient(135deg,#6a1b9a,#ab47bc);}
+.blue{background:linear-gradient(135deg,#0d47a1,#42a5f5);}
+.orange{background:linear-gradient(135deg,#e65100,#ff9800);}
+.green{background:linear-gradient(135deg,#1b5e20,#66bb6a);}
+.pink{background:linear-gradient(135deg,#ad1457,#ec407a);}
+.teal{background:linear-gradient(135deg,#00695c,#26a69a);}
+
+/* =====================================================
+   بخش نمونه‌ها و نردبان صفت‌ها
+===================================================== */
+.sample-box{
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #e3f2fd, #ffffff);
+  border: 2.5px solid #42a5f5;
+  border-radius: 14px;
+}
+
+.sample-box p{
+  color: #1a237e;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.95;
+}
+
+.ladder-row{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 4px;
+  margin-top: 5px;
+  background: linear-gradient(135deg, #f3e5f5, #fff);
+  border: 2.5px solid #ab47bc;
+  border-radius: 14px;
+}
+
+.lad{
+  min-width: 82px;
+  padding: 5px 12px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
+  border: 2px solid;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.lad.base{
+  color: #0d47a1;
+  background: #fff;
+  border-color: #42a5f5;
+}
+
+.lad.more{
+  color: #e65100;
+  background: #fff3e0;
+  border-color: #ff9800;
+}
+
+.lad.most{
+  color: #fff;
+  background: linear-gradient(135deg, #ad1457, #ec407a);
+  border-color: #fff;
+}
+
+.lad-arrow{
+  color: #ff9800;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.lad-mean{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.lad-mean span{
+  padding: 1px 9px;
+  color: #4e342e;
+  font-size: 10px;
+  font-weight: 700;
+  background: #fff8e1;
+  border: 1.5px dashed #ffb300;
+  border-radius: 10px;
+}
+
+/* کارت‌های نردبان صفت */
+.adj-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.adj-card{
+  padding: 6px 4px 7px;
+  text-align: center;
+  background: #fff;
+  border: 2px solid;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  break-inside: avoid;
+}
+
+.adj-card:nth-child(4n+1){border-color:#ec407a;background:linear-gradient(#fce4ec,#fff);}
+.adj-card:nth-child(4n+2){border-color:#42a5f5;background:linear-gradient(#e3f2fd,#fff);}
+.adj-card:nth-child(4n+3){border-color:#26a69a;background:linear-gradient(#e0f2f1,#fff);}
+.adj-card:nth-child(4n+4){border-color:#ff9800;background:linear-gradient(#fff3e0,#fff);}
+
+.adj-card .icon{
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.adj-card .chain{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #263238;
+}
+
+.adj-card .ch-arr{
+  color: #ff9800;
+  font-size: 11px;
+}
+
+.adj-card .t1{
+  padding: 0 3px;
+  color: #e65100;
+  background: #ffe0b2;
+  border-radius: 4px;
+}
+
+.adj-card .t2{
+  padding: 0 3px;
+  color: #c2185b;
+  background: #fce4ec;
+  border-radius: 4px;
+}
+
+/* خط زمان گذشته */
+.time-axis{
+  position: relative;
+  margin-top: 8px;
+  padding: 5px 8px 6px;
+}
+
+.axis-line{
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  left: 5%;
+  height: 4px;
+  background: linear-gradient(90deg, #b0bec5, #90a4ae, #78909c);
+  border-radius: 4px;
+  transform: translateY(-50%);
+}
+
+.axis-items{
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ax{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 85px;
+}
+
+.ax .dot{
+  width: 15px;
+  height: 15px;
+  margin: 4px 0;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.ax .lbl{
+  padding: 1px 8px;
+  font-size: 10px;
+  font-weight: 900;
+  border-radius: 10px;
+  background: #eceff1;
+  border: 1.5px solid #90a4ae;
+}
+
+.ax .vb{
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 900;
+}
+
+.ax.far .dot{background:#e91e63;}
+.ax.far .vb{color:#c2185b;}
+.ax.far .lbl{color:#c2185b;border-color:#ec407a;background:#fce4ec;}
+
+.ax.near .dot{background:#42a5f5;}
+.ax.near .vb{color:#1565c0;}
+.ax.near .lbl{color:#1565c0;border-color:#42a5f5;background:#e3f2fd;}
+
+.ax.now .dot{background:#66bb6a;}
+.ax.now .vb{color:#2e7d32;}
+.ax.now .lbl{color:#2e7d32;border-color:#66bb6a;background:#e8f5e9;}
+
+/* جدول مقایسه دو ستونه */
+.cmp-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cmp-col{
+  padding: 7px 10px;
+  border: 2px solid;
+  border-radius: 14px;
+  break-inside: avoid;
+}
+
+.cmp-col.simple{
+  background: linear-gradient(180deg, #e3f2fd, #fff);
+  border-color: #42a5f5;
+}
+
+.cmp-col.far{
+  background: linear-gradient(180deg, #fce4ec, #fff);
+  border-color: #ec407a;
+}
+
+.cmp-title{
+  display: inline-block;
+  margin-bottom: 3px;
+  padding: 1px 12px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 12px;
+}
+
+.simple .cmp-title{background:linear-gradient(135deg,#0d47a1,#42a5f5);}
+.far .cmp-title{background:linear-gradient(135deg,#ad1457,#ec407a);}
+
+.cmp-col p{
+  color: #263238;
+  font-size: 12.5px;
+  font-weight: 900;
+  line-height: 1.85;
+}
+
+.pron{
+  color: #1565c0;
+}
+
+.end{
+  padding: 0 1px;
+  color: #d81b60;
+  background: #fce4ec;
+  border-radius: 4px;
+}
+
+.far .pron{
+  color: #ad1457;
+}
+
+.cmp-note{
+  margin-top: 3px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+.simple .cmp-note{
+  color: #0d47a1;
+  background: #e3f2fd;
+}
+
+.far .cmp-note{
+  color: #ad1457;
+  background: #fce4ec;
+}
+
+/* =====================================================
+   تمرین‌های تعاملی صفحه دوم و سوم
+===================================================== */
+/* تمرین ۱: زنجیره نردبان */
+.chain-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.chain-row{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 42px;
+  padding: 5px 7px;
+  background: linear-gradient(135deg, #fff8e1, #fff);
+  border: 2px solid #ffb300;
+  border-radius: 12px;
+  position: relative;
+  break-inside: avoid;
+}
+
+.chain-row.example{
+  background: linear-gradient(135deg, #e8f5e9, #fff);
+  border-color: #66bb6a;
+}
+
+.chain-row .tag{
+  position: absolute;
+  top: -9px;
+  left: 8px;
+  padding: 0 7px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  background: #43a047;
+  border-radius: 9px;
+}
+
+.ch-chip{
+  min-width: 58px;
+  padding: 3px 8px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 900;
+  border-radius: 12px;
+}
+
+.ch-chip.cbase{
+  color: #fff;
+  background: linear-gradient(135deg, #1565c0, #42a5f5);
+}
+
+.ch-chip.cfill{
+  color: #e65100;
+  background: #fff3e0;
+  border: 1.5px dashed #ff9800;
+}
+
+.ch-arr{
+  color: #ff9800;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.interactive-input {
+  flex: 1;
+  min-width: 55px;
+  height: 28px;
+  background: #fff;
+  border: 1.5px dashed #f57c00;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  color: #bf360c;
+  text-align: center;
+  padding: 0 4px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.interactive-input:focus {
+  border-color: #e65100;
+  border-style: solid;
+  background: #fff8e1;
+  box-shadow: 0 0 5px rgba(230,81,0,0.3);
+}
+
+.interactive-input.correct {
+  border-color: #2e7d32 !important;
+  border-style: solid !important;
+  background: #e8f5e9 !important;
+  color: #1b5e20 !important;
+}
+
+.interactive-input.incorrect {
+  border-color: #c62828 !important;
+  border-style: solid !important;
+  background: #ffebee !important;
+  color: #b71c1c !important;
+}
+
+/* تمرین ۲: بساز و بنویس */
+.build-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.build-card{
+  padding: 6px 4px 7px;
+  text-align: center;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  border: 2px solid #42a5f5;
+  border-radius: 12px;
+  break-inside: avoid;
+}
+
+.build-card .q{
+  color: #0d47a1;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.build-card .q b{
+  color: #e91e63;
+}
+
+.build-input {
+  width: 90%;
+  height: 27px;
+  margin-top: 4px;
+  background: #fff;
+  border: 1.5px dashed #1976d2;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0d47a1;
+  text-align: center;
+  outline: none;
+}
+
+.build-input:focus {
+  border-style: solid;
+  border-color: #0d47a1;
+  box-shadow: 0 0 5px rgba(13,71,161,0.25);
+}
+
+/* تمرین ۳: بانک کلمات و جملات */
+.bank{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 6px;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #fff8e1, #ffe0b2);
+  border: 2px dashed #fb8c00;
+  border-radius: 12px;
+}
+
+.bank-chip {
+  padding: 2px 10px;
+  color: #e65100;
+  font-size: 12px;
+  font-weight: 900;
+  background: #fff;
+  border: 1.5px solid #ff9800;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.bank-chip:hover {
+  background: #ffe0b2;
+  transform: translateY(-1px);
+}
+
+.bank .label{
+  border: 0;
+  background: transparent;
+  color: #bf360c;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.sentence-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.sentence{
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  min-height: 40px;
+  padding: 5px 8px;
+  color: #33691e;
+  font-size: 12px;
+  font-weight: 700;
+  background: #fff;
+  border: 2px solid #8bc34a;
+  border-radius: 11px;
+  break-inside: avoid;
+}
+
+.sentence .number{
+  min-width: 19px;
+  height: 19px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  background: #7cb342;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sentence-text {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.blank-input {
+  min-width: 75px;
+  height: 26px;
+  border: none;
+  border-bottom: 2px dashed #558b2f;
+  background: #f1f8e9;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2e7d32;
+  text-align: center;
+  border-radius: 6px 6px 0 0;
+  outline: none;
+  padding: 0 4px;
+}
+
+.blank-input:focus {
+  background: #dcedc8;
+  border-bottom-color: #2e7d32;
+}
+
+/* تمرین ۴: انتخاب گزینه درست */
+.choice-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.choice{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 40px;
+  padding: 5px;
+  background: #fff;
+  border: 2px solid #ff7043;
+  border-radius: 12px;
+  break-inside: avoid;
+}
+
+.choice .number{
+  min-width: 18px;
+  height: 18px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  background: #ff7043;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.choice .ctext{
+  font-size: 11px;
+  font-weight: 800;
+  color: #37474f;
+}
+
+.choice .or{
+  color: #bf360c;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.opt-btn{
+  padding: 2px 8px;
+  color: #6a1b9a;
+  font-size: 12px;
+  font-weight: 900;
+  background: #f3e5f5;
+  border: 1px dashed #ab47bc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.opt-btn:hover {
+  background: #e1bee7;
+}
+
+.opt-btn.selected {
+  background: linear-gradient(135deg, #7b1fa2, #ab47bc);
+  color: #fff;
+  border-style: solid;
+  border-color: #6a1b9a;
+  box-shadow: 0 2px 5px rgba(106,27,154,0.25);
+}
+
+.opt-btn.is-correct {
+  background: linear-gradient(135deg, #2e7d32, #43a047) !important;
+  color: #fff !important;
+  border-color: #1b5e20 !important;
+}
+
+.opt-btn.is-wrong {
+  background: linear-gradient(135deg, #c62828, #e53935) !important;
+  color: #fff !important;
+  border-color: #b71c1c !important;
+}
+
+/* تمرین ۵: خودت بنویس */
+.creative-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.creative-card{
+  padding: 8px;
+  color: #4a148c;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+  border: 2px solid #ab47bc;
+  border-radius: 12px;
+  break-inside: avoid;
+}
+
+.creative-textarea {
+  width: 100%;
+  height: 48px;
+  margin-top: 4px;
+  background: #fff;
+  border: 1.5px dashed #8e24aa;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #4a148c;
+  padding: 4px 6px;
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+}
+
+.creative-textarea:focus {
+  border-style: solid;
+  border-color: #6a1b9a;
+  background: #faf5fc;
+}
+
+/* =====================================================
+   تمرین‌های صفحه سوم: گذشته‌ی بعید
+===================================================== */
+/* جدول صرف فعل */
+.verb-table{
+  width: 100%;
+  overflow: hidden;
+  text-align: center;
+  background: #fff;
+  border: 2px solid #7e57c2;
+  border-radius: 12px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.verb-table th{
+  padding: 5px 4px;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 900;
+  border-bottom: 1.5px solid #fff;
+}
+
+.verb-table th.pr-h{background:linear-gradient(135deg,#ad1457,#ec407a);}
+.verb-table th.v-h{background:linear-gradient(135deg,#5e35b1,#7e57c2);}
+
+.verb-table td{
+  padding: 3px 4px;
+  font-size: 13px;
+  font-weight: 900;
+  border-top: 1.5px solid #d1c4e9;
+}
+
+.verb-table td.pr{
+  width: 14%;
+  color: #c2185b;
+  font-size: 14px;
+  background: #fce4ec;
+}
+
+.verb-table td.f{
+  color: #ad1457;
+  background: #fdf4f7;
+}
+
+.table-input {
+  width: 80%;
+  height: 25px;
+  background: #fff;
+  border: 1.5px dashed #7e57c2;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  color: #5e35b1;
+  text-align: center;
+  outline: none;
+}
+
+.table-input:focus {
+  border-style: solid;
+  border-color: #512da8;
+  background: #ede7f6;
+}
+
+/* تمرین ۲: جمله‌های تبدیلی */
+.ex-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ex-row{
+  display: grid;
+  grid-template-columns: 1fr 20px 1.15fr;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 7px;
+  background: #fff;
+  border: 2px solid #ffb74d;
+  border-radius: 12px;
+  break-inside: avoid;
+}
+
+.ex-row .from{
+  padding: 3px 5px;
+  text-align: center;
+  color: #1565c0;
+  font-size: 11px;
+  font-weight: 900;
+  background: #e3f2fd;
+  border-radius: 9px;
+  line-height: 1.4;
+}
+
+.ex-row .arr{
+  text-align: center;
+  color: #ff9800;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.ex-row .to{
+  padding: 3px 5px;
+  text-align: center;
+  color: #c2185b;
+  font-size: 11px;
+  font-weight: 900;
+  background: #fce4ec;
+  border-radius: 9px;
+  line-height: 1.4;
+}
+
+.ex-row-input {
+  width: 100%;
+  height: 27px;
+  background: #fff8e1;
+  border: 1.5px dashed #f57c00;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  color: #bf360c;
+  text-align: center;
+  outline: none;
+  padding: 0 4px;
+}
+
+.ex-row-input:focus {
+  border-style: solid;
+  border-color: #e65100;
+  background: #fff;
+}
+
+/* تمرین ۴: سبدها */
+.basket-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.basket{
+  padding: 6px 10px 8px;
+  border: 2px solid;
+  border-radius: 12px;
+  break-inside: avoid;
+}
+
+.basket h4{
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.basket.s{
+  color: #0d47a1;
+  background: linear-gradient(180deg, #e3f2fd, #fff);
+  border-color: #42a5f5;
+}
+
+.basket.f{
+  color: #ad1457;
+  background: linear-gradient(180deg, #fce4ec, #fff);
+  border-color: #ec407a;
+}
+
+.basket-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.basket-input {
+  width: 100%;
+  height: 26px;
+  background: #fff;
+  border: 1.5px dashed #90a4ae;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: inherit;
+  padding: 0 6px;
+  outline: none;
+}
+
+.basket-input:focus {
+  border-style: solid;
+  border-color: currentColor;
+}
+
+/* =====================================================
+   پاسخنامه و بازخورد
+===================================================== */
+.answer-box {
+  display: none;
+  background: #e8f5e9;
+  border: 2px solid #43a047;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1b5e20;
+  line-height: 1.7;
+}
+
+.answer-box.show {
+  display: block;
+}
+
+/* =====================================================
+   پانوشت و خودسنجی
+===================================================== */
+.footer{
+  margin-top: 7px;
+  padding: 6px 8px;
+  text-align: center;
+  background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+  border: 2px solid #7986cb;
+  border-radius: 12px;
+}
+
+.footer .creator{
+  color: #283593;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.footer .message{
+  margin-top: 1px;
+  color: #3949ab;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.self-check{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  color: #283593;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.star-rating {
+  display: inline-flex;
+  gap: 3px;
+  direction: ltr;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #cfd8dc;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0 1px;
+}
+
+.star-btn:hover, .star-btn.active {
+  color: #ff9800;
+  transform: scale(1.2);
+}
+
+/* =====================================================
+   استایل‌های اختصاصی چاپ A4
+===================================================== */
+@media print{
+  body{
+    background: #fff;
+  }
+
+  .floating-toolbar,
+  .no-print,
+  .draw-controls,
+  .drawing-canvas {
+    display: none !important;
+  }
+
+  .page{
+    width: 100%;
+    min-height: auto;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    page-break-after: always;
+  }
+
+  .page:last-of-type {
+    page-break-after: auto;
+  }
+
+  .interactive-input,
+  .build-input,
+  .blank-input,
+  .table-input,
+  .ex-row-input,
+  .basket-input,
+  .creative-textarea,
+  .info-input {
+    border: none !important;
+    border-bottom: 1.5px dashed #999 !important;
+    background: transparent !important;
+  }
+
+  .opt-btn.selected {
+    background: #eee !important;
+    color: #000 !important;
+    font-weight: 900;
+    border: 2px solid #000 !important;
+  }
+}
+
+@media(max-width:800px){
+  .page{
+    width: 100%;
+    min-height: auto;
+    margin: 55px 0 20px;
+    border-radius: 0;
+  }
+
+  .student-info,
+  .ex-grid,
+  .chain-grid,
+  .sentence-grid,
+  .choice-grid,
+  .creative-grid,
+  .cmp-grid,
+  .basket-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .adj-grid,
+  .build-grid{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .verb-table{
+    font-size: 11px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     نوار ابزار تعاملی معلق
+===================================================== -->
+<div class="floating-toolbar no-print">
+  <button class="tool-btn btn-print" onclick="window.print()">
+    🖨️ چاپ کاربرگ
+  </button>
+  
+  <button class="tool-btn btn-draw" id="drawToggleBtn" onclick="toggleDrawingMode()">
+    ✏️ قلم نوری
+  </button>
+
+  <div class="draw-controls" id="drawControls">
+    <div class="color-dot color-black active" title="مشکی" onclick="setDrawColor('#212121', this)"></div>
+    <div class="color-dot color-blue" title="آبی" onclick="setDrawColor('#1976d2', this)"></div>
+    <div class="color-dot color-red" title="قرمز" onclick="setDrawColor('#d32f2f', this)"></div>
+    <div class="color-dot color-green" title="سبز" onclick="setDrawColor('#388e3c', this)"></div>
+    <div class="color-dot color-eraser" title="پاک‌کن" onclick="setEraser(this)">🧽</div>
+    <button class="draw-size-btn" onclick="cyclePenSize()">ضخامت: <span id="penSizeLabel">متوسط</span></button>
+    <button class="clear-draw-btn" onclick="clearAllCanvases()">🗑️ پاکسازی</button>
+  </div>
+
+  <button class="tool-btn btn-check" onclick="checkAllAnswers()">
+    ✅ بررسی پاسخ‌ها
+  </button>
+
+  <button class="tool-btn btn-answer" onclick="toggleAnswerKey()">
+    💡 کلید پاسخنامه
+  </button>
+
+  <button class="tool-btn btn-reset" onclick="resetWorksheet()">
+    🔄 بازنشانی
+  </button>
+</div>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی اول: آموزش و یادگیری                            -->
+<!-- ===================================================== -->
+<section class="page" id="page-1">
+  <canvas class="drawing-canvas" id="canvas-1"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌈</div>
+  <div class="corner top-left">🦋</div>
+  <div class="corner bottom-right">🌸</div>
+  <div class="corner bottom-left">⭐</div>
+
+  <div class="content">
+
+    <header class="header">
+      <div class="emoji">🪜 تر و ترین 🪜 &nbsp;|&nbsp; ⏪ رفته بودم ⏪</div>
+      <h1>کاربرگ آموزشی واژه‌سازی با «تر» و «ترین» و فعل گذشته‌ی بعید</h1>
+      <p>فارسی پایه‌ی دوم دبستان — درس ۱۲: فردوسی و داستان یک کلاغ، چهل کلاغ</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="info-input" placeholder="نام خود را بنویسید...">
+      </div>
+
+      <div class="info-box">
+        🏫 کلاس / دبستان:
+        <input type="text" class="info-input" placeholder="دوم...">
+      </div>
+
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="info-input" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <!-- آموزش تر و ترین -->
+    <div class="learn-box">
+      <div class="learn-badge">💡 یاد بگیریم</div>
+
+      <p>
+        بچّه‌های عزیز! وقتی می‌خواهیم دو چیز را با هم
+        <span class="highlight h-blue">مقایسه</span>
+        کنیم، به آخرِ صفت،
+        <span class="highlight h-orange">«تر»</span>
+        اضافه می‌کنیم: بزرگ ← بزرگ<span class="mark">تر</span>.
+        و وقتی می‌خواهیم بگوییم یک چیز از
+        <span class="highlight h-purple">همه</span>
+        بیشتر است،
+        <span class="highlight h-pink">«ترین»</span>
+        اضافه می‌کنیم: بزرگ ← بزرگ<span class="mark">ترین</span>.
+      </p>
+
+      <div class="ladder-row">
+        <span class="lad base">زیبا</span>
+        <span class="lad-arrow">⬅</span>
+        <span class="lad more">زیبا<span class="mark">تر</span></span>
+        <span class="lad-arrow">⬅</span>
+        <span class="lad most">زیبا<span class="mark">ترین</span></span>
+      </div>
+
+      <div class="lad-mean">
+        <span>یکی (ساده)</span>
+        <span>از یکی دیگر بیشتر (مقایسه دو چیز)</span>
+        <span>از همه بیشتر (برترین میان همه)</span>
+      </div>
+    </div>
+
+    <div class="section-title blue">
+      <span>📖</span>
+      جمله‌های زیر را بخوان و به کلمه‌های رنگی توجّه کن.
+      <small>نمونه‌های درس فردوسی</small>
+    </div>
+
+    <div class="sample-box">
+      <p>فردوسی شاعر <b>بزرگ</b> ایران است.</p>
+      <p>فردوسی از بعضی شاعران زمانِ خود، <b>بزرگ<span class="mark">تر</span></b> است.</p>
+      <p>فردوسی یکی از <b>بزرگ<span class="mark">ترین</span></b> شاعران ایران است.</p>
+      <p>رستم <b>بزرگ<span class="mark">ترین</span></b> پهلوان داستان‌های شاهنامه است.</p>
+    </div>
+
+    <div class="section-title pink">
+      <span>🪜</span>
+      نردبانِ «تر» و «ترین» را برای این صفت‌ها ببین.
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="adj-grid">
+
+      <div class="adj-card">
+        <div class="icon">🌸</div>
+        <div class="chain">
+          زیبا <span class="ch-arr">⬅</span> زیبا<span class="t1">تر</span> <span class="ch-arr">⬅</span> زیبا<span class="t2">ترین</span>
+        </div>
+      </div>
+
+      <div class="adj-card">
+        <div class="icon">🏔️</div>
+        <div class="chain">
+          بزرگ <span class="ch-arr">⬅</span> بزرگ<span class="t1">تر</span> <span class="ch-arr">⬅</span> بزرگ<span class="t2">ترین</span>
+        </div>
+      </div>
+
+      <div class="adj-card">
+        <div class="icon">📍</div>
+        <div class="chain">
+          نزدیک <span class="ch-arr">⬅</span> نزدیک<span class="t1">تر</span> <span class="ch-arr">⬅</span> نزدیک<span class="t2">ترین</span>
+        </div>
+      </div>
+
+      <div class="adj-card">
+        <div class="icon">🌾</div>
+        <div class="chain">
+          بلند <span class="ch-arr">⬅</span> بلند<span class="t1">تر</span> <span class="ch-arr">⬅</span> بلند<span class="t2">ترین</span>
+        </div>
+      </div>
+
+      <div class="adj-card">
+        <div class="icon">🧭</div>
+        <div class="chain">
+          دور <span class="ch-arr">⬅</span> دور<span class="t1">تر</span> <span class="ch-arr">⬅</span> دور<span class="t2">ترین</span>
+        </div>
+      </div>
+
+      <div class="adj-card">
+        <div class="icon">🐜</div>
+        <div class="chain">
+          کوچک <span class="ch-arr">⬅</span> کوچک<span class="t1">تر</span> <span class="ch-arr">⬅</span> کوچک<span class="t2">ترین</span>
+        </div>
+      </div>
+
+      <div class="adj-card">
+        <div class="icon">🍯</div>
+        <div class="chain">
+          شیرین <span class="ch-arr">⬅</span> شیرین<span class="t1">تر</span> <span class="ch-arr">⬅</span> شیرین<span class="t2">ترین</span>
+        </div>
+      </div>
+
+      <div class="adj-card">
+        <div class="icon">⚡</div>
+        <div class="chain">
+          تند <span class="ch-arr">⬅</span> تند<span class="t1">تر</span> <span class="ch-arr">⬅</span> تند<span class="t2">ترین</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- آموزش گذشته بعید -->
+    <div class="learn-box">
+      <div class="learn-badge">💡 بیاموز و بگو</div>
+
+      <p>
+        وقتی کاری در گذشته‌ای
+        <span class="highlight h-pink">خیلی دور</span>
+        انجام شده باشد، مثل «سال گذشته» یا «پارسال»، از
+        <span class="highlight h-pink">فعل گذشته‌ی بعید</span>
+        استفاده می‌کنیم: «سال گذشته با خانواده‌ام به مشهد <b>رفته بودیم</b>.»
+        امّا برای گذشته‌ی نزدیک، مثل «دیروز»، فعل ساده به کار می‌رود: «دیروز به مشهد <b>رفتم</b>.»
+      </p>
+
+      <div class="time-axis">
+        <div class="axis-line"></div>
+        <div class="axis-items">
+
+          <div class="ax far">
+            <span class="lbl">سال گذشته / پارسال</span>
+            <span class="dot"></span>
+            <span class="vb">رفته بودم</span>
+          </div>
+
+          <div class="ax near">
+            <span class="lbl">هفته‌ی پیش</span>
+            <span class="dot"></span>
+            <span class="vb">رفتم</span>
+          </div>
+
+          <div class="ax near">
+            <span class="lbl">دیروز / دیشب</span>
+            <span class="dot"></span>
+            <span class="vb">رفتم</span>
+          </div>
+
+          <div class="ax now">
+            <span class="lbl">امروز / اکنون</span>
+            <span class="dot"></span>
+            <span class="vb">می‌روم</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title teal">
+      <span>🔍</span>
+      دقّت کن: این دو دسته فعل را با هم مقایسه کن.
+      <small>گذشته‌ی ساده — گذشته‌ی بعید</small>
+    </div>
+
+    <div class="cmp-grid">
+
+      <div class="cmp-col simple">
+        <div class="cmp-title">🔵 گذشته‌ی ساده</div>
+        <p><span class="pron">من</span> رفت<span class="end">م</span>.</p>
+        <p><span class="pron">تو</span> رفت<span class="end">ی</span>.</p>
+        <p><span class="pron">او</span> رفت.</p>
+        <p><span class="pron">ما</span> رفت<span class="end">یم</span>.</p>
+        <p><span class="pron">شما</span> رفت<span class="end">ید</span>.</p>
+        <p><span class="pron">آن‌ها</span> رفت<span class="end">ند</span>.</p>
+        <div class="cmp-note">کاری که در گذشته‌ی نزدیک (دیروز، دیشب) انجام شد.</div>
+      </div>
+
+      <div class="cmp-col far">
+        <div class="cmp-title">🔴 گذشته‌ی بعید</div>
+        <p><span class="pron">من</span> رفته بود<span class="end">م</span>.</p>
+        <p><span class="pron">تو</span> رفته بود<span class="end">ی</span>.</p>
+        <p><span class="pron">او</span> رفته بود.</p>
+        <p><span class="pron">ما</span> رفته بود<span class="end">یم</span>.</p>
+        <p><span class="pron">شما</span> رفته بود<span class="end">ید</span>.</p>
+        <p><span class="pron">آن‌ها</span> رفته بود<span class="end">ند</span>.</p>
+        <div class="cmp-note">کاری که در گذشته‌ای خیلی دور (پارسال، سال گذشته) انجام شد.</div>
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      <div class="creator">🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان</div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی دوم: تمرین‌های «تر» و «ترین»                   -->
+<!-- ===================================================== -->
+<section class="page" id="page-2">
+  <canvas class="drawing-canvas" id="canvas-2"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌻</div>
+  <div class="corner top-left">🎈</div>
+  <div class="corner bottom-right">🍀</div>
+  <div class="corner bottom-left">🌟</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 تمرین‌های واژه‌سازی با «تر» و «ترین»</h1>
+      <p>از یکی بیشتر یا از همه بیشتر؟ با دقت فکر کن و بنویس!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="info-input" placeholder="نام خود را بنویسید...">
+      </div>
+
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" class="info-input" placeholder="دوم...">
+      </div>
+
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="info-input" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <!-- تمرین ۱ -->
+    <div class="section-title orange">
+      <span>🗣️</span>
+      تمرین ۱: مانندِ نمونه، نردبانِ «تر» و «ترین» را کامل کن.
+      <small>حالا تو بگو</small>
+    </div>
+
+    <div class="chain-grid">
+
+      <div class="chain-row example">
+        <span class="tag">نمونه</span>
+        <span class="ch-chip cbase">زیبا</span>
+        <span class="ch-arr">⬅</span>
+        <span class="ch-chip cfill">زیباتر</span>
+        <span class="ch-arr">⬅</span>
+        <span class="ch-chip cfill">زیباترین</span>
+      </div>
+
+      <div class="chain-row">
+        <span class="ch-chip cbase">نزدیک</span>
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="نزدیک‌تر|نزدیک تر" placeholder="نزدیک‌تر...">
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="نزدیک‌ترین|نزدیک ترین" placeholder="نزدیک‌ترین...">
+      </div>
+
+      <div class="chain-row">
+        <span class="ch-chip cbase">بلند</span>
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="بلندتر|بلند تر" placeholder="بلندتر...">
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="بلندترین|بلند ترین" placeholder="بلندترین...">
+      </div>
+
+      <div class="chain-row">
+        <span class="ch-chip cbase">دور</span>
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="دورتر|دور تر" placeholder="دورتر...">
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="دورترین|دور ترین" placeholder="دورترین...">
+      </div>
+
+      <div class="chain-row">
+        <span class="ch-chip cbase">کوچک</span>
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="کوچک‌تر|کوچکتر|کوچک تر" placeholder="کوچک‌تر...">
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="کوچک‌ترین|کوچکترین|کوچک ترین" placeholder="کوچک‌ترین...">
+      </div>
+
+      <div class="chain-row">
+        <span class="ch-chip cbase">شیرین</span>
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="شیرین‌تر|شیرینتر|شیرین تر" placeholder="شیرین‌تر...">
+        <span class="ch-arr">⬅</span>
+        <input type="text" class="interactive-input" data-ans="شیرین‌ترین|شیرینترین|شیرین ترین" placeholder="شیرین‌ترین...">
+      </div>
+
+    </div>
+
+    <!-- تمرین ۲ -->
+    <div class="section-title blue">
+      <span>🧩</span>
+      تمرین ۲: کلمه‌ها را با «تر» یا «ترین» بساز و بنویس.
+      <small>واژه‌سازی</small>
+    </div>
+
+    <div class="build-grid">
+
+      <div class="build-card">
+        <div class="q">بزرگ + <b>تر</b> =</div>
+        <input type="text" class="build-input" data-ans="بزرگ‌تر|بزرگتر|بزرگ تر" placeholder="پاسخ...">
+      </div>
+
+      <div class="build-card">
+        <div class="q">بزرگ + <b>ترین</b> =</div>
+        <input type="text" class="build-input" data-ans="بزرگ‌ترین|بزرگترین|بزرگ ترین" placeholder="پاسخ...">
+      </div>
+
+      <div class="build-card">
+        <div class="q">گرم + <b>تر</b> =</div>
+        <input type="text" class="build-input" data-ans="گرم‌تر|گرمتر|گرم تر" placeholder="پاسخ...">
+      </div>
+
+      <div class="build-card">
+        <div class="q">گرم + <b>ترین</b> =</div>
+        <input type="text" class="build-input" data-ans="گرم‌ترین|گرمترین|گرم ترین" placeholder="پاسخ...">
+      </div>
+
+      <div class="build-card">
+        <div class="q">تاریک + <b>تر</b> =</div>
+        <input type="text" class="build-input" data-ans="تاریک‌تر|تاریکتر|تاریک تر" placeholder="پاسخ...">
+      </div>
+
+      <div class="build-card">
+        <div class="q">روشن + <b>ترین</b> =</div>
+        <input type="text" class="build-input" data-ans="روشن‌ترین|روشنترین|روشن ترین" placeholder="پاسخ...">
+      </div>
+
+      <div class="build-card">
+        <div class="q">سریع + <b>تر</b> =</div>
+        <input type="text" class="build-input" data-ans="سریع‌تر|سریعتر|سریع تر" placeholder="پاسخ...">
+      </div>
+
+      <div class="build-card">
+        <div class="q">قشنگ + <b>ترین</b> =</div>
+        <input type="text" class="build-input" data-ans="قشنگ‌ترین|قشنگترین|قشنگ ترین" placeholder="پاسخ...">
+      </div>
+
+    </div>
+
+    <!-- تمرین ۳ -->
+    <div class="section-title green">
+      <span>✏️</span>
+      تمرین ۳: جای خالی را با کلمه‌ی مناسب از جعبه کامل کن.
+      <small>روی کلمات کلیک کن یا تایپ نما</small>
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی کلمه‌ها:</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-2')">بلندتر</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-2')">بلندترین</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-2')">شیرین‌تر</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-2')">بزرگ‌ترین</span>
+    </div>
+
+    <div class="sentence-grid">
+
+      <div class="sentence">
+        <span class="number">۱</span>
+        <div class="sentence-text">
+          <span>درختِ سرو از درختِ انار</span>
+          <input type="text" class="blank-input" data-ans="بلندتر|بلند تر" placeholder="کلمه...">
+          <span>است.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۲</span>
+        <div class="sentence-text">
+          <span>کوهِ دماوند</span>
+          <input type="text" class="blank-input" data-ans="بلندترین|بلند ترین" placeholder="کلمه...">
+          <span>کوهِ ایران است.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۳</span>
+        <div class="sentence-text">
+          <span>هندوانه از زردآلو</span>
+          <input type="text" class="blank-input" data-ans="شیرین‌تر|شیرینتر|شیرین تر" placeholder="کلمه...">
+          <span>است.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۴</span>
+        <div class="sentence-text">
+          <span>فیل</span>
+          <input type="text" class="blank-input" data-ans="بزرگ‌ترین|بزرگترین|بزرگ ترین" placeholder="کلمه...">
+          <span>حیوانِ روی خشکی است.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- تمرین ۴ -->
+    <div class="section-title teal">
+      <span>⭕</span>
+      تمرین ۴: کلمه‌ی درست را انتخاب کن (کلیک کن تا انتخاب شود).
+    </div>
+
+    <div class="choice-grid">
+
+      <div class="choice" data-group="c1">
+        <span class="number">۱</span>
+        <span class="ctext">خانه‌ی ما از خانه‌ی شما</span>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this, 'c1')">بزرگ‌تر</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this, 'c1')">بزرگ‌ترین</button>
+      </div>
+
+      <div class="choice" data-group="c2">
+        <span class="number">۲</span>
+        <span class="ctext">علی</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this, 'c2')">مؤدب‌تر</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this, 'c2')">بهترین</button>
+        <span class="ctext">دانش‌آموز است.</span>
+      </div>
+
+      <div class="choice" data-group="c3">
+        <span class="number">۳</span>
+        <span class="ctext">تابستان از بهار</span>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this, 'c3')">گرم‌تر</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this, 'c3')">گرم‌ترین</button>
+      </div>
+
+      <div class="choice" data-group="c4">
+        <span class="number">۴</span>
+        <span class="ctext">ماهِ رمضان</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this, 'c4')">بهتر</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this, 'c4')">بهترین</button>
+        <span class="ctext">ماه خداست.</span>
+      </div>
+
+      <div class="choice" data-group="c5">
+        <span class="number">۵</span>
+        <span class="ctext">دوچرخه از ماشین</span>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this, 'c5')">کوچک‌تر</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this, 'c5')">کوچک‌ترین</button>
+      </div>
+
+      <div class="choice" data-group="c6">
+        <span class="number">۶</span>
+        <span class="ctext">خرگوش</span>
+        <button type="button" class="opt-btn" data-correct="false" onclick="selectChoice(this, 'c6')">تندتر</button>
+        <span class="or">یا</span>
+        <button type="button" class="opt-btn" data-correct="true" onclick="selectChoice(this, 'c6')">تندترین</button>
+        <span class="ctext">حیوان جنگل است.</span>
+      </div>
+
+    </div>
+
+    <!-- تمرین ۵ -->
+    <div class="section-title pink">
+      <span>⭐</span>
+      تمرین ۵: خودت بنویس (تایپ کن یا با قلم بنویس).
+    </div>
+
+    <div class="creative-grid">
+
+      <div class="creative-card">
+        یک جمله با کلمه‌ای که «تر» دارد بنویس:
+        <textarea class="creative-textarea" placeholder="مثال: مداد من از مداد علی بلندتر است..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        یک جمله با کلمه‌ای که «ترین» دارد بنویس:
+        <textarea class="creative-textarea" placeholder="مثال: رستم بزرگ‌ترین پهلوان شاهنامه است..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        یک صفت دیگر بنویس و نردبانِ آن را بکش:
+        <textarea class="creative-textarea" placeholder="مثال: تمیز ⬅ تمیزتر ⬅ تمیزترین..."></textarea>
+      </div>
+
+    </div>
+
+    <!-- پاسخنامه تمرین‌های صفحه ۲ -->
+    <div class="answer-box" id="answer-p2">
+      <strong>💡 پاسخنامه تشریحی تمرین‌های «تر» و «ترین»:</strong><br>
+      • تمرین ۱: نزدیک‌تر، نزدیک‌ترین | بلندتر، بلندترین | دورتر، دورترین | کوچک‌تر، کوچک‌ترین | شیرین‌تر، شیرین‌ترین<br>
+      • تمرین ۲: بزرگ‌تر | بزرگ‌ترین | گرم‌تر | گرم‌ترین | تاریک‌تر | روشن‌ترین | سریع‌تر | قشنگ‌ترین<br>
+      • تمرین ۳: ۱) بلندتر | ۲) بلندترین | ۳) شیرین‌تر | ۴) بزرگ‌ترین<br>
+      • تمرین ۴: ۱) بزرگ‌تر | ۲) بهترین | ۳) گرم‌تر | ۴) بهترین | ۵) کوچک‌تر | ۶) تندترین
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <div class="star-rating" data-stars="0">
+          <button type="button" class="star-btn" onclick="rateStars(1, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(2, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(3, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(4, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(5, this)">★</button>
+        </div>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو دانش‌آموز پرتلاش و باهوش! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- ===================================================== -->
+<!-- صفحه‌ی سوم: تمرین‌های فعل گذشته‌ی بعید                -->
+<!-- ===================================================== -->
+<section class="page" id="page-3">
+  <canvas class="drawing-canvas" id="canvas-3"></canvas>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="corner top-right">🌼</div>
+  <div class="corner top-left">🎨</div>
+  <div class="corner bottom-right">🌷</div>
+  <div class="corner bottom-left">✨</div>
+
+  <div class="content">
+
+    <header class="header small">
+      <h1>📝 تمرین‌های فعل گذشته‌ی بعید</h1>
+      <p>گذشته‌ی نزدیک یا خیلی دور؟ خوب نگاه کن، مقایسه کن و بنویس!</p>
+    </header>
+
+    <div class="student-info">
+      <div class="info-box">
+        👤 نام و نام خانوادگی:
+        <input type="text" class="info-input" placeholder="نام خود را بنویسید...">
+      </div>
+
+      <div class="info-box">
+        🏫 کلاس:
+        <input type="text" class="info-input" placeholder="دوم...">
+      </div>
+
+      <div class="info-box">
+        📅 تاریخ:
+        <input type="text" class="info-input" placeholder="۱۴۰...">
+      </div>
+    </div>
+
+    <!-- تمرین ۱ -->
+    <div class="section-title purple">
+      <span>📋</span>
+      تمرین ۱: مانندِ نمونه‌ها، جدول فعل گذشته‌ی بعید را کامل کن.
+      <small>«بودم — بودی — بود — بودیم — بودید — بودند»</small>
+    </div>
+
+    <table class="verb-table">
+      <thead>
+        <tr>
+          <th class="pr-h">ضمیر</th>
+          <th class="v-h">🚶 رفته بود</th>
+          <th class="v-h">📖 خوانده بود</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="pr">من</td>
+          <td class="f">رفته بودم</td>
+          <td class="f">
+            <input type="text" class="table-input" data-ans="خوانده بودم|خواندهبودم" placeholder="خوانده بودم...">
+          </td>
+        </tr>
+        <tr>
+          <td class="pr">تو</td>
+          <td class="f">
+            <input type="text" class="table-input" data-ans="رفته بودی|رفتهبودی" placeholder="رفته بودی...">
+          </td>
+          <td class="f">خوانده بودی</td>
+        </tr>
+        <tr>
+          <td class="pr">او</td>
+          <td class="f">رفته بود</td>
+          <td class="f">
+            <input type="text" class="table-input" data-ans="خوانده بود|خواندهبود" placeholder="خوانده بود...">
+          </td>
+        </tr>
+        <tr>
+          <td class="pr">ما</td>
+          <td class="f">
+            <input type="text" class="table-input" data-ans="رفته بودیم|رفتهبودیم" placeholder="رفته بودیم...">
+          </td>
+          <td class="f">خوانده بودیم</td>
+        </tr>
+        <tr>
+          <td class="pr">شما</td>
+          <td class="f">رفته بودید</td>
+          <td class="f">
+            <input type="text" class="table-input" data-ans="خوانده بودید|خواندهبودید" placeholder="خوانده بودید...">
+          </td>
+        </tr>
+        <tr>
+          <td class="pr">آن‌ها</td>
+          <td class="f">
+            <input type="text" class="table-input" data-ans="رفته بودند|رفتهبودند" placeholder="رفته بودند...">
+          </td>
+          <td class="f">خوانده بودند</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- تمرین ۲ -->
+    <div class="section-title blue">
+      <span>🔁</span>
+      تمرین ۲: مانندِ نمونه، جمله را برای گذشته‌ی دور بنویس.
+      <small>حالا تو بگو</small>
+    </div>
+
+    <div class="ex-grid">
+
+      <div class="ex-row">
+        <div class="from">من دیروز به مشهد رفتم.</div>
+        <div class="arr">⬅</div>
+        <div class="to">من پارسال به مشهد رفته بودم.</div>
+      </div>
+
+      <div class="ex-row">
+        <div class="from">او دیروز کتاب را برد.</div>
+        <div class="arr">⬅</div>
+        <div class="to">او سال گذشته کتاب را برده بود.</div>
+      </div>
+
+      <div class="ex-row">
+        <div class="from">من دیروز کتاب را به کتابخانه بردم.</div>
+        <div class="arr">⬅</div>
+        <input type="text" class="ex-row-input" data-ans="من پارسال کتاب را به کتابخانه برده بودم.|من سال گذشته کتاب را به کتابخانه برده بودم.|من پارسال کتاب را به کتابخانه برده بودم|من سال گذشته کتاب را به کتابخانه برده بودم|کتاب را به کتابخانه برده بودم|برده بودم" placeholder="من پارسال کتاب را به کتابخانه برده بودم...">
+      </div>
+
+      <div class="ex-row">
+        <div class="from">او دیشب داستان را خواند.</div>
+        <div class="arr">⬅</div>
+        <input type="text" class="ex-row-input" data-ans="او سال گذشته داستان را خوانده بود.|او پارسال داستان را خوانده بود.|او سال گذشته داستان را خوانده بود|او پارسال داستان را خوانده بود|داستان را خوانده بود|خوانده بود" placeholder="او سال گذشته داستان را خوانده بود...">
+      </div>
+
+      <div class="ex-row">
+        <div class="from">ما دیروز نقاشی کشیدیم.</div>
+        <div class="arr">⬅</div>
+        <input type="text" class="ex-row-input" data-ans="ما پارسال نقاشی کشیده بودیم.|ما سال گذشته نقاشی کشیده بودیم.|ما پارسال نقاشی کشیده بودیم|کشیده بودیم" placeholder="ما پارسال نقاشی کشیده بودیم...">
+      </div>
+
+      <div class="ex-row">
+        <div class="from">آن‌ها دیشب فیلم را دیدند.</div>
+        <div class="arr">⬅</div>
+        <input type="text" class="ex-row-input" data-ans="آن‌ها سال گذشته فیلم را دیده بودند.|آنها سال گذشته فیلم را دیده بودند.|آن‌ها پارسال فیلم را دیده بودند.|دیده بودند" placeholder="آن‌ها سال گذشته فیلم را دیده بودند...">
+      </div>
+
+    </div>
+
+    <!-- تمرین ۳ -->
+    <div class="section-title green">
+      <span>✏️</span>
+      تمرین ۳: جای خالی را با شکلِ درستِ فعل کامل کن.
+      <small>روی فعل کلیک کن یا تایپ نما</small>
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی فعل‌ها:</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-3')">رفته بودم</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-3')">رفتم</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-3')">دیده بود</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-3')">دید</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-3')">خورده بودیم</span>
+      <span class="bank-chip" onclick="fillNextBlank(this, 'page-3')">خوردیم</span>
+    </div>
+
+    <div class="sentence-grid">
+
+      <div class="sentence">
+        <span class="number">۱</span>
+        <div class="sentence-text">
+          <span>من دیروز به مدرسه</span>
+          <input type="text" class="blank-input" data-ans="رفتم" placeholder="فعل...">
+          <span>.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۲</span>
+        <div class="sentence-text">
+          <span>من پارسال به مشهد</span>
+          <input type="text" class="blank-input" data-ans="رفته بودم|رفتهبودم" placeholder="فعل...">
+          <span>.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۳</span>
+        <div class="sentence-text">
+          <span>او دیشب این فیلم را</span>
+          <input type="text" class="blank-input" data-ans="دید" placeholder="فعل...">
+          <span>.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۴</span>
+        <div class="sentence-text">
+          <span>او سال گذشته این فیلم را</span>
+          <input type="text" class="blank-input" data-ans="دیده بود|دیدهبود" placeholder="فعل...">
+          <span>.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۵</span>
+        <div class="sentence-text">
+          <span>ما دیشب با خانواده شام</span>
+          <input type="text" class="blank-input" data-ans="خوردیم" placeholder="فعل...">
+          <span>.</span>
+        </div>
+      </div>
+
+      <div class="sentence">
+        <span class="number">۶</span>
+        <div class="sentence-text">
+          <span>ما ماه گذشته در رستوران شام</span>
+          <input type="text" class="blank-input" data-ans="خورده بودیم|خوردهبودیم" placeholder="فعل...">
+          <span>.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- تمرین ۴ -->
+    <div class="section-title teal">
+      <span>🧺</span>
+      تمرین ۴: هر جمله را در سبدِ خودش بنویس.
+      <small>گذشته‌ی ساده یا گذشته‌ی بعید؟</small>
+    </div>
+
+    <div class="bank">
+      <span class="label">🧺 جعبه‌ی جمله‌ها:</span>
+      <span class="bank-chip">۱) من دیروز به پارک رفتم.</span>
+      <span class="bank-chip">۲) من پارسال به پارک رفته بودم.</span>
+      <span class="bank-chip">۳) او دیشب کتاب خواند.</span>
+      <span class="bank-chip">۴) او سال گذشته کتاب خوانده بود.</span>
+    </div>
+
+    <div class="basket-grid">
+
+      <div class="basket s">
+        <h4>🔵 گذشته‌ی ساده (زمان نزدیک)</h4>
+        <div class="basket-input-group">
+          <input type="text" class="basket-input" data-ans="من دیروز به پارک رفتم.|من دیروز به پارک رفتم|او دیشب کتاب خواند.|او دیشب کتاب خواند" placeholder="جمله اول: من دیروز به پارک رفتم...">
+          <input type="text" class="basket-input" data-ans="او دیشب کتاب خواند.|او دیشب کتاب خواند|من دیروز به پارک رفتم.|من دیروز به پارک رفتم" placeholder="جمله دوم: او دیشب کتاب خواند...">
+        </div>
+      </div>
+
+      <div class="basket f">
+        <h4>🔴 گذشته‌ی بعید (زمان دور)</h4>
+        <div class="basket-input-group">
+          <input type="text" class="basket-input" data-ans="من پارسال به پارک رفته بودم.|من پارسال به پارک رفته بودم|او سال گذشته کتاب خوانده بود.|او سال گذشته کتاب خوانده بود" placeholder="جمله اول: من پارسال به پارک رفته بودم...">
+          <input type="text" class="basket-input" data-ans="او سال گذشته کتاب خوانده بود.|او سال گذشته کتاب خوانده بود|من پارسال به پارک رفته بودم.|من پارسال به پارک رفته بودم" placeholder="جمله دوم: او سال گذشته کتاب خوانده بود...">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- تمرین ۵ -->
+    <div class="section-title pink">
+      <span>⭐</span>
+      تمرین ۵: خودت بنویس.
+    </div>
+
+    <div class="creative-grid">
+
+      <div class="creative-card">
+        بنویس دیروز چه کار کردی (گذشته ساده):
+        <textarea class="creative-textarea" placeholder="مثال: من دیروز تکالیفم را نوشتم..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        بنویس سال گذشته به کجا رفته بودی (گذشته بعید):
+        <textarea class="creative-textarea" placeholder="مثال: من سال گذشته به شمال رفته بودم..."></textarea>
+      </div>
+
+      <div class="creative-card">
+        فعل «دیده بود» را برای «من» و «او» بنویس:
+        <textarea class="creative-textarea" placeholder="من دیده بودم — او دیده بود..."></textarea>
+      </div>
+
+    </div>
+
+    <!-- پاسخنامه تمرین‌های صفحه ۳ -->
+    <div class="answer-box" id="answer-p3">
+      <strong>💡 پاسخنامه تشریحی تمرین‌های «فعل گذشته‌ی بعید»:</strong><br>
+      • تمرین ۱: من خوانده بودم | تو رفته بودی | او خوانده بود | ما رفته بودیم | شما خوانده بودید | آن‌ها رفته بودند<br>
+      • تمرین ۲: من پارسال کتاب را به کتابخانه برده بودم | او سال گذشته داستان را خوانده بود | ما پارسال نقاشی کشیده بودیم | آن‌ها سال گذشته فیلم را دیده بودند<br>
+      • تمرین ۳: ۱) رفتم | ۲) رفته بودم | ۳) دید | ۴) دیده بود | ۵) خوردیم | ۶) خورده بودیم<br>
+      • تمرین ۴: سبد ساده: (من دیروز به پارک رفتم / او دیشب کتاب خواند) — سبد بعید: (من پارسال به پارک رفته بودم / او سال گذشته کتاب خوانده بود)
+    </div>
+
+    <footer class="footer">
+      <div class="self-check">
+        امروز چقدر خوب یاد گرفتم؟
+        <div class="star-rating" data-stars="0">
+          <button type="button" class="star-btn" onclick="rateStars(1, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(2, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(3, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(4, this)">★</button>
+          <button type="button" class="star-btn" onclick="rateStars(5, this)">★</button>
+        </div>
+      </div>
+
+      <div class="creator">
+        🎓 طرّاح و سازنده‌ی کاربرگ: نیما آزمکان
+      </div>
+
+      <div class="message">
+        آفرین به تو دانش‌آموز دانا و پرتلاش! 🌷
+      </div>
+    </footer>
+
+  </div>
+</section>
+
+<!-- =====================================================
+     اسکریپت‌های تعاملی و قلم نوری
+===================================================== -->
+<script>
+// وضعیت قلم نوری
+let isDrawingMode = false;
+let currentPenColor = '#212121';
+let currentPenSize = 3;
+let isEraserMode = false;
+const penSizes = [
+  { label: 'باریک', size: 2 },
+  { label: 'متوسط', size: 3.5 },
+  { label: 'ضخیم', size: 6 }
+];
+let currentSizeIndex = 1;
+
+// آماده‌سازی بوم‌های نقاشی
+const canvases = [];
+const contexts = [];
+
+function initCanvases() {
+  const pageIds = ['canvas-1', 'canvas-2', 'canvas-3'];
+  pageIds.forEach((id, idx) => {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvases.push(canvas);
+    contexts.push(ctx);
+
+    resizeCanvas(canvas);
+    window.addEventListener('resize', () => resizeCanvas(canvas));
+
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (canvas.width / rect.width),
+        y: (clientY - rect.top) * (canvas.height / rect.height)
+      };
+    }
+
+    function startDrawing(e) {
+      if (!isDrawingMode) return;
+      isDrawing = true;
+      const coords = getCoords(e);
+      lastX = coords.x;
+      lastY = coords.y;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      e.preventDefault();
+    }
+
+    function draw(e) {
+      if (!isDrawing || !isDrawingMode) return;
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(coords.x, coords.y);
+
+      if (isEraserMode) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = currentPenSize * 4;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentPenColor;
+        ctx.lineWidth = currentPenSize;
+      }
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      lastX = coords.x;
+      lastY = coords.y;
+      e.preventDefault();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDrawing);
+
+    canvas.addEventListener('touchstart', startDrawing, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    window.addEventListener('touchend', stopDrawing);
+  });
+}
+
+function resizeCanvas(canvas) {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  if (canvas.width !== rect.width || canvas.height !== rect.height) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(canvas, 0, 0);
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(tempCanvas, 0, 0);
+  }
+}
+
+function toggleDrawingMode() {
+  isDrawingMode = !isDrawingMode;
+  const btn = document.getElementById('drawToggleBtn');
+  const controls = document.getElementById('drawControls');
+  
+  if (isDrawingMode) {
+    btn.classList.add('active');
+    btn.innerHTML = '✏️ حالت قلم (فعال)';
+    controls.classList.add('show');
+    canvases.forEach(c => c.classList.add('active-mode'));
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '✏️ قلم نوری';
+    controls.classList.remove('show');
+    canvases.forEach(c => c.classList.remove('active-mode'));
+  }
+}
+
+function setDrawColor(color, el) {
+  isEraserMode = false;
+  currentPenColor = color;
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setEraser(el) {
+  isEraserMode = true;
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function cyclePenSize() {
+  currentSizeIndex = (currentSizeIndex + 1) % penSizes.length;
+  currentPenSize = penSizes[currentSizeIndex].size;
+  document.getElementById('penSizeLabel').textContent = penSizes[currentSizeIndex].label;
+}
+
+function clearAllCanvases() {
+  contexts.forEach((ctx, idx) => {
+    ctx.clearRect(0, 0, canvases[idx].width, canvases[idx].height);
+  });
+}
+
+function selectChoice(btn, group) {
+  const parent = btn.closest('.choice');
+  parent.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected', 'is-correct', 'is-wrong');
+  });
+  btn.classList.add('selected');
+}
+
+function fillNextBlank(chip, pageId) {
+  const page = document.getElementById(pageId);
+  if (!page) return;
+  const text = chip.textContent.trim();
+  const blanks = page.querySelectorAll('.blank-input');
+  for (let blank of blanks) {
+    if (!blank.value.trim()) {
+      blank.value = text;
+      blank.classList.add('filled');
+      break;
+    }
+  }
+}
+
+function rateStars(num, btn) {
+  const container = btn.closest('.star-rating');
+  const buttons = container.querySelectorAll('.star-btn');
+  buttons.forEach((b, idx) => {
+    if (idx < num) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+}
+
+function checkAllAnswers() {
+  let total = 0;
+  let correct = 0;
+
+  const inputs = document.querySelectorAll('input[data-ans]');
+  inputs.forEach(input => {
+    total++;
+    const userVal = input.value.trim().replace(/\s+/g, ' ');
+    const accepted = input.getAttribute('data-ans').split('|').map(s => s.trim());
+    
+    let isMatch = accepted.some(ans => {
+      return userVal === ans || userVal.replace(/‌/g, '') === ans.replace(/‌/g, '');
+    });
+
+    if (userVal && isMatch) {
+      correct++;
+      input.classList.remove('incorrect');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct');
+      if (userVal) input.classList.add('incorrect');
+    }
+  });
+
+  const choices = document.querySelectorAll('.choice');
+  choices.forEach(c => {
+    total++;
+    const selected = c.querySelector('.opt-btn.selected');
+    if (selected) {
+      if (selected.getAttribute('data-correct') === 'true') {
+        correct++;
+        selected.classList.add('is-correct');
+      } else {
+        selected.classList.add('is-wrong');
+      }
+    }
+  });
+
+  alert(`🎯 نتیجه بررسی کاربرگ:\nتعداد پاسخ‌های صحیح: ${correct} از ${total}\nنمره تقریبی: ${Math.round((correct/total)*100)} از ۱۰۰`);
+}
+
+function toggleAnswerKey() {
+  const p2Ans = document.getElementById('answer-p2');
+  const p3Ans = document.getElementById('answer-p3');
+  const isShown = p2Ans.classList.contains('show');
+  
+  if (isShown) {
+    p2Ans.classList.remove('show');
+    p3Ans.classList.remove('show');
+  } else {
+    p2Ans.classList.add('show');
+    p3Ans.classList.add('show');
+  }
+}
+
+function resetWorksheet() {
+  if (confirm('آیا می‌خواهید تمام پاسخ‌ها و یادداشت‌های این کاربرگ پاک شوند؟')) {
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+      el.value = '';
+      el.classList.remove('correct', 'incorrect', 'filled');
+    });
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      b.classList.remove('selected', 'is-correct', 'is-wrong');
+    });
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    clearAllCanvases();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initCanvases();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>جمع و تفریق فرایندی ۳ رقمی — سازنده: نیما آزمکان</title>
+  <style>
+    :root{
+      --bg1: #0d1322;
+      --bg2: #13283e;
+      --card: rgba(255, 255, 255, 0.07);
+      --stroke: rgba(255, 255, 255, 0.15);
+      --text: #f0f6ff;
+      --muted: rgba(240, 246, 255, 0.75);
+      --good: #22c55e;
+      --bad: #ef4444;
+      --accent: #38bdf8;
+      --accent2: #c084fc;
+      --shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    *{ box-sizing: border-box; }
+
+    body{
+      margin: 0;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(1000px 600px at 15% 15%, rgba(56, 189, 248, 0.22), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(168, 85, 247, 0.2), transparent 60%),
+        radial-gradient(800px 500px at 50% 90%, rgba(34, 197, 94, 0.18), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
+
+    /* Modal for Student Name */
+    .modal-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 10, 20, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card{
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke);
+      border-radius: 24px;
+      padding: 30px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .modal-card h2{ margin-top: 0; color: var(--accent); font-size: 20px; }
+    .modal-card input{
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+      margin: 15px 0 20px;
+    }
+
+    /* Top Bar */
+    .topbar{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 18px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .brand h1{
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #38bdf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .user-info{ display: flex; gap: 10px; flex-wrap: wrap; }
+    .badge{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--stroke);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      backdrop-filter: blur(8px);
+    }
+    .badge strong{ color: var(--accent); }
+
+    /* Main Grid */
+    main{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 18px 30px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+    @media (max-width: 880px){ main{ grid-template-columns: 1fr; } }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+
+    .cardHeader{
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--stroke);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(0,0,0,0.15);
+    }
+    .cardHeader .title{ font-weight: 800; font-size: 15px; }
+
+    .controls{ display: flex; gap: 8px; flex-wrap: wrap; }
+
+    select, button{
+      font-family: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.25);
+      color: var(--text);
+      padding: 8px 12px;
+      outline: none;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    select option { background: #111827; color: #fff; }
+    button:hover{ border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); }
+    .btn-primary{
+      background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+      border: none;
+      color: #000;
+      font-weight: 800;
+    }
+    .btn-export{
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+    .btn-export:hover{ background: rgba(34, 197, 94, 0.3); }
+
+    .content{ padding: 20px; }
+
+    .instruction{
+      background: rgba(56, 189, 248, 0.1);
+      border-right: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      color: var(--muted);
+    }
+
+    /* Process Table (LTR Layout) */
+    .math-container{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      direction: ltr;
+      margin: 10px 0;
+    }
+
+    .row-block{ display: flex; align-items: center; gap: 10px; }
+    .row-label{ width: 110px; text-align: right; font-size: 12px; color: var(--muted); direction: rtl; }
+    .digits-group{ display: flex; gap: 8px; position: relative; }
+
+    .cell{
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+      user-select: none;
+      position: relative;
+    }
+
+    .cell-given{
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .cell-op{ width: 40px; font-size: 28px; color: var(--accent); }
+
+    /* Borrow / Carry Box Above Ones Digit */
+    .borrow-box{
+      position: absolute;
+      top: -38px;
+      right: 12px;
+      width: 36px;
+      height: 32px;
+      border-radius: 8px;
+      border: 2px solid var(--accent2);
+      background: rgba(192, 132, 252, 0.25);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      text-align: center;
+      outline: none;
+      box-shadow: 0 0 10px rgba(192, 132, 252, 0.3);
+      display: none; /* Shown in Hard Mode */
+      transition: all 0.2s ease;
+    }
+    .borrow-box:focus{
+      border-color: #f472b6;
+      box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.3);
+    }
+    .borrow-box.ok{
+      border-color: var(--good) !important;
+      background: rgba(34, 197, 94, 0.3) !important;
+      color: #4ade80 !important;
+    }
+
+    .divider-line{
+      width: 270px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      margin: 4px 0 8px 110px;
+      border-radius: 99px;
+    }
+
+    /* Input Boxes */
+    .box-input{
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 28px;
+      font-weight: 900;
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .box-input:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .box-input[disabled]{ opacity: 0.4; cursor: not-allowed; border-color: transparent; }
+
+    .step-row{ padding: 6px 12px; border-radius: 16px; transition: background 0.3s ease; }
+    .step-row.active{
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px dashed rgba(56, 189, 248, 0.3);
+    }
+
+    .box-input.ok{
+      border-color: var(--good) !important;
+      background: rgba(34, 197, 94, 0.15) !important;
+      color: #4ade80 !important;
+    }
+
+    .box-input.bad{
+      border-color: var(--bad) !important;
+      background: rgba(239, 68, 68, 0.18) !important;
+      color: #f87171 !important;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake{
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+
+    /* Side Panel & Bar Chart */
+    .side-panel{ padding: 20px; }
+    .info-box{
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .info-box h3{ margin: 0 0 10px; font-size: 14px; color: var(--accent); }
+
+    /* Bar Chart Component */
+    .chart-container{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 120px;
+      padding-top: 15px;
+      border-bottom: 1px solid var(--stroke);
+      margin-bottom: 10px;
+    }
+    .bar-wrapper{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 45%;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .bar{
+      width: 100%;
+      max-width: 40px;
+      border-radius: 8px 8px 0 0;
+      transition: height 0.5s ease;
+      min-height: 4px;
+    }
+    .bar-good{ background: linear-gradient(180deg, #4ade80, #16a34a); }
+    .bar-bad{ background: linear-gradient(180deg, #f87171, #dc2626); }
+    .bar-label{ font-size: 11px; color: var(--muted); }
+    .bar-val{ font-size: 12px; font-weight: bold; }
+
+    .gauge-box{ text-align: center; padding: 8px 0; }
+    .gauge-val{ font-size: 26px; font-weight: 900; color: var(--accent2); }
+
+    /* Print / PDF Styles */
+    @media print{
+      body{ background: #fff !important; color: #000 !important; }
+      .modal-overlay, .controls, .topbar, .instruction, button, select{ display: none !important; }
+      main{ display: block !important; padding: 0 !important; }
+      .card{ background: #fff !important; color: #000 !important; border: 2px solid #333 !important; box-shadow: none !important; margin-bottom: 20px !important; }
+      .cardHeader{ background: #eee !important; color: #000 !important; border-bottom: 2px solid #333 !important; }
+      .cell-given{ background: #f0f0f0 !important; color: #000 !important; border: 1px solid #666 !important; }
+      .box-input{ background: #fff !important; color: #000 !important; border: 2px solid #333 !important; }
+      .print-header{ display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #000; padding-bottom: 15px; }
+      .bar-good{ background: #22c55e !important; }
+      .bar-bad{ background: #ef4444 !important; }
+    }
+
+    .print-header{ display: none; }
+
+    /* Confetti Canvas */
+    .confetti-container{ position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti-piece{ position: absolute; width: 10px; height: 14px; border-radius: 2px; animation: fall 2s ease-out forwards; }
+    @keyframes fall{
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Printable Header for PDF Export -->
+  <div class="print-header">
+    <h2>کارنامه ریاضی — جمع و تفریق فرایندی</h2>
+    <p>طراح برنامه: <b>نیما آزمکان</b></p>
+    <p>نام دانش‌آموز: <b id="printStudentName">---</b> | تاریخ: <b id="printDate">---</b></p>
+  </div>
+
+  <!-- Modal Get Student Name -->
+  <div class="modal-overlay" id="nameModal">
+    <div class="modal-card">
+      <h2>به تمرین ریاضی خوش آمدید!</h2>
+      <p style="font-size: 13px; color: var(--muted);">لطفاً نام دانش‌آموز را وارد کنید:</p>
+      <input type="text" id="studentNameInput" placeholder="مثلاً: علی رضایی" autofocus>
+      <button class="btn-primary" id="startBtn" style="width: 100%; padding: 12px;">شروع تمرین</button>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand">
+      <h1>جمع و تفریق فرایندی (۳ رقمی)</h1>
+    </div>
+    <div class="user-info">
+      <div class="badge">دانش‌آموز: <strong id="studentNameBadge">---</strong></div>
+      <button id="changeNameBtn" style="font-size:11px; padding:4px 8px;">تغییر نام</button>
+      <div class="badge">طراح: <strong>نیما آزمکان</strong></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left Card: Main Problem -->
+    <section class="card">
+      <div class="cardHeader">
+        <div class="title">سوال ریاضی</div>
+        <div class="controls">
+          <select id="diffSelect" title="سطح سختی">
+            <option value="easy">سطح: آسان</option>
+            <option value="medium" selected>سطح: متوسط</option>
+            <option value="hard">سطح: سخت (با رقم قرضی)</option>
+          </select>
+          <button class="btn-primary" id="newBtn">مسئله جدید</button>
+          <button id="resetBtn">پاک کردن</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="instruction" id="instructionText">
+          پاسخ‌ها را از <b>چپ به راست</b> (صدگان، دهگان، سپس یکان) وارد کن.
+        </div>
+
+        <div class="math-container" style="margin-top: 35px;">
+          <!-- Row A -->
+          <div class="row-block">
+            <div class="row-label">عدد اول</div>
+            <div class="cell cell-op"></div>
+            <div class="digits-group">
+              <div class="cell cell-given" id="aH">0</div>
+              <div class="cell cell-given" id="aT">0</div>
+              <div class="cell cell-given" id="aO">
+                0
+                <!-- Borrow/Carry Box فوق رقم یکان -->
+                <input class="borrow-box" id="borrowBoxO" maxlength="1" placeholder="۱" title="رقم قرضی / ده‌بریک یکان" inputmode="numeric" autocomplete="off">
+              </div>
+            </div>
+          </div>
+
+          <!-- Row B -->
+          <div class="row-block">
+            <div class="row-label">عدد دوم</div>
+            <div class="cell cell-op" id="opSymbol">+</div>
+            <div class="digits-group">
+              <div class="cell cell-given" id="bH">0</div>
+              <div class="cell cell-given" id="bT">0</div>
+              <div class="cell cell-given" id="bO">0</div>
+            </div>
+          </div>
+
+          <div class="divider-line"></div>
+
+          <!-- Step 1 (Hundreds) -->
+          <div class="row-block step-row" id="rowStep1">
+            <div class="row-label">مرحله ۱ (صدگان)</div>
+            <div class="cell cell-op"></div>
+            <div class="digits-group">
+              <input class="box-input" id="s1_H" maxlength="1" inputmode="numeric" autocomplete="off">
+              <input class="box-input" id="s1_T" maxlength="1" inputmode="numeric" autocomplete="off">
+              <input class="box-input" id="s1_O" maxlength="1" inputmode="numeric" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Step 2 (Tens) -->
+          <div class="row-block step-row" id="rowStep2">
+            <div class="row-label">مرحله ۲ (دهگان)</div>
+            <div class="cell cell-op"></div>
+            <div class="digits-group">
+              <input class="box-input" id="s2_H" maxlength="1" inputmode="numeric" autocomplete="off">
+              <input class="box-input" id="s2_T" maxlength="1" inputmode="numeric" autocomplete="off">
+              <input class="box-input" id="s2_O" maxlength="1" inputmode="numeric" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Step 3 (Ones) -->
+          <div class="row-block step-row" id="rowStep3">
+            <div class="row-label">مرحله ۳ (یکان)</div>
+            <div class="cell cell-op"></div>
+            <div class="digits-group">
+              <input class="box-input" id="s3_H" maxlength="1" inputmode="numeric" autocomplete="off">
+              <input class="box-input" id="s3_T" maxlength="1" inputmode="numeric" autocomplete="off">
+              <input class="box-input" id="s3_O" maxlength="1" inputmode="numeric" autocomplete="off">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Card: Stats & Chart -->
+    <aside class="card">
+      <div class="cardHeader">
+        <div class="title">نمودار و عملکرد</div>
+        <button class="btn-export" id="exportBtn">🖨️ چاپ / خروجی PDF</button>
+      </div>
+      <div class="side-panel">
+
+        <div class="info-box">
+          <h3>نمودار پاسخ‌ها</h3>
+          <div class="chart-container">
+            <div class="bar-wrapper">
+              <span class="bar-val" id="correctCountText">0</span>
+              <div class="bar bar-good" id="barGood" style="height: 0%;"></div>
+              <span class="bar-label">درست</span>
+            </div>
+            <div class="bar-wrapper">
+              <span class="bar-val" id="wrongCountText">0</span>
+              <div class="bar bar-bad" id="barBad" style="height: 0%;"></div>
+              <span class="bar-label">نادرست</span>
+            </div>
+          </div>
+
+          <div class="gauge-box">
+            <div style="font-size: 12px; color: var(--muted);">درصد موفقیت</div>
+            <div class="gauge-val" id="accuracyVal">0%</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <h3>راهنمای مرحله</h3>
+          <p id="stepHelpText" style="font-size:13px; line-height:1.8; color:var(--muted); margin:0;">
+            از سطر اول شروع کن.
+          </p>
+        </div>
+
+      </div>
+    </aside>
+  </main>
+
+  <div class="confetti-container" id="confettiBox"></div>
+
+<script>
+(() => {
+  // Elements
+  const nameModal = document.getElementById('nameModal');
+  const studentNameInput = document.getElementById('studentNameInput');
+  const startBtn = document.getElementById('startBtn');
+  const studentNameBadge = document.getElementById('studentNameBadge');
+  const changeNameBtn = document.getElementById('changeNameBtn');
+
+  const diffSelect = document.getElementById('diffSelect');
+  const newBtn = document.getElementById('newBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const exportBtn = document.getElementById('exportBtn');
+
+  const aH = document.getElementById('aH'), aT = document.getElementById('aT'), aO = document.getElementById('aO');
+  const bH = document.getElementById('bH'), bT = document.getElementById('bT'), bO = document.getElementById('bO');
+  const opSymbol = document.getElementById('opSymbol');
+  const borrowBoxO = document.getElementById('borrowBoxO');
+
+  const inputs = [
+    [document.getElementById('s1_H'), document.getElementById('s1_T'), document.getElementById('s1_O')],
+    [document.getElementById('s2_H'), document.getElementById('s2_T'), document.getElementById('s2_O')],
+    [document.getElementById('s3_H'), document.getElementById('s3_T'), document.getElementById('s3_O')]
+  ];
+
+  const rowSteps = [
+    document.getElementById('rowStep1'),
+    document.getElementById('rowStep2'),
+    document.getElementById('rowStep3')
+  ];
+
+  const correctCountText = document.getElementById('correctCountText');
+  const wrongCountText = document.getElementById('wrongCountText');
+  const barGood = document.getElementById('barGood');
+  const barBad = document.getElementById('barBad');
+  const accuracyVal = document.getElementById('accuracyVal');
+  const stepHelpText = document.getElementById('stepHelpText');
+  const confettiBox = document.getElementById('confettiBox');
+
+  const printStudentName = document.getElementById('printStudentName');
+  const printDate = document.getElementById('printDate');
+
+  // App State
+  let studentName = 'دانش‌آموز';
+  let A = 100, B = 100, op = 'add', difficulty = 'medium';
+  let target1 = 0, target2 = 0, target3 = 0;
+  let activeStep = 0;
+  let correctCount = 0, wrongCount = 0;
+  let needsBorrowOnes = false;
+
+  // Web Audio Synthesizer
+  let audioCtx = null;
+  function initAudio(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) audioCtx = new AC();
+    }
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function playSoundStepSuccess(){
+    initAudio(); if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, t);
+    osc.frequency.setValueAtTime(659.25, t + 0.08);
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.26);
+  }
+
+  function playSoundBoo(){
+    initAudio(); if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    for(let i = 0; i < 2; i++){
+      const startTime = t + i * 0.18;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(160, startTime);
+      osc.frequency.exponentialRampToValueAtTime(100, startTime + 0.14);
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(startTime); osc.stop(startTime + 0.16);
+    }
+  }
+
+  function playSoundApplause(){
+    initAudio(); if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t + idx*0.06);
+      gain.gain.setValueAtTime(0.001, t + idx*0.06);
+      gain.gain.exponentialRampToValueAtTime(0.12, t + idx*0.06 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t + idx*0.06); osc.stop(t + 0.65);
+    });
+  }
+
+  function pad3(num){ return String(num).padStart(3, '0'); }
+
+  // --- Dynamic Level & Problem Generator ---
+  function generateNumbers(){
+    op = Math.random() < 0.5 ? 'add' : 'sub';
+    difficulty = diffSelect.value;
+    needsBorrowOnes = false;
+
+    let ah, at, ao, bh, bt, bo;
+
+    if(difficulty === 'easy'){
+      if(op === 'add'){
+        ah = randInt(1, 3); bh = randInt(1, 4 - ah);
+        at = randInt(0, 3); bt = randInt(0, 4 - at);
+        ao = randInt(0, 3); bo = randInt(0, 4 - ao);
+      } else {
+        ah = randInt(2, 5); bh = randInt(1, ah - 1);
+        at = randInt(1, 5); bt = randInt(0, at);
+        ao = randInt(1, 5); bo = randInt(0, ao);
+      }
+      A = ah * 100 + at * 10 + ao;
+      B = bh * 100 + bt * 10 + bo;
+    } 
+    else if(difficulty === 'medium'){
+      if(op === 'add'){
+        ah = randInt(1, 8); bh = randInt(1, 9 - ah);
+        at = randInt(0, 8); bt = randInt(0, 9 - at);
+        ao = randInt(0, 8); bo = randInt(0, 9 - ao);
+      } else {
+        ah = randInt(1, 9); bh = randInt(1, ah);
+        at = randInt(0, 9); bt = randInt(0, at);
+        ao = randInt(0, 9); bo = randInt(0, ao);
+      }
+      A = ah * 100 + at * 10 + ao;
+      B = bh * 100 + bt * 10 + bo;
+    } 
+    else if(difficulty === 'hard'){
+      // Hard mode: Forces borrowing/carrying in ones
+      if(op === 'add'){
+        ao = randInt(5, 9);
+        bo = randInt(10 - ao, 9); // ao + bo >= 10
+        at = randInt(1, 7); bt = randInt(1, 8 - at);
+        ah = randInt(1, 7); bh = randInt(1, 8 - ah);
+        needsBorrowOnes = true; // Carry 1
+      } else {
+        // Subtraction with Borrowing in Ones
+        ao = randInt(0, 4);
+        bo = randInt(ao + 1, 9); // ao < bo -> Borrow needed!
+        at = randInt(1, 9); bt = randInt(0, at - 1); // Ensure tens can give
+        ah = randInt(2, 9); bh = randInt(1, ah);
+        needsBorrowOnes = true; // Borrow 1
+      }
+      A = ah * 100 + at * 10 + ao;
+      B = bh * 100 + bt * 10 + bo;
+    }
+  }
+
+  function calculateTargets(){
+    const bDigits = pad3(B).split('').map(Number);
+    const bHundredVal = bDigits[0] * 100;
+    const bTenVal = bDigits[1] * 10;
+    const bOneVal = bDigits[2];
+
+    if(op === 'add'){
+      target1 = A + bHundredVal;
+      target2 = target1 + bTenVal;
+      target3 = target2 + bOneVal;
+    } else {
+      target1 = A - bHundredVal;
+      target2 = target1 - bTenVal;
+      target3 = target2 - bOneVal;
+    }
+  }
+
+  function updateUIProblem(){
+    const aStr = pad3(A);
+    const bStr = pad3(B);
+
+    aH.childNodes[0].textContent = aStr[0]; 
+    aT.childNodes[0].textContent = aStr[1]; 
+    aO.childNodes[0].textContent = aStr[2];
+
+    bH.textContent = bStr[0]; 
+    bT.textContent = bStr[1]; 
+    bO.textContent = bStr[2];
+
+    opSymbol.textContent = (op === 'add') ? '+' : '−';
+
+    // Toggle Borrow Box in Hard Mode
+    if(difficulty === 'hard' && needsBorrowOnes){
+      borrowBoxO.style.display = 'block';
+      borrowBoxO.value = '';
+      borrowBoxO.classList.remove('ok');
+    } else {
+      borrowBoxO.style.display = 'none';
+    }
+
+    calculateTargets();
+    resetStepsUI();
+  }
+
+  function resetStepsUI(){
+    activeStep = 0;
+    inputs.forEach((row, rIdx) => {
+      row.forEach((inp) => {
+        inp.value = '';
+        inp.classList.remove('ok', 'bad');
+        inp.disabled = (rIdx !== 0);
+      });
+    });
+
+    rowSteps.forEach((r, idx) => {
+      r.classList.toggle('active', idx === 0);
+    });
+
+    updateHelpAndStatus();
+    setTimeout(() => { if(!nameModal.style.display || nameModal.style.display === 'none') inputs[0][0].focus(); }, 50);
+  }
+
+  function updateHelpAndStatus(){
+    const bStr = pad3(B);
+    const opSign = (op === 'add') ? '+' : '−';
+
+    if(activeStep === 0){
+      const val = Number(bStr[0]) * 100;
+      stepHelpText.innerHTML = `مرحله ۱: صدگان عدد دوم (${val}) را با عدد اول (${A}) حساب کن (${A} ${opSign} ${val}).`;
+    } else if(activeStep === 1){
+      const val = Number(bStr[1]) * 10;
+      stepHelpText.innerHTML = `مرحله ۲: دهگان عدد دوم (${val}) را به جواب سطر اول (${target1}) اضافه/کم کن.`;
+    } else if(activeStep === 2){
+      const val = Number(bStr[2]);
+      let extra = (difficulty === 'hard' && needsBorrowOnes) ? `<br><b style="color:var(--accent2)">نکته: رقم ۱ قرضی را در مربع بنفش بالای یکان وارد کن!</b>` : '';
+      stepHelpText.innerHTML = `مرحله ۳: یکان عدد دوم (${val}) را به جواب سطر دوم (${target2}) اضافه/کم کن.` + extra;
+    } else {
+      stepHelpText.innerHTML = `<b style="color:var(--good)">آفرین ${studentName}! مسئله با موفقیت حل شد.</b>`;
+    }
+
+    updateChart();
+    saveToLocalStorage();
+  }
+
+  function updateChart(){
+    correctCountText.textContent = correctCount;
+    wrongCountText.textContent = wrongCount;
+
+    const total = correctCount + wrongCount;
+    let pct = 0;
+    if(total > 0){
+      pct = Math.round((correctCount / total) * 100);
+    }
+
+    accuracyVal.textContent = pct + '%';
+
+    const maxVal = Math.max(correctCount, wrongCount, 5);
+    const goodH = (correctCount / maxVal) * 100;
+    const badH = (wrongCount / maxVal) * 100;
+
+    barGood.style.height = goodH + '%';
+    barBad.style.height = badH + '%';
+  }
+
+  // --- Borrow Box Validation ---
+  borrowBoxO.addEventListener('input', () => {
+    initAudio();
+    borrowBoxO.value = borrowBoxO.value.replace(/[^\d]/g, '').slice(-1);
+    if(borrowBoxO.value === '1'){
+      borrowBoxO.classList.add('ok');
+    } else {
+      borrowBoxO.classList.remove('ok');
+    }
+  });
+
+  // --- LocalStorage per Student ---
+  function saveToLocalStorage(){
+    if(!studentName) return;
+    const data = { correct: correctCount, wrong: wrongCount };
+    localStorage.setItem('math_student_' + studentName, JSON.stringify(data));
+  }
+
+  function loadFromLocalStorage(){
+    const raw = localStorage.getItem('math_student_' + studentName);
+    if(raw){
+      try{
+        const data = JSON.parse(raw);
+        correctCount = data.correct || 0;
+        wrongCount = data.wrong || 0;
+      }catch(e){}
+    } else {
+      correctCount = 0; wrongCount = 0;
+    }
+    updateChart();
+  }
+
+  function getStepTarget(stepIdx){
+    if(stepIdx === 0) return target1;
+    if(stepIdx === 1) return target2;
+    if(stepIdx === 2) return target3;
+    return 0;
+  }
+
+  function checkStep(stepIdx){
+    const rowInps = inputs[stepIdx];
+    const userStr = rowInps.map(i => i.value).join('');
+
+    if(userStr.length < 3) return;
+
+    const userVal = Number(userStr);
+    const expectedVal = getStepTarget(stepIdx);
+
+    if(userVal === expectedVal){
+      rowInps.forEach(i => { i.classList.remove('bad'); i.classList.add('ok'); i.disabled = true; });
+
+      if(stepIdx < 2){
+        playSoundStepSuccess();
+        activeStep++;
+        rowSteps.forEach((r, idx) => r.classList.toggle('active', idx === activeStep));
+        inputs[activeStep].forEach(i => i.disabled = false);
+        inputs[activeStep][0].focus();
+        updateHelpAndStatus();
+      } else {
+        activeStep = 3;
+        correctCount++;
+        updateHelpAndStatus();
+        playSoundApplause();
+        triggerConfetti();
+
+        // Broadcast completion to parent frame if embedded
+        try {
+          window.parent?.postMessage({
+            type: 'MATH_APP_COMPLETED',
+            appId: 'g2-process-add-sub',
+            gradeId: 'g2',
+            problem: `${A} ${op === 'add' ? '+' : '−'} ${B}`,
+            correctCount,
+            wrongCount,
+          }, '*');
+        } catch(e){}
+
+        setTimeout(() => generateNewProblem(), 1800);
+      }
+    } else {
+      wrongCount++;
+      updateHelpAndStatus();
+      playSoundBoo();
+      rowInps.forEach(i => i.classList.add('bad'));
+
+      setTimeout(() => {
+        rowInps.forEach(i => {
+          i.classList.remove('bad');
+          i.value = '';
+        });
+        rowInps[0].focus();
+      }, 450);
+    }
+  }
+
+  function setupInputEvents(){
+    inputs.forEach((row, stepIdx) => {
+      row.forEach((inp, colIdx) => {
+        inp.addEventListener('input', () => {
+          initAudio();
+          inp.value = inp.value.replace(/[^\d]/g, '').slice(-1);
+
+          if(inp.value.length === 1){
+            if(colIdx < 2){
+              row[colIdx + 1].focus();
+            } else {
+              checkStep(stepIdx);
+            }
+          }
+        });
+
+        inp.addEventListener('keydown', (e) => {
+          initAudio();
+          if(e.key === 'Backspace' && !inp.value && colIdx > 0){
+            row[colIdx - 1].focus();
+          }
+        });
+      });
+    });
+  }
+
+  function generateNewProblem(){
+    generateNumbers();
+    updateUIProblem();
+  }
+
+  function randInt(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function triggerConfetti(){
+    confettiBox.innerHTML = '';
+    const colors = ['#38bdf8', '#a855f7', '#22c55e', '#f59e0b', '#ec4899'];
+    for(let i=0; i<70; i++){
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+      p.style.animationDelay = (Math.random() * 0.2) + 's';
+      confettiBox.appendChild(p);
+    }
+    setTimeout(() => { confettiBox.innerHTML = ''; }, 2200);
+  }
+
+  // PDF Export / Print
+  exportBtn.addEventListener('click', () => {
+    printStudentName.textContent = studentName;
+    const now = new Date();
+    printDate.textContent = now.toLocaleDateString('fa-IR');
+    window.print();
+  });
+
+  // Modal Handlers
+  startBtn.addEventListener('click', () => {
+    initAudio();
+    const val = studentNameInput.value.trim();
+    if(val) studentName = val;
+    studentNameBadge.textContent = studentName;
+    nameModal.style.display = 'none';
+    loadFromLocalStorage();
+    inputs[0][0].focus();
+    updateHelpAndStatus();
+  });
+
+  changeNameBtn.addEventListener('click', () => {
+    nameModal.style.display = 'flex';
+    studentNameInput.focus();
+  });
+
+  studentNameInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') startBtn.click();
+  });
+
+  // Check URL params for studentName
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.has('studentName')){
+    const qName = decodeURIComponent(urlParams.get('studentName') || '').trim();
+    if(qName){
+      studentName = qName;
+      studentNameBadge.textContent = studentName;
+      nameModal.style.display = 'none';
+      loadFromLocalStorage();
+    }
+  }
+
+  // Listen for parent messages
+  window.addEventListener('message', (e) => {
+    if(e.data && e.data.type === 'INIT_STUDENT' && e.data.studentName){
+      studentName = e.data.studentName;
+      studentNameBadge.textContent = studentName;
+      nameModal.style.display = 'none';
+      loadFromLocalStorage();
+      updateHelpAndStatus();
+    }
+  });
+
+  // Controls Listeners
+  newBtn.addEventListener('click', generateNewProblem);
+  resetBtn.addEventListener('click', resetStepsUI);
+  diffSelect.addEventListener('change', generateNewProblem);
+
+  // Init
+  setupInputEvents();
+  generateNewProblem();
+})();
+</script>
+</body>
+</html>
